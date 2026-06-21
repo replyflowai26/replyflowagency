@@ -1,38 +1,147 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ReplyFlow Agency</title>
+<title>ReplyFlow Agency | AI Automation Solutions</title>
+
 <style>
-body{
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
 font-family:Arial,sans-serif;
-background:#0f172a;
+}
+
+body{
+background:#07142f;
 color:white;
-text-align:center;
-padding:50px;
+line-height:1.6;
 }
-h1{
-font-size:50px;
-}
-p{
-font-size:20px;
-max-width:700px;
+
+.container{
+width:90%;
+max-width:1200px;
 margin:auto;
 }
+
+.hero{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+text-align:center;
+}
+
+.hero h1{
+font-size:70px;
+margin-bottom:20px;
+}
+
+.hero p{
+font-size:24px;
+max-width:800px;
+margin:auto;
+margin-bottom:30px;
+}
+
 .btn{
 display:inline-block;
 padding:15px 30px;
 background:#3b82f6;
 color:white;
 text-decoration:none;
+border-radius:10px;
+font-size:18px;
+}
+
+section{
+padding:80px 0;
+}
+
+.section-title{
+text-align:center;
+font-size:40px;
+margin-bottom:50px;
+}
+
+.services{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+}
+
+.card{
+background:#10244f;
+padding:30px;
+border-radius:15px;
+text-align:center;
+}
+
+.card h3{
+margin-bottom:15px;
+}
+
+.about{
+text-align:center;
+max-width:900px;
+margin:auto;
+font-size:20px;
+}
+
+.contact{
+text-align:center;
+}
+
+.contact-form{
+max-width:600px;
+margin:auto;
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+.contact-form input,
+.contact-form textarea{
+padding:15px;
+border:none;
 border-radius:8px;
-margin-top:20px;
+}
+
+.contact-form button{
+padding:15px;
+border:none;
+background:#3b82f6;
+color:white;
+font-size:18px;
+border-radius:8px;
+cursor:pointer;
+}
+
+footer{
+background:#041022;
+padding:30px;
+text-align:center;
+}
+
+.whatsapp{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#25D366;
+color:white;
+padding:15px 20px;
+border-radius:50px;
+text-decoration:none;
+font-weight:bold;
 }
 </style>
 </head>
+
 <body>
 
+<section class="hero">
+<div class="container">
 <h1>ReplyFlow Agency</h1>
 
 <p>
@@ -41,8 +150,108 @@ We help businesses automate lead generation,
 customer support and workflows using AI.
 </p>
 
-<a class="btn" href="mailto:replyflowai26@gmail.com">
+<a href="mailto:replyflowai26@gmail.com" class="btn">
 Contact Us
+</a>
+
+</div>
+</section>
+
+<section>
+<div class="container">
+<h2 class="section-title">Our Services</h2>
+
+<div class="services">
+
+<div class="card">
+<h3>AI Chatbots</h3>
+<p>24/7 customer support with AI.</p>
+</div>
+
+<div class="card">
+<h3>WhatsApp Automation</h3>
+<p>Automate conversations and lead capture.</p>
+</div>
+
+<div class="card">
+<h3>Lead Generation</h3>
+<p>Generate qualified leads automatically.</p>
+</div>
+
+<div class="card">
+<h3>CRM Automation</h3>
+<p>Connect and automate your workflows.</p>
+</div>
+
+<div class="card">
+<h3>Customer Support AI</h3>
+<p>Reduce support costs with AI assistants.</p>
+</div>
+
+<div class="card">
+<h3>Workflow Automation</h3>
+<p>Save time and boost productivity.</p>
+</div>
+
+</div>
+</div>
+</section>
+
+<section>
+<div class="container">
+<h2 class="section-title">Why Choose Us?</h2>
+
+<div class="about">
+<p>
+We help businesses save time, reduce costs,
+increase leads and provide better customer support
+through AI-powered automation systems.
+</p>
+</div>
+
+</div>
+</section>
+
+<section class="contact">
+<div class="container">
+
+<h2 class="section-title">Contact Us</h2>
+
+<form class="contact-form">
+
+<input type="text" placeholder="Your Name">
+
+<input type="email" placeholder="Your Email">
+
+<input type="text" placeholder="Business Name">
+
+<textarea rows="5" placeholder="Tell us about your project"></textarea>
+
+<button type="button"
+onclick="window.location.href='mailto:replyflowai26@gmail.com'">
+Send Inquiry
+</button>
+
+</form>
+
+</div>
+</section>
+
+<footer>
+
+<h3>ReplyFlow Agency</h3>
+
+<p>Email: replyflowai26@gmail.com</p>
+
+<p>AI Automation Solutions for Businesses</p>
+
+</footer>
+
+<a
+class="whatsapp"
+href="https://wa.me/916354044155"
+target="_blank">
+WhatsApp
 </a>
 
 </body>
