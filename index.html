@@ -217,18 +217,19 @@ through AI-powered automation systems.
 
 <h2 class="section-title">Contact Us</h2>
 
-<form class="contact-form">
+<form action="https://formsubmit.co/replyflowai26@gmail.com" method="POST" class="contact-form">
 
-<input type="text" placeholder="Your Name">
+<input type="text" name="name" placeholder="Your Name" required>
 
-<input type="email" placeholder="Your Email">
+<input type="email" name="email" placeholder="Your Email" required>
 
-<input type="text" placeholder="Business Name">
+<input type="text" name="business" placeholder="Business Name">
 
-<textarea rows="5" placeholder="Tell us about your project"></textarea>
+<textarea name="message" rows="5" placeholder="Tell us about your project" required></textarea>
 
-<button type="button"
-onclick="window.location.href='mailto:replyflowai26@gmail.com'">
+<input type="hidden" name="_subject" value="New Lead From ReplyFlow Agency">
+
+<button type="submit">
 Send Inquiry
 </button>
 
