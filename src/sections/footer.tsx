@@ -1,0 +1,2 @@
+import {siteConfig} from "@/config/site";
+export function Footer(){return <footer className="border-t border-white/10 py-8"><div className="container flex flex-col gap-3 text-sm text-white/40 sm:flex-row sm:justify-between"><span>© {new Date().getFullYear()} {siteConfig.name}</span><span>AI Automation Systems</span></div></footer>}
