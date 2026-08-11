@@ -1,0 +1,29 @@
+REPLYFLOW-AI SETUP
+
+STEP 1:
+Extract the ZIP.
+
+STEP 2:
+Open ReplyFlow-AI-Final.
+
+STEP 3:
+Keep all client projects inside Projects/Active.
+
+STEP 4:
+Each new service starts from Services/.
+Duplicate an existing service folder when creating a new AI product.
+
+STEP 5:
+Store workflows in Workflows/Production.
+Never edit Production directly. Test inside Workflows/Testing first.
+
+STEP 6:
+Keep SOPs, pricing, deployment docs and roadmap inside Docs.
+
+STEP 7:
+Store logos, PDFs, videos and images inside Assets.
+
+STEP 8:
+Maintain branding inside Branding.
+
+This structure is designed so your agency can scale from 1 client to 100+ clients without reorganizing files.

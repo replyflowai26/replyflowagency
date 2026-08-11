@@ -1,0 +1,2 @@
+import {Navbar} from "@/components/navbar"; import {Hero} from "@/sections/hero"; import {Services} from "@/sections/services"; import {Process} from "@/sections/process"; import {CTA} from "@/sections/cta"; import {Footer} from "@/sections/footer";
+export default function Home(){return <main><Navbar/><Hero/><Services/><Process/><CTA/><Footer/></main>}

@@ -1,22 +1,13 @@
-# ReplyFlow Agency
+# ReplyFlow AI Website
+Production-oriented marketing website foundation.
 
-Official Assets Repository
+Run:
+`npm install`
+`npm run dev`
 
-## Contents
+Production check:
+`npm run lint`
+`npm run build`
+`npm start`
 
-- Branding
-- Logo
-- Brand Guide
-- SOP
-- Templates
-- Client Documents
-- Contracts
-- Marketing
-- Social Media
-- Proposal
-- Pricing
-- Sales Assets
-
-## Status
-
-🚧 Internal Company Repository
+Architecture: `src/app` routes, `src/components` reusable UI, `src/sections` landing sections, `src/config` content, `src/lib` utilities, `src/types` types, `public` assets.
