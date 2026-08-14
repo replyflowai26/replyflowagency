@@ -1,168 +1,202 @@
-﻿"use client";
+﻿"use client"
 
-import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react"
+import { useState } from "react"
+import { services, type Service } from "@/data/services"
 
-type Service = {
-  number: string;
-  title: string;
-  description: string;
-  steps: string[];
-};
-
-const services: Service[] = [
-  {
-    number: "01",
-    title: "Lead Generation",
-    description: "Capture, enrich and route qualified leads automatically.",
-    steps: ["Find leads", "Enrich data", "AI qualification", "CRM routing", "Follow-up"],
-  },
-  {
-    number: "02",
-    title: "Sales Automation",
-    description: "Qualify prospects and keep follow-ups moving automatically.",
-    steps: ["New prospect", "AI qualification", "Personalized outreach", "Follow-up", "Booked meeting"],
-  },
-  {
-    number: "03",
-    title: "Customer Support",
-    description: "Give customers fast, consistent AI-assisted support.",
-    steps: ["Customer message", "AI understands", "Knowledge lookup", "Response", "Escalation"],
-  },
-  {
-    number: "04",
-    title: "Operations",
-    description: "Connect repetitive business tasks into reliable workflows.",
-    steps: ["Trigger", "Process data", "AI decision", "Automation", "Complete"],
-  },
-  {
-    number: "05",
-    title: "Reporting",
-    description: "Turn operational data into useful decision signals.",
-    steps: ["Collect data", "Analyze", "AI insights", "Report", "Decision"],
-  },
-  {
-    number: "06",
-    title: "Custom AI Systems",
-    description: "Design an AI system around the way your business works.",
-    steps: ["Audit", "Architecture", "Build", "Integrate", "Optimize"],
-  },
-];
-
-export function ServiceExperience() {
-  const [selected, setSelected] = useState<Service | null>(null);
-
+function ServiceDetail({
+  service,
+  onClose,
+}: {
+  service: Service
+  onClose: () => void
+}) {
   return (
-    <>
-      <section id="services" className="border-t border-white/10 py-28">
-        <div className="container">
-          <div className="mb-12 max-w-3xl">
-            <p className="mb-4 text-sm font-medium tracking-widest text-cyan-300">
-              WHAT WE BUILD
-            </p>
+    <motion.div
+      initial={{ opacity: 0, y: 24, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 16, scale: 0.98 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      className="mt-6 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] backdrop-blur-xl"
+    >
+      <div className="grid gap-8 p-6 md:p-10 lg:grid-cols-[1.1fr_.9fr]">
+        <div>
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <span className="text-sm font-medium tracking-[0.18em] text-cyan-300">
+              {service.number} / SYSTEM
+            </span>
 
-            <h2 className="text-4xl font-semibold tracking-tight text-white md:text-6xl">
-              One automation layer for the work that slows you down.
-            </h2>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-full border border-white/10 px-4 py-2 text-sm text-white/70 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+            >
+              Close
+            </button>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            {services.map((service) => (
+          <h3 className="max-w-2xl text-3xl font-semibold tracking-tight text-white md:text-5xl">
+            {service.title}
+          </h3>
+
+          <p className="mt-5 max-w-2xl text-base leading-7 text-white/60 md:text-lg">
+            {service.detail}
+          </p>
+
+          <div className="mt-8 grid gap-5 md:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-cyan-300">
+                The problem
+              </p>
+              <p className="mt-3 text-sm leading-6 text-white/60">
+                {service.description}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-cyan-300">
+                The outcome
+              </p>
+              <p className="mt-3 text-sm leading-6 text-white/60">
+                {service.detail}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-black/20 p-6">
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-cyan-300">
+            Automation flow
+          </p>
+
+          <div className="mt-6 space-y-3">
+            {service.steps.map((step, index) => (
+              <motion.div
+                key={step}
+                initial={{ opacity: 0, x: 18 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{
+                  duration: 0.35,
+                  delay: index * 0.08,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.025] p-4"
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-cyan-300/20 text-xs text-cyan-300">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+
+                <span className="text-sm font-medium text-white/80">
+                  {step}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+
+          <a
+            href="#contact"
+            onClick={onClose}
+            className="mt-6 flex w-full items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-white/90"
+          >
+            Automate this workflow
+          </a>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+export function ServiceExperience() {
+  const [selected, setSelected] = useState<string | null>(null)
+
+  const selectedService =
+    services.find((service) => service.id === selected) ?? null
+
+  return (
+    <section id="services" className="border-t border-white/10 py-24 md:py-32">
+      <div className="container">
+        <div className="max-w-3xl">
+          <p className="text-sm font-medium tracking-[0.18em] text-cyan-300">
+            WHAT WE AUTOMATE
+          </p>
+
+          <h2 className="mt-4 text-4xl font-semibold tracking-tight text-white md:text-6xl">
+            Systems that remove repetitive work.
+          </h2>
+
+          <p className="mt-6 max-w-2xl text-base leading-7 text-white/55 md:text-lg">
+            Explore how ReplyFlow AI can connect AI, data and business tools
+            into measurable operational workflows.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-4 md:grid-cols-2">
+          {services.map((service, index) => {
+            const isSelected = selected === service.id
+
+            return (
               <motion.button
-                key={service.number}
+                key={service.id}
                 type="button"
-                onClick={() => setSelected(service)}
+                onClick={() =>
+                  setSelected(isSelected ? null : service.id)
+                }
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{
+                  duration: 0.45,
+                  delay: index * 0.05,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
                 whileHover={{ y: -4 }}
                 whileTap={{ scale: 0.99 }}
-                className="group rounded-3xl border border-white/10 bg-white/[0.035] p-8 text-left transition-colors hover:border-cyan-300/30 hover:bg-white/[0.055]"
+                className={`group text-left rounded-3xl border p-6 transition-colors md:p-8 ${
+                  isSelected
+                    ? "border-cyan-300/30 bg-cyan-300/[0.05]"
+                    : "border-white/10 bg-white/[0.025] hover:border-white/20 hover:bg-white/[0.045]"
+                }`}
               >
-                <span className="text-sm text-white/35">{service.number}</span>
+                <div className="flex items-start justify-between gap-6">
+                  <span className="text-sm text-white/35">
+                    {service.number}
+                  </span>
 
-                <h3 className="mt-12 text-2xl font-semibold text-white">
+                  <motion.span
+                    animate={{ rotate: isSelected ? 45 : 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="text-2xl font-light text-white/50"
+                  >
+                    +
+                  </motion.span>
+                </div>
+
+                <h3 className="mt-12 text-xl font-semibold text-white md:text-2xl">
                   {service.title}
                 </h3>
 
-                <p className="mt-3 max-w-md text-base leading-7 text-white/55">
+                <p className="mt-3 max-w-md text-sm leading-6 text-white/55">
                   {service.description}
                 </p>
 
-                <span className="mt-8 inline-block text-sm font-medium text-cyan-300 opacity-70 transition-opacity group-hover:opacity-100">
-                  Explore system →
+                <span className="mt-6 inline-block text-xs font-medium uppercase tracking-[0.14em] text-cyan-300/80">
+                  {isSelected ? "Viewing system" : "Explore system"}
                 </span>
               </motion.button>
-            ))}
-          </div>
+            )
+          })}
         </div>
-      </section>
 
-      <AnimatePresence>
-        {selected && (
-          <motion.div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-xl"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelected(null)}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 30, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.98 }}
-              transition={{ duration: 0.35 }}
-              onClick={(event) => event.stopPropagation()}
-              className="w-full max-w-4xl overflow-hidden rounded-[2rem] border border-white/10 bg-[#0d0e12] shadow-2xl"
-            >
-              <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
-                <div>
-                  <p className="text-xs tracking-widest text-cyan-300">
-                    AI SYSTEM
-                  </p>
-                  <h3 className="mt-1 text-2xl font-semibold text-white">
-                    {selected.title}
-                  </h3>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setSelected(null)}
-                  className="rounded-full border border-white/10 px-4 py-2 text-sm text-white/60 transition hover:bg-white/10 hover:text-white"
-                >
-                  Close
-                </button>
-              </div>
-
-              <div className="p-6 md:p-10">
-                <div className="mb-8 rounded-2xl border border-cyan-300/10 bg-cyan-300/[0.025] p-6">
-                  <div className="flex flex-wrap items-center gap-3">
-                    {selected.steps.map((step, index) => (
-                      <motion.div
-                        key={step}
-                        initial={{ opacity: 0, x: -15 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.15 }}
-                        className="flex items-center gap-3"
-                      >
-                        <div className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-medium text-white">
-                          {step}
-                        </div>
-
-                        {index < selected.steps.length - 1 && (
-                          <span className="text-cyan-300/60">→</span>
-                        )}
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-
-                <p className="max-w-2xl text-lg leading-8 text-white/60">
-                  {selected.description} The system connects AI, business data
-                  and automation into one measurable workflow.
-                </p>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
+        <AnimatePresence mode="wait">
+          {selectedService && (
+            <ServiceDetail
+              key={selectedService.id}
+              service={selectedService}
+              onClose={() => setSelected(null)}
+            />
+          )}
+        </AnimatePresence>
+      </div>
+    </section>
+  )
 }
