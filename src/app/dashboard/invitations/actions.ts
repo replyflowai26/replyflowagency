@@ -3,8 +3,10 @@
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 
-const allowedRoles = new Set(["member", "viewer"] as const)
 type InviteRole = "member" | "viewer"
+type InviteFormState = { error?: string; success?: boolean }
+
+const allowedRoles = new Set(["member", "viewer"] as const)
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
@@ -15,7 +17,10 @@ function getSiteUrl() {
   return value.startsWith("http") ? value.replace(/\/$/, "") : `https://${value}`
 }
 
-export async function inviteOrganizationMember(formData: FormData) {
+export async function inviteOrganizationMember(
+  _previousState: InviteFormState,
+  formData: FormData,
+): Promise<InviteFormState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase()
   const roleValue = String(formData.get("role") ?? "member")
   const role: InviteRole = allowedRoles.has(roleValue as InviteRole)
