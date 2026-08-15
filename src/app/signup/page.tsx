@@ -7,13 +7,30 @@ import { createClient } from "@/lib/supabase/client"
 import { AuthShell } from "@/components/auth-shell"
 
 function signupErrorMessage(message: string) {
-  const normalized = message.toLowerCase()
+  const normalized = message.trim().toLowerCase()
+
   if (normalized.includes("already registered") || normalized.includes("already exists") || normalized.includes("user already")) {
     return "An account with this email already exists. Sign in instead or use Forgot password."
   }
-  if (normalized.includes("password")) return "Password does not meet Supabase security requirements. Use at least 8 characters and try again."
-  if (normalized.includes("email")) return "Please enter a valid email address."
-  if (normalized.includes("rate limit") || normalized.includes("too many requests")) return "Too many signup attempts. Please wait a moment and try again."
+
+  if (normalized.includes("password")) {
+    return "Password does not meet Supabase security requirements. Use at least 8 characters and try again."
+  }
+
+  if (
+    normalized === "invalid email" ||
+    normalized === "invalid email address" ||
+    normalized.includes("invalid email format") ||
+    normalized.includes("email address is invalid")
+  ) {
+    return "Please enter a valid email address."
+  }
+
+  if (normalized.includes("rate limit") || normalized.includes("too many requests")) {
+    return "Too many signup attempts. Please wait a moment and try again."
+  }
+
+  // Do not misclassify unrelated Supabase/API errors as email-validation errors.
   return `Signup failed: ${message}`
 }
 
