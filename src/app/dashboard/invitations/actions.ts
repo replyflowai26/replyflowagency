@@ -48,7 +48,7 @@ export async function inviteOrganizationMember(formData: FormData) {
 
   const admin = createAdminClient()
   const { data: inviteData, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${getSiteUrl()}/auth/callback?next=/dashboard`,
+    redirectTo: `${getSiteUrl()}/auth/confirm?next=/dashboard`,
   })
 
   if (inviteError || !inviteData.user) {
