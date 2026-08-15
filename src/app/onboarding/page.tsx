@@ -1,20 +1,12 @@
 "use client"
 
 import { useActionState } from "react"
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { createOrganization } from "./actions"
 
 const initialState: { error?: string } = {}
 
 export default function OnboardingPage() {
-  const router = useRouter()
   const [state, formAction, isPending] = useActionState(createOrganization, initialState)
-
-  useEffect(() => {
-    // Authentication is enforced again inside the server action.
-    // Keep navigation server-safe by only reacting to a successful redirect.
-  }, [])
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#050609] px-6 text-white">
