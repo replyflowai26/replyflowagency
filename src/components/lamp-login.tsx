@@ -1,14 +1,54 @@
 ﻿"use client";
 
 import { motion, useMotionValue } from "motion/react";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { type FormEvent, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export function LampLogin() {
   const [isOn, setIsOn] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const ropeY = useMotionValue(0);
+  const router = useRouter();
 
   function toggleLamp() {
     setIsOn((value) => !value);
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setErrorMessage("");
+
+    const normalizedEmail = email.trim();
+    if (!normalizedEmail || !password) {
+      setErrorMessage("Enter your email address and password.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password,
+      });
+
+      if (error) {
+        setErrorMessage("Unable to sign in. Check your email and password.");
+        return;
+      }
+
+      router.replace("/dashboard");
+      router.refresh();
+    } catch {
+      setErrorMessage("Unable to sign in right now. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -87,24 +127,45 @@ export function LampLogin() {
             Enter your workspace and continue building automated systems.
           </p>
 
-          <form className="mt-8 space-y-4">
+          <form className="mt-8 space-y-4" onSubmit={handleSubmit} noValidate>
             <input
               type="email"
+              name="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               placeholder="Email address"
+              autoComplete="email"
+              aria-label="Email address"
+              required
+              disabled={isSubmitting}
               className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-cyan-300/40"
             />
 
             <input
               type="password"
+              name="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
               placeholder="Password"
+              autoComplete="current-password"
+              aria-label="Password"
+              required
+              disabled={isSubmitting}
               className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-cyan-300/40"
             />
 
+            {errorMessage && (
+              <p className="text-sm text-rose-300" role="alert">
+                {errorMessage}
+              </p>
+            )}
+
             <button
               type="submit"
+              disabled={isSubmitting}
               className="w-full rounded-xl bg-white px-4 py-3 font-semibold text-black transition hover:bg-cyan-100"
             >
-              Sign in
+              {isSubmitting ? "Signing in…" : "Sign in"}
             </button>
           </form>
         </div>
