@@ -4,3 +4,4 @@ out
 .env*
 .vercel
 *.log
+supabase/.temp/
