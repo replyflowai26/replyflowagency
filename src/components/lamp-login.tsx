@@ -1,53 +1,54 @@
-﻿"use client";
+"use client"
 
-import { motion, useMotionValue } from "motion/react";
-import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import Link from "next/link"
+import { motion, useMotionValue } from "motion/react"
+import { useRouter } from "next/navigation"
+import { type FormEvent, useState } from "react"
+import { createClient } from "@/lib/supabase/client"
 
 export function LampLogin() {
-  const [isOn, setIsOn] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const ropeY = useMotionValue(0);
-  const router = useRouter();
+  const [isOn, setIsOn] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const ropeY = useMotionValue(0)
+  const router = useRouter()
 
   function toggleLamp() {
-    setIsOn((value) => !value);
+    setIsOn((value) => !value)
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setErrorMessage("");
+    event.preventDefault()
+    setErrorMessage("")
 
-    const normalizedEmail = email.trim();
+    const normalizedEmail = email.trim()
     if (!normalizedEmail || !password) {
-      setErrorMessage("Enter your email address and password.");
-      return;
+      setErrorMessage("Enter your email address and password.")
+      return
     }
 
-    setIsSubmitting(true);
+    setIsSubmitting(true)
 
     try {
-      const supabase = createClient();
+      const supabase = createClient()
       const { error } = await supabase.auth.signInWithPassword({
         email: normalizedEmail,
         password,
-      });
+      })
 
       if (error) {
-        setErrorMessage("Unable to sign in. Check your email and password.");
-        return;
+        setErrorMessage("Unable to sign in. Check your email and password.")
+        return
       }
 
-      router.replace("/dashboard");
-      router.refresh();
+      router.replace("/dashboard")
+      router.refresh()
     } catch {
-      setErrorMessage("Unable to sign in right now. Please try again.");
+      setErrorMessage("Unable to sign in right now. Please try again.")
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
   }
 
@@ -92,8 +93,8 @@ export function LampLogin() {
           drag="y"
           dragConstraints={{ top: 0, bottom: 70 }}
           onDragEnd={() => {
-            toggleLamp();
-            ropeY.set(0);
+            toggleLamp()
+            ropeY.set(0)
           }}
           className="relative flex cursor-grab flex-col items-center active:cursor-grabbing"
         >
@@ -163,13 +164,22 @@ export function LampLogin() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-xl bg-white px-4 py-3 font-semibold text-black transition hover:bg-cyan-100"
+              className="w-full rounded-xl bg-white px-4 py-3 font-semibold text-black transition hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? "Signing in…" : "Sign in"}
             </button>
           </form>
+
+          <div className="mt-5 flex items-center justify-between text-sm text-white/50">
+            <Link className="transition hover:text-cyan-200" href="/forgot-password">
+              Forgot password?
+            </Link>
+            <Link className="text-cyan-300 transition hover:text-cyan-200" href="/signup">
+              Create account
+            </Link>
+          </div>
         </div>
       </motion.div>
     </main>
-  );
+  )
 }
