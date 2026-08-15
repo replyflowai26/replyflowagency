@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
 import { ClientCreateForm } from "./client-create-form"
 import type { Client } from "@/types/client"
 
