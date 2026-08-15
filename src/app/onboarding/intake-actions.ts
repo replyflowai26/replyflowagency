@@ -48,7 +48,7 @@ export async function saveClientIntake(_previous: IntakeState, formData: FormDat
   }
 
   const { error } = await supabase.from("client_intake_profiles").upsert({
-    organization_id: organizationId, contact_name: contactName, company_name: companyName, website_url: websiteUrl, industry, company_size: companySize, country, timezone, business_description: businessDescription, primary_goal: primaryGoal, biggest_problem: biggestProblem, current_tools: list(formData, "currentTools"), requested_services: list(formData, "requestedServices"), monthly_budget: monthlyBudget, budget_currency: budgetCurrency, timeline, lead_volume, sales_channels: list(formData, "salesChannels"), automation_readiness: automationReadiness, notes, intake_completed_at: new Date().toISOString(),
+    organization_id: organizationId, contact_name: contactName, company_name: companyName, website_url: websiteUrl, industry, company_size: companySize, country, timezone, business_description: businessDescription, primary_goal: primaryGoal, biggest_problem: biggestProblem, current_tools: list(formData, "currentTools"), requested_services: list(formData, "requestedServices"), monthly_budget: monthlyBudget, budget_currency: budgetCurrency, timeline, lead_volume: leadVolume, sales_channels: list(formData, "salesChannels"), automation_readiness: automationReadiness, notes, intake_completed_at: new Date().toISOString(),
   }, { onConflict: "organization_id" })
 
   if (error) return { error: "Unable to save your client profile. Please try again." }
