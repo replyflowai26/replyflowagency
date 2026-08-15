@@ -10,8 +10,9 @@ export function Services() {
 
   return (
     <>
-      <section id="services" className="relative overflow-hidden py-28 sm:py-36">
-        <div className="container">
+      <section id="services" className="services-section relative overflow-hidden py-28 sm:py-36">
+        <div className="services-network absolute inset-0 opacity-40" aria-hidden="true" />
+        <div className="container relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -34,7 +35,7 @@ export function Services() {
                 key={service.id}
                 type="button"
                 onClick={() => setSelectedService(service)}
-                className="group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.025] p-7 text-left transition-colors hover:border-cyan-300/20 hover:bg-white/[0.045] sm:p-8"
+                className="group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#080b10]/75 p-7 text-left shadow-2xl shadow-black/10 backdrop-blur-xl transition-colors hover:border-cyan-300/20 hover:bg-[#0b1017]/90 sm:p-8"
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.18 }}
