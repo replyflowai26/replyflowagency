@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { motion, useMotionValue } from "motion/react"
 import { useRouter } from "next/navigation"
-import { type FormEvent, useState } from "react"
+import { type FormEvent, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 
 export function LampLogin() {
@@ -14,6 +14,18 @@ export function LampLogin() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const ropeY = useMotionValue(0)
   const router = useRouter()
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+
+    if (params.get("error") === "auth_callback" || params.get("error") === "auth_confirmation") {
+      setErrorMessage("That authentication link is invalid or expired. Please request a new one.")
+    }
+
+    if (params.get("reset") === "success") {
+      setErrorMessage("Password updated successfully. Sign in with your new password.")
+    }
+  }, [])
 
   function toggleLamp() {
     setIsOn((value) => !value)
