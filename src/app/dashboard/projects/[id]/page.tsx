@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { WorkflowCreateForm } from "./workflow-create-form"
 import { WorkflowRunButton } from "./workflow-run-button"
+import { WorkflowStatusButton } from "./workflow-status-button"
 
 type Props = { params: Promise<{ id: string }> }
 type Membership = { organization_id: string; role: "owner" | "admin" | "member" | "viewer" }
@@ -14,40 +15,18 @@ export default async function ProjectDetailPage({ params }: Props) {
   const userId = claimsData?.claims?.sub
   if (claimsError || !userId) redirect("/login")
 
-  const { data: membership, error: membershipError } = await supabase
-    .from("organization_memberships")
-    .select("organization_id, role")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle()
+  const { data: membership, error: membershipError } = await supabase.from("organization_memberships").select("organization_id, role").eq("user_id", userId).order("created_at", { ascending: true }).limit(1).maybeSingle()
   if (membershipError || !membership) redirect("/onboarding")
   const workspace = membership as Membership
 
-  const { data: project, error: projectError } = await supabase
-    .from("automation_projects")
-    .select("id, name, slug, description, status, created_at")
-    .eq("id", id)
-    .eq("organization_id", workspace.organization_id)
-    .maybeSingle()
+  const { data: project, error: projectError } = await supabase.from("automation_projects").select("id, name, slug, description, status, created_at").eq("id", id).eq("organization_id", workspace.organization_id).maybeSingle()
   if (projectError) throw new Error("Unable to load project.")
   if (!project) notFound()
 
-  const { data: workflows, error: workflowsError } = await supabase
-    .from("workflows")
-    .select("id, name, description, status, created_at, updated_at")
-    .eq("project_id", id)
-    .eq("organization_id", workspace.organization_id)
-    .order("created_at", { ascending: false })
+  const { data: workflows, error: workflowsError } = await supabase.from("workflows").select("id, name, description, status, created_at, updated_at").eq("project_id", id).eq("organization_id", workspace.organization_id).order("created_at", { ascending: false })
   if (workflowsError) throw new Error("Unable to load workflows.")
 
-  const { data: recentRuns, error: runsError } = await supabase
-    .from("workflow_runs")
-    .select("id, workflow_id, status, trigger_type, created_at, started_at, completed_at, error_message")
-    .eq("project_id", id)
-    .eq("organization_id", workspace.organization_id)
-    .order("created_at", { ascending: false })
-    .limit(20)
+  const { data: recentRuns, error: runsError } = await supabase.from("workflow_runs").select("id, workflow_id, status, trigger_type, created_at, started_at, completed_at, error_message").eq("project_id", id).eq("organization_id", workspace.organization_id).order("created_at", { ascending: false }).limit(20)
   if (runsError) throw new Error("Unable to load workflow runs.")
 
   const canCreate = ["owner", "admin", "member"].includes(workspace.role)
@@ -68,11 +47,11 @@ export default async function ProjectDetailPage({ params }: Props) {
           </div>
         </section>
 
-        {canCreate ? <section className="mb-6 rounded-2xl border border-white/10 bg-[#090c12]/80 p-5 backdrop-blur-xl"><h2 className="font-semibold">Create workflow</h2><p className="mt-1 mb-5 text-sm text-white/40">Add a workflow definition to this project. Only active workflows can be queued for execution.</p><WorkflowCreateForm projectId={project.id} /></section> : null}
+        {canCreate ? <section className="mb-6 rounded-2xl border border-white/10 bg-[#090c12]/80 p-5 backdrop-blur-xl"><h2 className="font-semibold">Create workflow</h2><p className="mt-1 mb-5 text-sm text-white/40">Create a workflow definition, then activate it before requesting a run.</p><WorkflowCreateForm projectId={project.id} /></section> : null}
 
         <section className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-[#090c12]/80">
           <div className="border-b border-white/8 px-5 py-4"><h2 className="font-semibold">Workflow registry</h2><p className="mt-1 text-xs text-white/35">{workflows?.length ?? 0} workflow{workflows?.length === 1 ? "" : "s"}</p></div>
-          {!workflows?.length ? <div className="px-5 py-16 text-center"><p className="text-sm text-white/50">No workflows yet.</p><p className="mt-1 text-xs text-white/25">Create the first workflow above.</p></div> : <div className="divide-y divide-white/8">{workflows.map((workflow) => <div key={workflow.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-5"><div><h3 className="font-medium">{workflow.name}</h3><p className="mt-1 text-sm text-white/40">{workflow.description ?? "No description"}</p></div><div className="flex items-center gap-3"><span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/45">{workflow.status}</span><WorkflowRunButton projectId={project.id} workflowId={workflow.id} disabled={workflow.status !== "active" || !canCreate} /></div></div>)}</div>}
+          {!workflows?.length ? <div className="px-5 py-16 text-center"><p className="text-sm text-white/50">No workflows yet.</p><p className="mt-1 text-xs text-white/25">Create the first workflow above.</p></div> : <div className="divide-y divide-white/8">{workflows.map((workflow) => <div key={workflow.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-5"><div><h3 className="font-medium">{workflow.name}</h3><p className="mt-1 text-sm text-white/40">{workflow.description ?? "No description"}</p></div><div className="flex flex-wrap items-center justify-end gap-2"><span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/45">{workflow.status}</span><WorkflowStatusButton workflowId={workflow.id} status={workflow.status} disabled={!canCreate} /><WorkflowRunButton projectId={project.id} workflowId={workflow.id} disabled={workflow.status !== "active" || !canCreate} /></div></div>)}</div>}
         </section>
 
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#090c12]/80">
