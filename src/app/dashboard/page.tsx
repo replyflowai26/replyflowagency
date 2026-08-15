@@ -6,90 +6,65 @@ import { createClient } from "@/lib/supabase/server"
 type MembershipRow = {
   organization_id: string
   role: "owner" | "admin" | "member" | "viewer"
-  organizations:
-    | { name: string; slug: string }
-    | { name: string; slug: string }[]
-    | null
+  organizations: { name: string; slug: string } | { name: string; slug: string }[] | null
 }
+
+const metrics = [
+  ["Automation health", "Operational", "99.9%"],
+  ["Active workflows", "Ready", "12"],
+  ["Team access", "Protected", "RLS"],
+  ["Workspace status", "Connected", "Live"],
+]
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: claimsData, error: claimsError } = await supabase.auth.getClaims()
   const userId = claimsData?.claims?.sub
-
-  if (claimsError || !userId) {
-    redirect("/login")
-  }
+  if (claimsError || !userId) redirect("/login")
 
   const { data, error: membershipError } = await supabase
     .from("organization_memberships")
     .select("organization_id, role, organizations(name, slug)")
     .eq("user_id", userId)
     .order("created_at", { ascending: true })
-
-  if (membershipError) {
-    throw new Error("Unable to load workspace membership.")
-  }
+  if (membershipError) throw new Error("Unable to load workspace membership.")
 
   const membership = (data as MembershipRow[] | null)?.[0]
-
-  if (!membership) {
-    redirect("/onboarding")
-  }
-
-  const organization = Array.isArray(membership.organizations)
-    ? membership.organizations[0]
-    : membership.organizations
-
-  if (!organization) {
-    throw new Error("Workspace organization could not be loaded.")
-  }
-
+  if (!membership) redirect("/onboarding")
+  const organization = Array.isArray(membership.organizations) ? membership.organizations[0] : membership.organizations
+  if (!organization) throw new Error("Workspace organization could not be loaded.")
   const canInvite = membership.role === "owner" || membership.role === "admin"
 
   return (
-    <main className="min-h-screen bg-[#050609] px-6 py-10 text-white">
-      <div className="mx-auto w-full max-w-5xl">
-        <header className="flex flex-col gap-6 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 shadow-2xl backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm tracking-widest text-cyan-300">REPLYFLOW AI · COMPANY OS</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight">{organization.name}</h1>
-            <p className="mt-2 text-white/50">/{organization.slug} · {membership.role}</p>
-          </div>
-
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="rounded-xl bg-white px-5 py-3 font-semibold text-black transition hover:bg-cyan-100"
-            >
-              Sign out
-            </button>
-          </form>
+    <main className="relative min-h-screen overflow-hidden bg-[#05070b] text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(124,58,237,.14),transparent_30rem),radial-gradient(circle_at_90%_60%,rgba(34,211,238,.08),transparent_28rem)]" />
+      <div className="relative mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+        <header className="sticky top-4 z-20 flex items-center justify-between rounded-2xl border border-white/10 bg-[#090c12]/80 px-4 py-3 shadow-2xl backdrop-blur-2xl sm:px-5">
+          <div className="flex items-center gap-3"><span className="flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-300/20 bg-cyan-300/10"><span className="pulse-dot h-2 w-2 rounded-full bg-cyan-300" /></span><div><p className="text-sm font-semibold">ReplyFlow AI</p><p className="hidden text-[10px] uppercase tracking-[.16em] text-white/30 sm:block">Company OS</p></div></div>
+          <div className="flex items-center gap-3"><span className="hidden rounded-full border border-emerald-300/15 bg-emerald-300/[.05] px-3 py-1.5 text-xs text-emerald-200 sm:inline-flex">● Workspace live</span><form action={signOut}><button type="submit" className="rounded-xl border border-white/10 bg-white/[.06] px-4 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10 hover:text-white">Sign out</button></form></div>
         </header>
 
-        <section className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 backdrop-blur-xl">
-            <p className="text-sm text-white/40">Workspace foundation</p>
-            <h2 className="mt-2 text-2xl font-semibold">Authentication is production-wired.</h2>
-            <p className="mt-3 max-w-2xl text-white/50">
-              Sessions are verified server-side, refreshed through Next.js Proxy, and all organization data remains protected by Supabase RLS.
-            </p>
+        <section className="relative mt-8 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[.035] p-6 shadow-2xl backdrop-blur-xl sm:p-8 lg:p-10">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-violet-500/10 blur-3xl" />
+          <div className="relative">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+              <div><p className="text-xs font-medium uppercase tracking-[.2em] text-cyan-300">Workspace overview</p><h1 className="mt-3 text-4xl font-semibold tracking-[-.04em] sm:text-5xl">{organization.name}</h1><p className="mt-3 text-sm text-white/40">/{organization.slug} · {membership.role}</p></div>
+              <span className="w-fit rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-xs text-white/50">Production workspace</span>
+            </div>
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {metrics.map(([label, status, value]) => <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-4"><p className="text-[10px] uppercase tracking-[.18em] text-white/25">{label}</p><div className="mt-4 flex items-end justify-between gap-3"><p className="text-sm font-medium text-white/80">{status}</p><p className="text-lg font-semibold text-white">{value}</p></div></div>)}
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-5 grid gap-5 lg:grid-cols-[1.4fr_.8fr]">
+          <div className="rounded-[2rem] border border-white/10 bg-[#090c12]/80 p-6 shadow-xl backdrop-blur-xl sm:p-8">
+            <div className="flex items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-[.18em] text-white/30">System foundation</p><h2 className="mt-2 text-2xl font-semibold">Your operating layer is connected.</h2></div><span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(103,232,249,.8)]" /></div>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/45">Authentication is server-verified, workspace membership is role-aware, and organization data is isolated through Supabase policies. This is the foundation for clients, automations, reporting and the full Company OS.</p>
+            <div className="mt-7 grid gap-3 sm:grid-cols-3"><div className="rounded-xl border border-white/8 p-4"><p className="text-xs text-white/30">01</p><p className="mt-3 text-sm font-medium">Identity</p><p className="mt-1 text-xs text-white/35">Secure sessions</p></div><div className="rounded-xl border border-white/8 p-4"><p className="text-xs text-white/30">02</p><p className="mt-3 text-sm font-medium">Workspace</p><p className="mt-1 text-xs text-white/35">Organization scope</p></div><div className="rounded-xl border border-white/8 p-4"><p className="text-xs text-white/30">03</p><p className="mt-3 text-sm font-medium">Permissions</p><p className="mt-1 text-xs text-white/35">Role-aware access</p></div></div>
           </div>
 
-          {canInvite ? (
-            <div className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 backdrop-blur-xl">
-              <p className="text-sm text-white/40">Team access</p>
-              <h2 className="mt-2 text-2xl font-semibold">Invite a teammate.</h2>
-              <p className="mt-3 text-white/50">Owners and admins can invite members or viewers.</p>
-              <InviteMemberForm organizationId={membership.organization_id} />
-            </div>
-          ) : (
-            <div className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 backdrop-blur-xl">
-              <p className="text-sm text-white/40">Team access</p>
-              <h2 className="mt-2 text-2xl font-semibold">Read-only membership.</h2>
-              <p className="mt-3 text-white/50">Your current role is {membership.role}. Ask an owner or admin to manage invitations.</p>
-            </div>
-          )}
+          {canInvite ? <div className="rounded-[2rem] border border-white/10 bg-[#090c12]/80 p-6 shadow-xl backdrop-blur-xl sm:p-8"><p className="text-xs uppercase tracking-[.18em] text-cyan-300">Team access</p><h2 className="mt-2 text-2xl font-semibold">Invite your team.</h2><p className="mt-3 text-sm leading-6 text-white/40">Owners and admins can add members or viewers to this workspace.</p><InviteMemberForm organizationId={membership.organization_id} /></div> : <div className="rounded-[2rem] border border-white/10 bg-[#090c12]/80 p-6 shadow-xl backdrop-blur-xl sm:p-8"><p className="text-xs uppercase tracking-[.18em] text-white/30">Team access</p><h2 className="mt-2 text-2xl font-semibold">Your role is {membership.role}.</h2><p className="mt-3 text-sm leading-6 text-white/40">Ask an owner or admin to manage workspace invitations.</p></div>}
         </section>
       </div>
     </main>
