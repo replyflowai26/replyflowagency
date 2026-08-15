@@ -1,0 +1,36 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="g1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(780 430) rotate(90) scale(430 600)">
+      <stop stop-color="#67E8F9" stop-opacity=".18"/>
+      <stop offset=".48" stop-color="#8B5CF6" stop-opacity=".10"/>
+      <stop offset="1" stop-color="#05070B" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="line" x1="120" y1="100" x2="1480" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67E8F9" stop-opacity="0"/>
+      <stop offset=".45" stop-color="#67E8F9" stop-opacity=".32"/>
+      <stop offset=".75" stop-color="#A78BFA" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#A78BFA" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#g1)"/>
+  <g opacity=".7">
+    <path d="M90 760C300 610 330 300 590 360C820 414 850 660 1060 610C1270 560 1260 250 1510 170" stroke="url(#line)" stroke-width="1.5" stroke-dasharray="5 14">
+      <animate attributeName="stroke-dashoffset" from="0" to="-160" dur="12s" repeatCount="indefinite"/>
+    </path>
+    <path d="M100 210C350 350 420 720 690 650C960 580 1010 300 1260 360C1380 390 1450 500 1530 560" stroke="url(#line)" stroke-width="1.2" stroke-dasharray="4 18">
+      <animate attributeName="stroke-dashoffset" from="0" to="180" dur="15s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  <g fill="#67E8F9">
+    <circle cx="590" cy="360" r="4"><animate attributeName="opacity" values=".25;1;.25" dur="2.8s" repeatCount="indefinite"/></circle>
+    <circle cx="1060" cy="610" r="4"><animate attributeName="opacity" values=".25;1;.25" dur="3.6s" repeatCount="indefinite"/></circle>
+    <circle cx="690" cy="650" r="4"><animate attributeName="opacity" values="1;.2;1" dur="3.1s" repeatCount="indefinite"/></circle>
+    <circle cx="1260" cy="360" r="4"><animate attributeName="opacity" values=".2;1;.2" dur="4s" repeatCount="indefinite"/></circle>
+  </g>
+  <g filter="url(#blur)" opacity=".45">
+    <circle cx="590" cy="360" r="18" fill="#67E8F9"/>
+    <circle cx="1060" cy="610" r="18" fill="#A78BFA"/>
+    <circle cx="690" cy="650" r="14" fill="#67E8F9"/>
+  </g>
+</svg>
