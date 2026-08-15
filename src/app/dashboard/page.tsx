@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation"
 import { InviteMemberForm } from "@/components/invite-member-form"
+import { ClientProfileSummary } from "@/components/client-profile-summary"
+import type { ClientIntakeProfile } from "@/types/client-intake"
 import { signOut } from "./actions"
 import { createClient } from "@/lib/supabase/server"
 
@@ -35,6 +37,12 @@ export default async function DashboardPage() {
   if (!organization) throw new Error("Workspace organization could not be loaded.")
   const canInvite = membership.role === "owner" || membership.role === "admin"
 
+  const { data: clientProfile } = await supabase
+    .from("client_intake_profiles")
+    .select("organization_id, contact_name, company_name, website_url, industry, company_size, country, timezone, business_description, primary_goal, biggest_problem, current_tools, requested_services, monthly_budget, budget_currency, timeline, lead_volume, sales_channels, automation_readiness, notes, intake_completed_at, created_at, updated_at")
+    .eq("organization_id", membership.organization_id)
+    .maybeSingle()
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#05070b] text-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(124,58,237,.14),transparent_30rem),radial-gradient(circle_at_90%_60%,rgba(34,211,238,.08),transparent_28rem)]" />
@@ -55,6 +63,10 @@ export default async function DashboardPage() {
               {metrics.map(([label, status, value]) => <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-4"><p className="text-[10px] uppercase tracking-[.18em] text-white/25">{label}</p><div className="mt-4 flex items-end justify-between gap-3"><p className="text-sm font-medium text-white/80">{status}</p><p className="text-lg font-semibold text-white">{value}</p></div></div>)}
             </div>
           </div>
+        </section>
+
+        <section className="mt-5">
+          <ClientProfileSummary profile={(clientProfile as ClientIntakeProfile | null) ?? null} />
         </section>
 
         <section className="mt-5 grid gap-5 lg:grid-cols-[1.4fr_.8fr]">
