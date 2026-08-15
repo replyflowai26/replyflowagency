@@ -1,30 +1,8 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { createServerClient } from "@supabase/ssr"
-import { getSupabaseEnvironment } from "@/lib/supabase/env"
+import type { NextRequest } from "next/server"
+import { updateSession } from "@/lib/supabase/proxy"
 
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({ request })
-  const { url, publishableKey } = getSupabaseEnvironment()
-
-  const supabase = createServerClient(url, publishableKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll()
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-        response = NextResponse.next({ request })
-        cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options)
-        )
-      },
-    },
-  })
-
-  // Refresh/validate the session before protected Server Components run.
-  await supabase.auth.getClaims()
-
-  return response
+  return updateSession(request)
 }
 
 export const config = {
