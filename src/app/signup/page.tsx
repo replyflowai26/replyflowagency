@@ -1,10 +1,12 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState, type FormEvent } from "react"
 import { createClient } from "@/lib/supabase/client"
 
 export default function SignupPage() {
+  const router = useRouter()
   const [displayName, setDisplayName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -44,7 +46,8 @@ export default function SignupPage() {
       }
 
       if (data.session) {
-        window.location.assign("/dashboard")
+        router.replace("/dashboard")
+        router.refresh()
         return
       }
 
@@ -65,46 +68,14 @@ export default function SignupPage() {
         <p className="mt-3 text-white/50">Start with secure email authentication and organization onboarding.</p>
 
         <form className="mt-8 space-y-4" onSubmit={handleSubmit} noValidate>
-          <input
-            type="text"
-            value={displayName}
-            onChange={(event) => setDisplayName(event.target.value)}
-            placeholder="Display name"
-            autoComplete="name"
-            required
-            disabled={isSubmitting}
-            className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-cyan-300/40"
-          />
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="Email address"
-            autoComplete="email"
-            required
-            disabled={isSubmitting}
-            className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-cyan-300/40"
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Password (8+ characters)"
-            autoComplete="new-password"
-            minLength={8}
-            required
-            disabled={isSubmitting}
-            className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-cyan-300/40"
-          />
+          <input type="text" value={displayName} onChange={(event) => setDisplayName(event.target.value)} placeholder="Display name" autoComplete="name" required disabled={isSubmitting} className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-cyan-300/40" />
+          <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" autoComplete="email" required disabled={isSubmitting} className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-cyan-300/40" />
+          <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password (8+ characters)" autoComplete="new-password" minLength={8} required disabled={isSubmitting} className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-cyan-300/40" />
 
           {errorMessage && <p className="text-sm text-rose-300" role="alert">{errorMessage}</p>}
           {successMessage && <p className="text-sm text-emerald-300" role="status">{successMessage}</p>}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-xl bg-white px-4 py-3 font-semibold text-black transition hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <button type="submit" disabled={isSubmitting} className="w-full rounded-xl bg-white px-4 py-3 font-semibold text-black transition hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-60">
             {isSubmitting ? "Creating account…" : "Create account"}
           </button>
         </form>
