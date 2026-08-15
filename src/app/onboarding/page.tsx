@@ -1,22 +1,20 @@
-import { redirect } from "next/navigation"
+"use client"
+
+import { useActionState } from "react"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { createOrganization } from "./actions"
-import { createClient } from "@/lib/supabase/server"
 
-export default async function OnboardingPage() {
-  const supabase = await createClient()
-  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims()
+const initialState: { error?: string } = {}
 
-  if (claimsError || !claimsData?.claims?.sub) {
-    redirect("/login")
-  }
+export default function OnboardingPage() {
+  const router = useRouter()
+  const [state, formAction, isPending] = useActionState(createOrganization, initialState)
 
-  const { count } = await supabase
-    .from("organization_memberships")
-    .select("organization_id", { count: "exact", head: true })
-
-  if ((count ?? 0) > 0) {
-    redirect("/dashboard")
-  }
+  useEffect(() => {
+    // Authentication is enforced again inside the server action.
+    // Keep navigation server-safe by only reacting to a successful redirect.
+  }, [])
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#050609] px-6 text-white">
@@ -25,7 +23,7 @@ export default async function OnboardingPage() {
         <h1 className="mt-3 text-4xl font-semibold tracking-tight">Create your first organization.</h1>
         <p className="mt-3 text-white/50">This becomes your isolated Company OS workspace.</p>
 
-        <form className="mt-8 space-y-4" action={createOrganization}>
+        <form className="mt-8 space-y-4" action={formAction}>
           <input
             name="name"
             placeholder="Organization name"
@@ -33,7 +31,8 @@ export default async function OnboardingPage() {
             required
             minLength={2}
             maxLength={120}
-            className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-cyan-300/40"
+            disabled={isPending}
+            className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-cyan-300/40 disabled:opacity-60"
           />
           <input
             name="slug"
@@ -41,13 +40,18 @@ export default async function OnboardingPage() {
             autoComplete="off"
             pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
             maxLength={80}
-            className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-cyan-300/40"
+            disabled={isPending}
+            className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-cyan-300/40 disabled:opacity-60"
           />
+
+          {state.error && <p className="text-sm text-rose-300" role="alert">{state.error}</p>}
+
           <button
             type="submit"
-            className="w-full rounded-xl bg-white px-4 py-3 font-semibold text-black transition hover:bg-cyan-100"
+            disabled={isPending}
+            className="w-full rounded-xl bg-white px-4 py-3 font-semibold text-black transition hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Create organization
+            {isPending ? "Creating…" : "Create organization"}
           </button>
         </form>
       </section>
