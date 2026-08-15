@@ -34,7 +34,7 @@ export default function SignupPage() {
         password,
         options: {
           data: { display_name: normalizedName },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+          emailRedirectTo: `${window.location.origin}/auth/confirm?next=/dashboard`,
         },
       })
 
