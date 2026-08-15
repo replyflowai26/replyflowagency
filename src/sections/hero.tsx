@@ -7,6 +7,8 @@ const signals = ["LEADS", "SALES", "SUPPORT", "OPS"]
 export function Hero() {
   return (
     <section className="grid-bg relative flex min-h-[760px] items-center overflow-hidden pt-28 sm:min-h-screen">
+      <div className="hero-network absolute inset-0 opacity-80" aria-hidden="true" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,transparent_0,rgba(5,7,11,.18)_42%,rgba(5,7,11,.82)_100%)]" />
       <div className="pointer-events-none absolute left-1/2 top-[12%] h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-violet-500/10 blur-[120px]" />
       <div className="pointer-events-none absolute right-[-8rem] top-[28%] h-72 w-72 rounded-full bg-cyan-400/10 blur-[100px]" />
 
@@ -22,7 +24,7 @@ export function Hero() {
               initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15, duration: 0.6 }}
-              className="mb-7 inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/[0.06] px-4 py-2 text-sm text-white/70"
+              className="mb-7 inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/[0.06] px-4 py-2 text-sm text-white/70 backdrop-blur-md"
             >
               <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-cyan-300" />
               AI automation for ambitious businesses
@@ -33,7 +35,7 @@ export function Hero() {
               <span className="block text-gradient">what AI can run.</span>
             </h1>
 
-            <p className="mt-7 max-w-2xl text-base leading-7 text-white/55 sm:text-lg sm:leading-8">
+            <p className="mt-7 max-w-2xl text-base leading-7 text-white/60 sm:text-lg sm:leading-8">
               ReplyFlow AI designs connected automation systems for lead generation,
               sales, customer support and operations — so your team can focus on growth.
             </p>
@@ -57,7 +59,7 @@ export function Hero() {
               </motion.a>
             </div>
 
-            <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs tracking-[0.16em] text-white/25">
+            <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs tracking-[0.16em] text-white/30">
               {signals.map((signal) => <span key={signal}>{signal}</span>)}
               <span className="h-px w-10 bg-white/10" />
               <span>CONNECTED BY DESIGN</span>
