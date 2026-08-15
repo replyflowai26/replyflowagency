@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 
+type OrganizationFormState = { error?: string }
+
 function slugify(value: string) {
   return value
     .trim()
@@ -12,7 +14,10 @@ function slugify(value: string) {
     .slice(0, 80)
 }
 
-export async function createOrganization(formData: FormData) {
+export async function createOrganization(
+  _previousState: OrganizationFormState,
+  formData: FormData,
+): Promise<OrganizationFormState> {
   const name = String(formData.get("name") ?? "").trim()
   const requestedSlug = String(formData.get("slug") ?? "").trim()
   const slug = slugify(requestedSlug || name)
