@@ -52,6 +52,16 @@ button, a { -webkit-tap-highlight-color: transparent; }
   mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
   animation: network-breathe 8s ease-in-out infinite;
 }
+.services-section { isolation: isolate; }
+.services-network {
+  background:
+    radial-gradient(circle at 18% 35%, rgba(103,232,249,.09), transparent 18rem),
+    radial-gradient(circle at 82% 65%, rgba(167,139,250,.08), transparent 22rem),
+    url('/visuals/automation-network.svg') center / cover no-repeat;
+  mask-image: linear-gradient(to bottom, transparent, black 18%, black 82%, transparent);
+  animation: services-drift 16s ease-in-out infinite;
+  z-index: -1;
+}
 .text-gradient {
   background: linear-gradient(100deg, #ffffff 10%, #c4b5fd 48%, #67e8f9 92%);
   -webkit-background-clip: text;
@@ -69,6 +79,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
   0%, 100% { opacity: .55; transform: scale(1); }
   50% { opacity: .9; transform: scale(1.025); }
 }
+@keyframes services-drift {
+  0%, 100% { transform: scale(1) translate3d(0,0,0); opacity: .3; }
+  50% { transform: scale(1.06) translate3d(0,-10px,0); opacity: .65; }
+}
 @keyframes hero-float {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
   50% { transform: translate3d(0, -12px, 0) scale(1.025); }
@@ -85,5 +99,5 @@ button, a { -webkit-tap-highlight-color: transparent; }
 ::selection { background: rgba(139,92,246,.35); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .hero-network, .hero-glow, .pulse-dot, .marquee-line, .orbit, .orbit-reverse, .scan-line { animation: none; }
+  .hero-network, .services-network, .hero-glow, .pulse-dot, .marquee-line, .orbit, .orbit-reverse, .scan-line { animation: none; }
 }
