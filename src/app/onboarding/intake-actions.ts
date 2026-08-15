@@ -4,14 +4,9 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 
 type IntakeState = { error?: string }
-
-function clean(value: FormDataEntryValue | null) {
-  return String(value ?? "").trim()
-}
-
-function list(formData: FormData, key: string) {
-  return formData.getAll(key).map((value) => String(value).trim()).filter(Boolean)
-}
+function clean(value: FormDataEntryValue | null) { return String(value ?? "").trim() }
+function list(formData: FormData, key: string) { return formData.getAll(key).map((value) => String(value).trim()).filter(Boolean) }
+function slugify(value: string) { return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 70) || "workspace" }
 
 export async function saveClientIntake(_previous: IntakeState, formData: FormData): Promise<IntakeState> {
   const contactName = clean(formData.get("contactName"))
@@ -31,56 +26,31 @@ export async function saveClientIntake(_previous: IntakeState, formData: FormDat
   const automationReadiness = clean(formData.get("automationReadiness")) || null
   const notes = clean(formData.get("notes")) || null
 
-  if (contactName.length < 2 || companyName.length < 2) {
-    return { error: "Please enter your name and company name." }
-  }
-
+  if (contactName.length < 2 || companyName.length < 2) return { error: "Please enter your name and company name." }
   const monthlyBudget = monthlyBudgetRaw ? Number(monthlyBudgetRaw) : null
-  if (monthlyBudget !== null && (!Number.isFinite(monthlyBudget) || monthlyBudget < 0)) {
-    return { error: "Enter a valid monthly budget." }
-  }
+  if (monthlyBudget !== null && (!Number.isFinite(monthlyBudget) || monthlyBudget < 0)) return { error: "Enter a valid monthly budget." }
 
   const supabase = await createClient()
   const { data: claimsData, error: claimsError } = await supabase.auth.getClaims()
   const userId = claimsData?.claims?.sub
   if (claimsError || !userId) return { error: "Authentication required." }
 
-  const { data: membership, error: membershipError } = await supabase
-    .from("organization_memberships")
-    .select("organization_id, role")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle()
+  const { data: existingMembership } = await supabase.from("organization_memberships").select("organization_id, role").eq("user_id", userId).order("created_at", { ascending: true }).limit(1).maybeSingle()
+  let organizationId = existingMembership?.organization_id
 
-  if (membershipError || !membership) return { error: "Workspace membership could not be loaded." }
-  if (membership.role !== "owner" && membership.role !== "admin") return { error: "Only workspace owners or admins can complete client intake." }
+  if (!organizationId) {
+    const slug = `${slugify(companyName)}-${userId.slice(0, 8)}`
+    const { data: newOrganizationId, error: organizationError } = await supabase.rpc("create_organization", { organization_name: companyName, organization_slug: slug })
+    if (organizationError || !newOrganizationId) return { error: "Unable to create your workspace. Please try again." }
+    organizationId = newOrganizationId
+  } else if (existingMembership?.role !== "owner" && existingMembership?.role !== "admin") {
+    return { error: "Only workspace owners or admins can complete client intake." }
+  }
 
   const { error } = await supabase.from("client_intake_profiles").upsert({
-    organization_id: membership.organization_id,
-    contact_name: contactName,
-    company_name: companyName,
-    website_url: websiteUrl,
-    industry,
-    company_size: companySize,
-    country,
-    timezone,
-    business_description: businessDescription,
-    primary_goal: primaryGoal,
-    biggest_problem: biggestProblem,
-    current_tools: list(formData, "currentTools"),
-    requested_services: list(formData, "requestedServices"),
-    monthly_budget: monthlyBudget,
-    budget_currency: budgetCurrency,
-    timeline,
-    lead_volume: leadVolume,
-    sales_channels: list(formData, "salesChannels"),
-    automation_readiness: automationReadiness,
-    notes,
-    intake_completed_at: new Date().toISOString(),
+    organization_id: organizationId, contact_name: contactName, company_name: companyName, website_url: websiteUrl, industry, company_size: companySize, country, timezone, business_description: businessDescription, primary_goal: primaryGoal, biggest_problem: biggestProblem, current_tools: list(formData, "currentTools"), requested_services: list(formData, "requestedServices"), monthly_budget: monthlyBudget, budget_currency: budgetCurrency, timeline, lead_volume, sales_channels: list(formData, "salesChannels"), automation_readiness: automationReadiness, notes, intake_completed_at: new Date().toISOString(),
   }, { onConflict: "organization_id" })
 
   if (error) return { error: "Unable to save your client profile. Please try again." }
-
   redirect("/dashboard")
 }
