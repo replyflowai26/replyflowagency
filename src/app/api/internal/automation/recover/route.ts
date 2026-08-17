@@ -12,7 +12,7 @@ function isAuthorized(request: Request) {
   return authorization === `Bearer ${secret}`
 }
 
-export async function POST(request: Request) {
+async function runRecovery(request: Request) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 })
   }
@@ -27,4 +27,12 @@ export async function POST(request: Request) {
       { status: 500 },
     )
   }
+}
+
+export async function GET(request: Request) {
+  return runRecovery(request)
+}
+
+export async function POST(request: Request) {
+  return runRecovery(request)
 }
