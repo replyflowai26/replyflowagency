@@ -3,6 +3,8 @@ import "server-only"
 import { createClient } from "@/lib/supabase/server"
 import { triggerN8nExecution } from "@/lib/automation/n8n"
 
+const EXECUTION_TIMEOUT_MS = 10 * 60 * 1000
+
 export async function dispatchWorkflowRun(runId: string, userId: string) {
   const supabase = await createClient()
 
@@ -19,18 +21,30 @@ export async function dispatchWorkflowRun(runId: string, userId: string) {
 
   const { data: run, error: runError } = await supabase
     .from("workflow_runs")
-    .select("id, organization_id, workflow_id, project_id, status, input")
+    .select("id, organization_id, workflow_id, project_id, status, input, attempt_count, max_attempts")
     .eq("id", runId)
     .eq("organization_id", membership.organization_id)
     .maybeSingle()
 
   if (runError || !run) throw new Error("Workflow run not found.")
   if (run.status !== "queued") throw new Error("Only queued runs can be dispatched.")
+  if (run.attempt_count >= run.max_attempts) throw new Error("Workflow run has reached its maximum recovery attempts.")
 
   const startedAt = new Date().toISOString()
+  const timeoutAt = new Date(Date.now() + EXECUTION_TIMEOUT_MS).toISOString()
+  const nextAttempt = run.attempt_count + 1
+
   const { error: runningError } = await supabase
     .from("workflow_runs")
-    .update({ status: "running", started_at: startedAt, error_code: null, error_message: null })
+    .update({
+      status: "running",
+      started_at: startedAt,
+      last_attempt_at: startedAt,
+      execution_timeout_at: timeoutAt,
+      attempt_count: nextAttempt,
+      error_code: null,
+      error_message: null,
+    })
     .eq("id", run.id)
     .eq("organization_id", run.organization_id)
     .eq("status", "queued")
@@ -42,7 +56,11 @@ export async function dispatchWorkflowRun(runId: string, userId: string) {
     run_id: run.id,
     event_type: "run.dispatching",
     message: "Workflow run dispatched to execution adapter.",
-    payload: { adapter: "n8n" },
+    payload: {
+      adapter: "n8n",
+      recovery_attempt: nextAttempt,
+      execution_timeout_at: timeoutAt,
+    },
   })
 
   try {
@@ -70,6 +88,7 @@ export async function dispatchWorkflowRun(runId: string, userId: string) {
       payload: {
         external_execution_id: result.externalExecutionId,
         dispatch_attempts: result.attempts,
+        recovery_attempt: nextAttempt,
       },
     })
 
@@ -78,7 +97,13 @@ export async function dispatchWorkflowRun(runId: string, userId: string) {
     const message = error instanceof Error ? error.message : "Unknown execution adapter error."
     await supabase
       .from("workflow_runs")
-      .update({ status: "failed", completed_at: new Date().toISOString(), error_code: "EXECUTION_ADAPTER_ERROR", error_message: message })
+      .update({
+        status: "failed",
+        completed_at: new Date().toISOString(),
+        execution_timeout_at: null,
+        error_code: "EXECUTION_ADAPTER_ERROR",
+        error_message: message,
+      })
       .eq("id", run.id)
       .eq("organization_id", run.organization_id)
       .eq("status", "running")
@@ -88,7 +113,10 @@ export async function dispatchWorkflowRun(runId: string, userId: string) {
       run_id: run.id,
       event_type: "run.failed",
       message: "Workflow execution adapter failed.",
-      payload: { error_code: "EXECUTION_ADAPTER_ERROR" },
+      payload: {
+        error_code: "EXECUTION_ADAPTER_ERROR",
+        recovery_attempt: nextAttempt,
+      },
     })
 
     throw new Error(message)
