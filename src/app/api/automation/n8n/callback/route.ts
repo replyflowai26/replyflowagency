@@ -73,13 +73,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "External execution id does not match the workflow run." }, { status: 409 })
   }
 
-  // n8n may retry callbacks. Terminal runs are safe to acknowledge without
-  // mutating the stored outcome a second time.
   if (run.status === payload.status) {
     return NextResponse.json({ runId: run.id, status: run.status, duplicate: true })
   }
 
-  if (!["running"].includes(run.status)) {
+  if (run.status !== "running") {
     return NextResponse.json({ error: `Run is not awaiting a terminal callback (status: ${run.status}).` }, { status: 409 })
   }
 
@@ -90,6 +88,7 @@ export async function POST(request: Request) {
     error_code: payload.status === "failed" ? payload.errorCode ?? "N8N_EXECUTION_FAILED" : null,
     error_message: payload.status === "failed" ? payload.errorMessage ?? "n8n execution failed." : null,
     completed_at: completedAt,
+    execution_timeout_at: null,
   }
 
   const { error: updateError } = await supabase
@@ -117,8 +116,6 @@ export async function POST(request: Request) {
 
   if (eventError) {
     console.error("n8n callback event write failed", eventError)
-    // The run outcome is already durable. Return success so n8n does not
-    // retry a terminal execution indefinitely because observability failed.
   }
 
   return NextResponse.json({ runId: run.id, status: payload.status, duplicate: false })
