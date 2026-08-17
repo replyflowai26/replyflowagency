@@ -58,6 +58,7 @@ export async function dispatchWorkflowRun(runId: string, userId: string) {
       .update({ external_execution_id: result.externalExecutionId })
       .eq("id", run.id)
       .eq("organization_id", run.organization_id)
+      .eq("status", "running")
 
     if (updateError) throw new Error("Unable to persist external execution id.")
 
@@ -66,7 +67,10 @@ export async function dispatchWorkflowRun(runId: string, userId: string) {
       run_id: run.id,
       event_type: "run.dispatched",
       message: "n8n accepted the workflow execution request.",
-      payload: { external_execution_id: result.externalExecutionId },
+      payload: {
+        external_execution_id: result.externalExecutionId,
+        dispatch_attempts: result.attempts,
+      },
     })
 
     return { runId: run.id, externalExecutionId: result.externalExecutionId }
@@ -77,6 +81,7 @@ export async function dispatchWorkflowRun(runId: string, userId: string) {
       .update({ status: "failed", completed_at: new Date().toISOString(), error_code: "EXECUTION_ADAPTER_ERROR", error_message: message })
       .eq("id", run.id)
       .eq("organization_id", run.organization_id)
+      .eq("status", "running")
 
     await supabase.from("workflow_run_events").insert({
       organization_id: run.organization_id,
