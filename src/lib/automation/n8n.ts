@@ -9,6 +9,7 @@ export type N8nExecutionRequest = {
 
 export type N8nExecutionResponse = {
   externalExecutionId: string
+  attempts: number
 }
 
 const MAX_ATTEMPTS = 3
@@ -54,8 +55,6 @@ export async function triggerN8nExecution(
         headers: {
           "Content-Type": "application/json",
           "X-N8N-API-KEY": apiKey,
-          // The same run ID is reused across retries so n8n can deduplicate
-          // the request instead of creating multiple executions.
           "Idempotency-Key": request.runId,
         },
         body: JSON.stringify({
@@ -90,15 +89,13 @@ export async function triggerN8nExecution(
         throw new Error("n8n did not return an execution id.")
       }
 
-      return { externalExecutionId }
+      return { externalExecutionId, attempts: attempt }
     } catch (error) {
       lastError = error
 
       if (attempt === MAX_ATTEMPTS) break
 
-      // Network errors/timeouts are transient. HTTP failures are retried only
-      // through the status branch above, which prevents retrying 4xx errors.
-      if (error instanceof Error && error.name === "AbortError") {
+      if (error instanceof Error && (error.name === "AbortError" || error.name === "TimeoutError")) {
         await sleep(INITIAL_BACKOFF_MS * 2 ** (attempt - 1))
         continue
       }
