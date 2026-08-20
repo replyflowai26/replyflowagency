@@ -7,15 +7,19 @@ export const dynamic = "force-dynamic"
 
 function isAuthorized(request: Request) {
   const configuredSecret = process.env.INTERNAL_AUTOMATION_SECRET
+  const cronSecret = process.env.CRON_SECRET
 
-  if (!configuredSecret) {
-    return false
+  const internalSecret = request.headers.get("x-replyflow-internal-secret")
+  const authorization = request.headers.get("authorization")
+
+  if (configuredSecret && internalSecret === configuredSecret) {
+    return true
   }
 
-  return request.headers.get("x-replyflow-internal-secret") === configuredSecret
+  return Boolean(cronSecret && authorization === `Bearer ${cronSecret}`)
 }
 
-export async function POST(request: Request) {
+async function handleRecovery(request: Request) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 })
   }
@@ -33,4 +37,12 @@ export async function POST(request: Request) {
       { status: 500 },
     )
   }
+}
+
+export async function GET(request: Request) {
+  return handleRecovery(request)
+}
+
+export async function POST(request: Request) {
+  return handleRecovery(request)
 }
