@@ -14,8 +14,13 @@ export async function dispatchWorkflowRun(runId: string, userId: string) {
     .limit(1)
     .maybeSingle()
 
-  if (membershipError || !membership) throw new Error("Workspace membership not found.")
-  if (!["owner", "admin", "member"].includes(membership.role)) throw new Error("Insufficient permissions.")
+  if (membershipError || !membership) {
+    throw new Error("Workspace membership not found.")
+  }
+
+  if (!["owner", "admin", "member"].includes(membership.role)) {
+    throw new Error("Insufficient permissions.")
+  }
 
   const { data: run, error: runError } = await supabase
     .from("workflow_runs")
@@ -24,18 +29,31 @@ export async function dispatchWorkflowRun(runId: string, userId: string) {
     .eq("organization_id", membership.organization_id)
     .maybeSingle()
 
-  if (runError || !run) throw new Error("Workflow run not found.")
-  if (run.status !== "queued") throw new Error("Only queued runs can be dispatched.")
+  if (runError || !run) {
+    throw new Error("Workflow run not found.")
+  }
+
+  if (run.status !== "queued") {
+    throw new Error("Only queued runs can be dispatched.")
+  }
 
   const startedAt = new Date().toISOString()
   const { error: runningError } = await supabase
     .from("workflow_runs")
-    .update({ status: "running", started_at: startedAt, error_code: null, error_message: null })
+    .update({
+      status: "running",
+      started_at: startedAt,
+      last_activity_at: startedAt,
+      error_code: null,
+      error_message: null,
+    })
     .eq("id", run.id)
     .eq("organization_id", run.organization_id)
     .eq("status", "queued")
 
-  if (runningError) throw new Error("Unable to start workflow run.")
+  if (runningError) {
+    throw new Error("Unable to start workflow run.")
+  }
 
   await supabase.from("workflow_run_events").insert({
     organization_id: run.organization_id,
@@ -53,13 +71,19 @@ export async function dispatchWorkflowRun(runId: string, userId: string) {
       input: (run.input ?? {}) as Record<string, unknown>,
     })
 
+    const activityAt = new Date().toISOString()
     const { error: updateError } = await supabase
       .from("workflow_runs")
-      .update({ external_execution_id: result.externalExecutionId })
+      .update({
+        external_execution_id: result.externalExecutionId,
+        last_activity_at: activityAt,
+      })
       .eq("id", run.id)
       .eq("organization_id", run.organization_id)
 
-    if (updateError) throw new Error("Unable to persist external execution id.")
+    if (updateError) {
+      throw new Error("Unable to persist external execution id.")
+    }
 
     await supabase.from("workflow_run_events").insert({
       organization_id: run.organization_id,
@@ -71,10 +95,19 @@ export async function dispatchWorkflowRun(runId: string, userId: string) {
 
     return { runId: run.id, externalExecutionId: result.externalExecutionId }
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown execution adapter error."
+    const message =
+      error instanceof Error ? error.message : "Unknown execution adapter error."
+    const failedAt = new Date().toISOString()
+
     await supabase
       .from("workflow_runs")
-      .update({ status: "failed", completed_at: new Date().toISOString(), error_code: "EXECUTION_ADAPTER_ERROR", error_message: message })
+      .update({
+        status: "failed",
+        completed_at: failedAt,
+        last_activity_at: failedAt,
+        error_code: "EXECUTION_ADAPTER_ERROR",
+        error_message: message,
+      })
       .eq("id", run.id)
       .eq("organization_id", run.organization_id)
 
