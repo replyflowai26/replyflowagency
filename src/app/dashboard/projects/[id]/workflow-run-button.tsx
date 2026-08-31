@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { queueWorkflowRun } from "./run-actions"
 
 export function WorkflowRunButton({ projectId, workflowId, clientId, disabled }: { projectId: string; workflowId: string; clientId?: string; disabled?: boolean }) {
+  const router = useRouter()
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -15,10 +17,10 @@ export function WorkflowRunButton({ projectId, workflowId, clientId, disabled }:
       formData.set("projectId", projectId)
       formData.set("workflowId", workflowId)
       formData.set("clientId", clientId ?? "")
-      await queueWorkflowRun(formData)
+      const runId = await queueWorkflowRun(formData)
+      router.push(`/dashboard/projects/${projectId}/runs/${runId}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to queue workflow run.")
-    } finally {
       setPending(false)
     }
   }

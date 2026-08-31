@@ -102,6 +102,19 @@ export async function queueWorkflowRun(formData: FormData) {
     throw new Error("Project and workflow are required.")
   }
 
+  return runQueueAndDispatch({ projectId, workflowId, rawClientId })
+}
+
+type QueueInput = {
+  projectId: string
+  workflowId: string
+  rawClientId: string
+}
+
+// Shared queue-then-dispatch path used by both the project "Run now" action and
+// the run detail "Run again" action. Creates a NEW durable run (never mutating
+// an existing run record), records its queued event, then dispatches it.
+async function runQueueAndDispatch({ projectId, workflowId, rawClientId }: QueueInput) {
   const { supabase, userId, membership } = await getWorkspaceUser()
 
   if (!["owner", "admin", "member"].includes(membership.role)) {
@@ -192,4 +205,38 @@ export async function queueWorkflowRun(formData: FormData) {
   revalidatePath(`/dashboard/projects/${projectId}`)
 
   return run.id
+}
+
+// Safe "Run again" flow. Loads the referenced run to confirm it belongs to the
+// actor's workspace, then queues a brand-new run for the same workflow and
+// client. The original run record is never mutated or re-executed.
+export async function retryWorkflowRun(formData: FormData) {
+  const runId = String(formData.get("runId") ?? "").trim()
+
+  if (!runId) {
+    throw new Error("Run reference is required.")
+  }
+
+  const { supabase, membership } = await getWorkspaceUser()
+
+  if (!["owner", "admin", "member"].includes(membership.role)) {
+    throw new Error("You do not have permission to run workflows.")
+  }
+
+  const { data: run, error: runError } = await supabase
+    .from("workflow_runs")
+    .select("id, workflow_id, project_id, client_id")
+    .eq("id", runId)
+    .eq("organization_id", membership.organization_id)
+    .maybeSingle()
+
+  if (runError || !run) {
+    throw new Error("Run not found in this workspace.")
+  }
+
+  return runQueueAndDispatch({
+    projectId: run.project_id,
+    workflowId: run.workflow_id,
+    rawClientId: run.client_id ?? "",
+  })
 }

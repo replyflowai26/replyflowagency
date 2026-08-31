@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { humanizeRunId } from "@/lib/dashboard/run-observability"
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -49,6 +50,7 @@ export default async function ProjectRunsPage({ params }: Props) {
     const client = Array.isArray(run.clients) ? run.clients[0] : run.clients
     return [run.id, client ? { id: client.id, name: client.name } : null]
   }))
+  const runHrefs = new Map((runs ?? []).map((run) => [run.id, `/dashboard/projects/${id}/runs/${run.id}`]))
 
   return (
     <div>
@@ -60,7 +62,7 @@ export default async function ProjectRunsPage({ params }: Props) {
 
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#090c12]/80">
           <div className="border-b border-white/8 px-5 py-4"><h2 className="font-semibold">Execution history</h2><p className="mt-1 text-xs text-white/35">Showing the latest {runs?.length ?? 0} runs.</p></div>
-          {!runs?.length ? <div className="px-5 py-16 text-center"><p className="text-sm text-white/50">No workflow runs yet.</p><p className="mt-1 text-xs text-white/25">Runs will appear here once execution requests are created.</p></div> : <div className="divide-y divide-white/8">{runs.map((run) => { const client = runClients.get(run.id); return <div key={run.id} className="grid gap-3 px-5 py-5 md:grid-cols-[1.5fr_auto_auto_auto_auto] md:items-center"><div><h3 className="font-medium">{workflowNames.get(run.workflow_id) ?? "Unknown workflow"}</h3><p className="mt-1 text-xs text-white/30">{run.id}</p>{run.error_message ? <p className="mt-2 text-xs text-red-300">{run.error_message}</p> : null}</div>{client ? <Link href={`/dashboard/clients/${client.id}`} className="rounded-full border border-cyan-300/15 bg-cyan-300/[.05] px-2.5 py-1 text-[10px] uppercase tracking-wider text-cyan-200 transition hover:bg-cyan-300/10">{client.name}</Link> : null}<span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/50">{run.trigger_type}</span><span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/60">{run.status}</span><span className="text-xs text-white/30">{new Date(run.created_at).toLocaleString()}</span></div>})}</div>}
+          {!runs?.length ? <div className="px-5 py-16 text-center"><p className="text-sm text-white/50">No workflow runs yet.</p><p className="mt-1 text-xs text-white/25">Runs will appear here once execution requests are created.</p></div> : <div className="divide-y divide-white/8">{runs.map((run) => { const client = runClients.get(run.id); const href = runHrefs.get(run.id); const statusTone = run.status === "failed" ? "text-red-300" : run.status === "succeeded" ? "text-emerald-200" : run.status === "running" ? "text-cyan-200" : "text-white/60"; return <Link key={run.id} href={href!} className="grid gap-3 px-5 py-5 transition hover:bg-white/[.02] md:grid-cols-[1.5fr_auto_auto_auto_auto] md:items-center"><div><h3 className="font-medium text-white/85">{workflowNames.get(run.workflow_id) ?? "Unknown workflow"}</h3><p className="mt-1 text-xs text-white/30">{humanizeRunId(run.id)}</p>{run.error_message ? <p className="mt-2 max-w-xl truncate text-xs text-red-300">{run.error_message}</p> : null}</div>{client ? <span className="rounded-full border border-cyan-300/15 bg-cyan-300/[.05] px-2.5 py-1 text-[10px] uppercase tracking-wider text-cyan-200">{client.name}</span> : null}<span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/50">{run.trigger_type}</span><span className={`rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider ${statusTone}`}>{run.status}</span><span className="text-xs text-white/30">{new Date(run.created_at).toLocaleString()}</span></Link>})}</div>}
         </section>
     </div>
   )

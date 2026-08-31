@@ -140,7 +140,13 @@ export function dashboardTrail(pathname: string): DashboardCrumb[] {
           href: segments.length > 1 ? projectHref : undefined,
         })
         if (segments[1] === "runs") {
-          trail.push({ label: "Runs" })
+          trail.push({
+            label: "Runs",
+            href: segments.length > 2 ? `/dashboard/projects/${projectId}/runs` : undefined,
+          })
+          if (segments.length > 2) {
+            trail.push({ label: "Run" })
+          }
         }
       }
     }
