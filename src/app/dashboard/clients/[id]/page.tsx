@@ -58,9 +58,6 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   if (!data) notFound()
 
   const client = data as Client
-  const organization = Array.isArray(membership.organizations)
-    ? membership.organizations[0]
-    : membership.organizations
 
   const [projectsResult, runsResult, activitiesResult] = await Promise.all([
     supabase
@@ -97,19 +94,14 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   const projectNameMap = new Map(projects.map((project) => [project.id, project.name]))
 
   return (
-    <main className="min-h-screen bg-[#05070b] text-white">
-      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#090c12]/80 px-5 py-4 backdrop-blur-xl">
-          <div>
-            <p className="text-xs uppercase tracking-[.2em] text-cyan-300">Client operations</p>
-            <h1 className="mt-1 text-2xl font-semibold">{client.name}</h1>
-            <p className="mt-1 text-xs text-white/35">{organization?.name ?? "Workspace"}</p>
-          </div>
-          <div className="flex gap-2">
-            <Link href="/dashboard/clients" className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/70 hover:bg-white/5">Back to clients</Link>
-            <ClientDeleteButton clientId={client.id} />
-          </div>
-        </header>
+    <div>
+      <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">{client.name}</h1>
+          <p className="mt-1 text-xs text-white/35">Client workspace record</p>
+        </div>
+        <ClientDeleteButton clientId={client.id} />
+      </header>
 
         <section className="mb-6 grid gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-[#090c12]/80 p-5">
@@ -202,7 +194,6 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           </div>
           <ClientActivityTimeline activities={activities} />
         </section>
-      </div>
-    </main>
+    </div>
   )
 }

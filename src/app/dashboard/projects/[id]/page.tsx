@@ -48,12 +48,12 @@ export default async function ProjectDetailPage({ params }: Props) {
   const clientOptions = (clients ?? []).map((client) => ({ id: client.id, name: client.name }))
 
   return (
-    <main className="min-h-screen bg-[#05070b] text-white">
-      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <header className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#090c12]/80 px-5 py-4 backdrop-blur-xl">
-          <div><p className="text-xs uppercase tracking-[.2em] text-cyan-300">Automation project</p><h1 className="mt-1 text-2xl font-semibold">{project.name}</h1><p className="mt-1 text-xs text-white/35">/{project.slug}</p></div>
-          <Link href="/dashboard/projects" className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/70 hover:bg-white/5">Back to projects</Link>
-        </header>
+    <div>
+      <div className="mb-8">
+        <p className="text-xs uppercase tracking-[.2em] text-cyan-300">Automation project</p>
+        <h1 className="mt-1 text-2xl font-semibold">{project.name}</h1>
+        <p className="mt-1 text-xs text-white/35">/{project.slug}</p>
+      </div>
 
         <section className="mb-6 rounded-2xl border border-white/10 bg-[#090c12]/80 p-5 backdrop-blur-xl">
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -76,7 +76,6 @@ export default async function ProjectDetailPage({ params }: Props) {
           <div className="border-b border-white/8 px-5 py-4"><h2 className="font-semibold">Execution history</h2><p className="mt-1 text-xs text-white/35">Latest 20 durable execution records</p></div>
           {!recentRuns?.length ? <div className="px-5 py-16 text-center"><p className="text-sm text-white/50">No executions yet.</p><p className="mt-1 text-xs text-white/25">Activate a workflow and use Run now to create the first queue record.</p></div> : <div className="divide-y divide-white/8">{recentRuns.map((run) => { const client = runClients.get(run.id); return <div key={run.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-4"><div><p className="text-sm font-medium">{workflowNames.get(run.workflow_id) ?? "Unknown workflow"}</p><p className="mt-1 text-xs text-white/35">{run.trigger_type} · {new Date(run.created_at).toLocaleString()}</p>{run.error_message ? <p className="mt-1 text-xs text-red-300">{run.error_message}</p> : null}</div><div className="flex items-center gap-2">{client ? <Link href={`/dashboard/clients/${client.id}`} className="rounded-full border border-cyan-300/15 bg-cyan-300/[.05] px-2.5 py-1 text-[10px] uppercase tracking-wider text-cyan-200 transition hover:bg-cyan-300/10">{client.name}</Link> : null}<span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/50">{run.status}</span></div></div> })}</div>}
         </section>
-      </div>
-    </main>
+    </div>
   )
 }

@@ -32,7 +32,6 @@ export default async function ProjectsPage() {
 
   if (error) throw new Error("Unable to load projects.")
   const projects = (data ?? []) as Project[]
-  const organization = Array.isArray(membership.organizations) ? membership.organizations[0] : membership.organizations
   const canCreate = ["owner", "admin", "member"].includes(membership.role)
 
   const { data: clients } = await supabase
@@ -44,20 +43,18 @@ export default async function ProjectsPage() {
   const clientOptions = (clients ?? []).map((client) => ({ id: client.id, name: client.name }))
 
   return (
-    <main className="min-h-screen bg-[#05070b] text-white">
-      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <header className="mb-8 flex items-center justify-between rounded-2xl border border-white/10 bg-[#090c12]/80 px-5 py-4 backdrop-blur-xl">
-          <div><p className="text-xs uppercase tracking-[.2em] text-cyan-300">Automation operations</p><h1 className="mt-1 text-2xl font-semibold">Projects</h1><p className="mt-1 text-xs text-white/35">{organization?.name ?? "Workspace"}</p></div>
-          <Link href="/dashboard" className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/70 hover:bg-white/5">Dashboard</Link>
-        </header>
+    <div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold">Projects</h1>
+        <p className="mt-1 text-sm text-white/40">Automation projects group related workflows into one operational unit.</p>
+      </div>
 
-        {canCreate ? <section className="mb-6 rounded-2xl border border-white/10 bg-[#090c12]/80 p-5 backdrop-blur-xl"><h2 className="font-semibold">Create automation project</h2><p className="mt-1 mb-5 text-sm text-white/40">Projects group related workflows into one operational unit.</p><ProjectCreateForm clients={clientOptions} /></section> : null}
+      {canCreate ? <section className="mb-6 rounded-2xl border border-white/10 bg-[#090c12]/80 p-5 backdrop-blur-xl"><h2 className="font-semibold">Create automation project</h2><p className="mt-1 mb-5 text-sm text-white/40">Projects group related workflows into one operational unit.</p><ProjectCreateForm clients={clientOptions} /></section> : null}
 
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#090c12]/80">
           <div className="border-b border-white/8 px-5 py-4"><h2 className="font-semibold">Project registry</h2><p className="mt-1 text-xs text-white/35">{projects.length} project{projects.length === 1 ? "" : "s"} in this workspace</p></div>
           {projects.length === 0 ? <div className="px-5 py-16 text-center"><p className="text-sm text-white/50">No automation projects yet.</p><p className="mt-1 text-xs text-white/25">Create the first project to start organizing workflows.</p></div> : <div className="divide-y divide-white/8">{projects.map((project) => <Link key={project.id} href={`/dashboard/projects/${project.id}`} className="block px-5 py-5 transition hover:bg-white/[.025]"><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-medium">{project.name}</h3><p className="mt-1 text-sm text-white/40">{project.description ?? "No description"}</p></div><span className="rounded-full border border-emerald-300/15 bg-emerald-300/[.04] px-2.5 py-1 text-[10px] uppercase tracking-wider text-emerald-200">{project.status}</span></div></Link>)}</div>}
         </section>
-      </div>
-    </main>
+    </div>
   )
 }
