@@ -2,12 +2,20 @@
 
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
+import { dispatchWorkflowRun } from "@/lib/automation/execution-service"
+import { logClientActivity } from "@/lib/client-activity"
 
 async function getWorkspaceUser() {
   const supabase = await createClient()
-  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims()
+
+  const { data: claimsData, error: claimsError } =
+    await supabase.auth.getClaims()
+
   const userId = claimsData?.claims?.sub
-  if (claimsError || !userId) throw new Error("Authentication required.")
+
+  if (claimsError || !userId) {
+    throw new Error("Authentication required.")
+  }
 
   const { data: membership, error: membershipError } = await supabase
     .from("organization_memberships")
@@ -16,18 +24,50 @@ async function getWorkspaceUser() {
     .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle()
-  if (membershipError || !membership) throw new Error("Workspace membership not found.")
+
+  if (membershipError || !membership) {
+    throw new Error("Workspace membership not found.")
+  }
 
   return { supabase, userId, membership }
+}
+
+// Validates an optional client id against the actor's organization.
+async function resolveClientId(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  organizationId: string,
+  rawClientId: string,
+): Promise<string | null> {
+  const trimmed = rawClientId.trim()
+  if (!trimmed) return null
+
+  const { data: client } = await supabase
+    .from("clients")
+    .select("id")
+    .eq("id", trimmed)
+    .eq("organization_id", organizationId)
+    .maybeSingle()
+
+  if (!client) {
+    throw new Error("Client not found in this workspace.")
+  }
+
+  return client.id
 }
 
 export async function updateWorkflowStatus(formData: FormData) {
   const workflowId = String(formData.get("workflowId") ?? "").trim()
   const status = String(formData.get("status") ?? "").trim()
-  if (!workflowId || !["active", "paused"].includes(status)) throw new Error("Invalid workflow status request.")
+
+  if (!workflowId || !["active", "paused"].includes(status)) {
+    throw new Error("Invalid workflow status request.")
+  }
 
   const { supabase, membership } = await getWorkspaceUser()
-  if (!["owner", "admin", "member"].includes(membership.role)) throw new Error("You do not have permission to change workflows.")
+
+  if (!["owner", "admin", "member"].includes(membership.role)) {
+    throw new Error("You do not have permission to change workflows.")
+  }
 
   const { data: workflow, error: workflowError } = await supabase
     .from("workflows")
@@ -35,14 +75,20 @@ export async function updateWorkflowStatus(formData: FormData) {
     .eq("id", workflowId)
     .eq("organization_id", membership.organization_id)
     .maybeSingle()
-  if (workflowError || !workflow) throw new Error("Workflow not found in this workspace.")
+
+  if (workflowError || !workflow) {
+    throw new Error("Workflow not found in this workspace.")
+  }
 
   const { error } = await supabase
     .from("workflows")
     .update({ status })
     .eq("id", workflow.id)
     .eq("organization_id", membership.organization_id)
-  if (error) throw new Error("Unable to update workflow status.")
+
+  if (error) {
+    throw new Error("Unable to update workflow status.")
+  }
 
   revalidatePath(`/dashboard/projects/${workflow.project_id}`)
 }
@@ -50,10 +96,19 @@ export async function updateWorkflowStatus(formData: FormData) {
 export async function queueWorkflowRun(formData: FormData) {
   const projectId = String(formData.get("projectId") ?? "").trim()
   const workflowId = String(formData.get("workflowId") ?? "").trim()
-  if (!projectId || !workflowId) throw new Error("Project and workflow are required.")
+  const rawClientId = String(formData.get("clientId") ?? "").trim()
+
+  if (!projectId || !workflowId) {
+    throw new Error("Project and workflow are required.")
+  }
 
   const { supabase, userId, membership } = await getWorkspaceUser()
-  if (!["owner", "admin", "member"].includes(membership.role)) throw new Error("You do not have permission to run workflows.")
+
+  if (!["owner", "admin", "member"].includes(membership.role)) {
+    throw new Error("You do not have permission to run workflows.")
+  }
+
+  const clientId = await resolveClientId(supabase, membership.organization_id, rawClientId)
 
   const { data: workflow, error: workflowError } = await supabase
     .from("workflows")
@@ -62,8 +117,14 @@ export async function queueWorkflowRun(formData: FormData) {
     .eq("project_id", projectId)
     .eq("organization_id", membership.organization_id)
     .maybeSingle()
-  if (workflowError || !workflow) throw new Error("Workflow not found in this workspace.")
-  if (workflow.status !== "active") throw new Error("Only active workflows can be queued.")
+
+  if (workflowError || !workflow) {
+    throw new Error("Workflow not found in this workspace.")
+  }
+
+  if (workflow.status !== "active") {
+    throw new Error("Only active workflows can be queued.")
+  }
 
   const { data: run, error: runError } = await supabase
     .from("workflow_runs")
@@ -71,25 +132,64 @@ export async function queueWorkflowRun(formData: FormData) {
       organization_id: membership.organization_id,
       workflow_id: workflow.id,
       project_id: workflow.project_id,
+      client_id: clientId,
       status: "queued",
       trigger_type: "manual",
       requested_by: userId,
       idempotency_key: crypto.randomUUID(),
       input: {},
+      last_activity_at: new Date().toISOString(),
     })
     .select("id")
     .single()
-  if (runError || !run) throw new Error("Unable to queue workflow run.")
 
-  const { error: eventError } = await supabase.from("workflow_run_events").insert({
-    organization_id: membership.organization_id,
-    run_id: run.id,
-    event_type: "run.queued",
-    message: "Workflow run queued manually.",
-    payload: { trigger_type: "manual" },
-  })
-  if (eventError) throw new Error("Run was created but its audit event could not be recorded.")
+  if (runError || !run) {
+    throw new Error("Unable to queue workflow run.")
+  }
+
+  const { error: eventError } = await supabase
+    .from("workflow_run_events")
+    .insert({
+      organization_id: membership.organization_id,
+      run_id: run.id,
+      event_type: "run.queued",
+      message: "Workflow run queued manually.",
+      payload: {
+        trigger_type: "manual",
+        client_id: clientId,
+      },
+    })
+
+  if (eventError) {
+    throw new Error(
+      "Run was created but its audit event could not be recorded.",
+    )
+  }
+
+  if (clientId) {
+    await logClientActivity({
+      organizationId: membership.organization_id,
+      clientId,
+      activityType: "workflow_run.associated",
+      title: "Workflow run queued",
+      description: "A manual workflow run was associated with this client.",
+      actorUserId: userId,
+      metadata: { run_id: run.id, workflow_id: workflow.id, project_id: projectId },
+    })
+  }
+
+  try {
+    await dispatchWorkflowRun(run.id, userId)
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unable to dispatch workflow run."
+
+    throw new Error(message)
+  }
 
   revalidatePath(`/dashboard/projects/${projectId}`)
+
   return run.id
 }

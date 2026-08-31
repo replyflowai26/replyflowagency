@@ -35,6 +35,14 @@ export default async function ProjectsPage() {
   const organization = Array.isArray(membership.organizations) ? membership.organizations[0] : membership.organizations
   const canCreate = ["owner", "admin", "member"].includes(membership.role)
 
+  const { data: clients } = await supabase
+    .from("clients")
+    .select("id, name")
+    .eq("organization_id", membership.organization_id)
+    .order("name", { ascending: true })
+
+  const clientOptions = (clients ?? []).map((client) => ({ id: client.id, name: client.name }))
+
   return (
     <main className="min-h-screen bg-[#05070b] text-white">
       <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -43,7 +51,7 @@ export default async function ProjectsPage() {
           <Link href="/dashboard" className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/70 hover:bg-white/5">Dashboard</Link>
         </header>
 
-        {canCreate ? <section className="mb-6 rounded-2xl border border-white/10 bg-[#090c12]/80 p-5 backdrop-blur-xl"><h2 className="font-semibold">Create automation project</h2><p className="mt-1 mb-5 text-sm text-white/40">Projects group related workflows into one operational unit.</p><ProjectCreateForm /></section> : null}
+        {canCreate ? <section className="mb-6 rounded-2xl border border-white/10 bg-[#090c12]/80 p-5 backdrop-blur-xl"><h2 className="font-semibold">Create automation project</h2><p className="mt-1 mb-5 text-sm text-white/40">Projects group related workflows into one operational unit.</p><ProjectCreateForm clients={clientOptions} /></section> : null}
 
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#090c12]/80">
           <div className="border-b border-white/8 px-5 py-4"><h2 className="font-semibold">Project registry</h2><p className="mt-1 text-xs text-white/35">{projects.length} project{projects.length === 1 ? "" : "s"} in this workspace</p></div>

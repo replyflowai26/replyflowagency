@@ -18,3 +18,23 @@ export type Client = {
   created_at: string
   updated_at: string
 }
+
+export const CLIENT_ACTIVITY_TYPES = [
+  "client.created",
+  "client.status_changed",
+  "client.updated",
+  "workflow_run.associated",
+] as const
+export type ClientActivityType = (typeof CLIENT_ACTIVITY_TYPES)[number]
+
+export type ClientActivity = {
+  id: string
+  organization_id: string
+  client_id: string
+  activity_type: ClientActivityType
+  title: string
+  description: string | null
+  actor_user_id: string | null
+  metadata: Record<string, unknown>
+  created_at: string
+}

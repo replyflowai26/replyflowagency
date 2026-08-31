@@ -32,7 +32,7 @@ export default async function ProjectRunsPage({ params }: Props) {
 
   const { data: runs, error } = await supabase
     .from("workflow_runs")
-    .select("id, workflow_id, status, trigger_type, requested_by, external_execution_id, error_message, started_at, completed_at, created_at")
+    .select("id, workflow_id, client_id, clients(id, name), status, trigger_type, requested_by, external_execution_id, error_message, started_at, completed_at, created_at")
     .eq("project_id", id)
     .eq("organization_id", membership.organization_id)
     .order("created_at", { ascending: false })
@@ -45,6 +45,10 @@ export default async function ProjectRunsPage({ params }: Props) {
     ? await supabase.from("workflows").select("id, name").in("id", workflowIds)
     : { data: [] as { id: string; name: string }[] }
   const workflowNames = new Map((workflows ?? []).map((workflow) => [workflow.id, workflow.name]))
+  const runClients = new Map((runs ?? []).map((run) => {
+    const client = Array.isArray(run.clients) ? run.clients[0] : run.clients
+    return [run.id, client ? { id: client.id, name: client.name } : null]
+  }))
 
   return (
     <main className="min-h-screen bg-[#05070b] text-white">
@@ -56,7 +60,7 @@ export default async function ProjectRunsPage({ params }: Props) {
 
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#090c12]/80">
           <div className="border-b border-white/8 px-5 py-4"><h2 className="font-semibold">Execution history</h2><p className="mt-1 text-xs text-white/35">Showing the latest {runs?.length ?? 0} runs.</p></div>
-          {!runs?.length ? <div className="px-5 py-16 text-center"><p className="text-sm text-white/50">No workflow runs yet.</p><p className="mt-1 text-xs text-white/25">Runs will appear here once execution requests are created.</p></div> : <div className="divide-y divide-white/8">{runs.map((run) => <div key={run.id} className="grid gap-3 px-5 py-5 md:grid-cols-[1.5fr_auto_auto_auto] md:items-center"><div><h3 className="font-medium">{workflowNames.get(run.workflow_id) ?? "Unknown workflow"}</h3><p className="mt-1 text-xs text-white/30">{run.id}</p>{run.error_message ? <p className="mt-2 text-xs text-red-300">{run.error_message}</p> : null}</div><span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/50">{run.trigger_type}</span><span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/60">{run.status}</span><span className="text-xs text-white/30">{new Date(run.created_at).toLocaleString()}</span></div>)}</div>}
+          {!runs?.length ? <div className="px-5 py-16 text-center"><p className="text-sm text-white/50">No workflow runs yet.</p><p className="mt-1 text-xs text-white/25">Runs will appear here once execution requests are created.</p></div> : <div className="divide-y divide-white/8">{runs.map((run) => { const client = runClients.get(run.id); return <div key={run.id} className="grid gap-3 px-5 py-5 md:grid-cols-[1.5fr_auto_auto_auto_auto] md:items-center"><div><h3 className="font-medium">{workflowNames.get(run.workflow_id) ?? "Unknown workflow"}</h3><p className="mt-1 text-xs text-white/30">{run.id}</p>{run.error_message ? <p className="mt-2 text-xs text-red-300">{run.error_message}</p> : null}</div>{client ? <Link href={`/dashboard/clients/${client.id}`} className="rounded-full border border-cyan-300/15 bg-cyan-300/[.05] px-2.5 py-1 text-[10px] uppercase tracking-wider text-cyan-200 transition hover:bg-cyan-300/10">{client.name}</Link> : null}<span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/50">{run.trigger_type}</span><span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/60">{run.status}</span><span className="text-xs text-white/30">{new Date(run.created_at).toLocaleString()}</span></div>})}</div>}
         </section>
       </div>
     </main>

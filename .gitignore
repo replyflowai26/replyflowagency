@@ -1,7 +1,10 @@
 node_modules
 .next
+.test-dist
+*.tsbuildinfo
 out
 .env*
 .vercel
 *.log
 supabase/.temp/
+supabase/migrations/*.backup

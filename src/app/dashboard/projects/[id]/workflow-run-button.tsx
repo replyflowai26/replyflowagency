@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { queueWorkflowRun } from "./run-actions"
 
-export function WorkflowRunButton({ projectId, workflowId, disabled }: { projectId: string; workflowId: string; disabled?: boolean }) {
+export function WorkflowRunButton({ projectId, workflowId, clientId, disabled }: { projectId: string; workflowId: string; clientId?: string; disabled?: boolean }) {
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -14,6 +14,7 @@ export function WorkflowRunButton({ projectId, workflowId, disabled }: { project
       const formData = new FormData()
       formData.set("projectId", projectId)
       formData.set("workflowId", workflowId)
+      formData.set("clientId", clientId ?? "")
       await queueWorkflowRun(formData)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to queue workflow run.")

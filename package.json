@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "npm run test:bridge",
+    "test:bridge": "tsc -p tsconfig.bridge-test.json && node --test .test-dist/tests/client-automation-bridge.test.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

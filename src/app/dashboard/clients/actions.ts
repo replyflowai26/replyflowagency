@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import { CLIENT_STATUSES, type ClientStatus } from "@/types/client"
+import { logClientActivity } from "@/lib/client-activity"
 
 type ActionState = { error?: string; success?: string }
 
@@ -46,21 +47,35 @@ export async function createClientRecord(_previous: ActionState, formData: FormD
     return { error: "You do not have permission to create clients." }
   }
 
-  const { error } = await supabase.from("clients").insert({
-    organization_id: membership.organization_id,
-    name,
-    contact_name: contactName,
-    email,
-    phone,
-    website_url: websiteUrl,
-    industry,
-    source,
-    notes,
-    owner_user_id: userId,
-    created_by: userId,
-  })
+  const { data: created, error } = await supabase
+    .from("clients")
+    .insert({
+      organization_id: membership.organization_id,
+      name,
+      contact_name: contactName,
+      email,
+      phone,
+      website_url: websiteUrl,
+      industry,
+      source,
+      notes,
+      owner_user_id: userId,
+      created_by: userId,
+    })
+    .select("id, name")
+    .single()
 
   if (error) return { error: "Unable to create the client. Please try again." }
+
+  await logClientActivity({
+    organizationId: membership.organization_id,
+    clientId: created.id,
+    activityType: "client.created",
+    title: `Created client ${created.name}`,
+    description: source ? `Source: ${source}` : "New client record created.",
+    actorUserId: userId,
+    metadata: { source },
+  })
 
   revalidatePath("/dashboard/clients")
   return { success: "Client created successfully." }
@@ -89,6 +104,17 @@ export async function updateClientRecord(_previous: ActionState, formData: FormD
     return { error: "You do not have permission to update clients." }
   }
 
+  const { data: existing, error: existingError } = await supabase
+    .from("clients")
+    .select("id, name, contact_name, email, phone, website_url, industry, source, notes, status")
+    .eq("id", id)
+    .eq("organization_id", membership.organization_id)
+    .maybeSingle()
+
+  if (existingError || !existing) {
+    return { error: "Client not found in this workspace." }
+  }
+
   const { error } = await supabase
     .from("clients")
     .update({ name, contact_name: contactName, email, phone, website_url: websiteUrl, industry, source, notes, status })
@@ -96,6 +122,35 @@ export async function updateClientRecord(_previous: ActionState, formData: FormD
     .eq("organization_id", membership.organization_id)
 
   if (error) return { error: "Unable to update the client. Please try again." }
+
+  if (existing.status !== status) {
+    await logClientActivity({
+      organizationId: membership.organization_id,
+      clientId: id,
+      activityType: "client.status_changed",
+      title: `Status changed from ${existing.status} to ${status}`,
+      actorUserId: userId,
+      metadata: { from: existing.status, to: status },
+    })
+  } else if (
+    name !== existing.name ||
+    contactName !== existing.contact_name ||
+    email !== existing.email ||
+    phone !== existing.phone ||
+    websiteUrl !== existing.website_url ||
+    industry !== existing.industry ||
+    source !== existing.source ||
+    notes !== existing.notes
+  ) {
+    await logClientActivity({
+      organizationId: membership.organization_id,
+      clientId: id,
+      activityType: "client.updated",
+      title: `Updated ${existing.name}`,
+      actorUserId: userId,
+      metadata: { fields: ["details"] },
+    })
+  }
 
   revalidatePath("/dashboard/clients")
   revalidatePath(`/dashboard/clients/${id}`)
