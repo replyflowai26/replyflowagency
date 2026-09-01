@@ -1,6 +1,7 @@
 import "server-only"
 
 import { createClient } from "@/lib/supabase/server"
+import { logError } from "@/lib/telemetry/logging"
 
 const DEFAULT_WINDOW_DAYS = 30
 
@@ -77,10 +78,17 @@ export async function getDashboardTelemetry(
 
   for (const result of [clientsResult, workflowsResult, succeededResult, failedResult]) {
     if (result.error) {
+      logError("dashboard.telemetry", "Unable to load dashboard telemetry", result.error, {
+        organization_id: organizationId,
+        window_days: windowDays,
+      })
       throw new Error(`Unable to load dashboard telemetry: ${result.error.message}`)
     }
   }
   if (activityResult.error) {
+    logError("dashboard.activity", "Unable to load recent activity", activityResult.error, {
+      organization_id: organizationId,
+    })
     throw new Error(`Unable to load recent activity: ${activityResult.error.message}`)
   }
 

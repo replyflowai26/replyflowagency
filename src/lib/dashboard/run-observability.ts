@@ -1,6 +1,7 @@
 import "server-only"
 
 import { createClient } from "@/lib/supabase/server"
+import { logError } from "@/lib/telemetry/logging"
 import {
   mapRunEvent,
   humanizeRunId,
@@ -43,6 +44,10 @@ async function loadRunRow(
     .maybeSingle()
 
   if (runError) {
+    logError("run.detail", "Unable to load workflow run", runError, {
+      organization_id: organizationId,
+      run_id: runId,
+    })
     throw new Error("Unable to load workflow run.")
   }
   if (!raw) {
@@ -104,6 +109,10 @@ export async function getRunEvents(
     .limit(limit)
 
   if (error) {
+    logError("run.events", "Unable to load execution timeline", error, {
+      organization_id: organizationId,
+      run_id: runId,
+    })
     throw new Error("Unable to load execution timeline.")
   }
 

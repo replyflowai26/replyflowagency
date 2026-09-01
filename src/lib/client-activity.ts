@@ -1,6 +1,7 @@
 import "server-only"
 
 import { createAdminClient } from "@/lib/supabase/admin"
+import { logError } from "@/lib/telemetry/logging"
 import type { ClientActivityType } from "@/types/client"
 
 type LogActivityOptions = {
@@ -27,6 +28,11 @@ export async function logClientActivity(options: LogActivityOptions): Promise<vo
   })
 
   if (error) {
-    console.error("Failed to log client activity:", error.message)
+    logError(
+      "client-activity.record",
+      "Failed to log client activity",
+      error,
+      { organization_id: options.organizationId, activity_type: options.activityType },
+    )
   }
 }

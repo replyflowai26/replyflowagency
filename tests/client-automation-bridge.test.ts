@@ -144,7 +144,8 @@ test("client activity logging is non-fatal to the primary operation", () => {
   const source = readSource("src/lib/client-activity.ts")
   assert.match(source, /createAdminClient/)
   assert.match(source, /from\("client_activities"\)\.insert/)
-  assert.match(source, /console\.error/)
+  assert.match(source, /logError/)
+  assert.doesNotMatch(source, /console\.error/)
   assert.doesNotMatch(source, /throw new Error/)
 })
 

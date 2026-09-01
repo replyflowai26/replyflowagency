@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { recoverStaleWorkflowRuns } from "@/lib/automation/recovery-service"
+import { logError } from "@/lib/telemetry/logging"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -31,6 +32,13 @@ async function handleRecovery(request: Request) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Recovery execution failed."
+
+    logError(
+      "automation.recovery",
+      "Recovery run failed",
+      error instanceof Error ? error : undefined,
+      { status: 500 },
+    )
 
     return NextResponse.json(
       { success: false, error: message },
