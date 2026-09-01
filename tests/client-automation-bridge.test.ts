@@ -183,3 +183,43 @@ test("client-workflow-run association read paths filter by client_id and organiz
     /\.eq\("client_id", client\.id\)[\s\S]*?\.eq\("organization_id", membership\.organization_id\)/,
   )
 })
+
+test("run observability reads are org-scoped and never trust a browser-supplied org", () => {
+  const source = readSource("src/lib/dashboard/run-observability.ts")
+  assert.match(source, /import "server-only"/)
+  assert.match(source, /\.from\("workflow_runs"\)/)
+  assert.match(source, /\.eq\("organization_id", organizationId\)/)
+  assert.match(source, /\.from\("workflow_run_events"\)/)
+  assert.match(source, /\.eq\("organization_id", organizationId\)/)
+  assert.match(source, /\.eq\("run_id", runId\)/)
+  assert.doesNotMatch(source, /\.eq\("organization_id", \(select|request\.|browser|searchParams/)
+})
+
+test("run detail page derives org from authenticated membership and rejects cross-project runs", () => {
+  const page = readSource("src/app/dashboard/projects/[id]/runs/[runId]/page.tsx")
+  assert.match(page, /organization_memberships/)
+  assert.match(page, /\.eq\("organization_id", workspace\.organization_id\)/)
+  assert.match(page, /detail\.projectId !== project\.id/)
+  assert.match(page, /notFound\(\)/)
+})
+
+test("retry re-queues a NEW run via the shared queue path without mutating the original", () => {
+  const runActions = readSource("src/app/dashboard/projects/[id]/run-actions.ts")
+  assert.match(runActions, /runQueueAndDispatch/)
+  assert.match(runActions, /\.from\("workflow_runs"\)/)
+  assert.match(runActions, /retryWorkflowRun/)
+  assert.match(runActions, /client_id: clientId/)
+  assert.doesNotMatch(
+    runActions,
+    /retryWorkflowRun[\s\S]*?\.from\("workflow_runs"\)\s*\.update\(/,
+  )
+})
+
+test("live polling stops and never forges a terminal state the data did not report", () => {
+  const live = readSource("src/app/dashboard/projects/[id]/runs/[runId]/run-live.tsx")
+  assert.match(live, /getRunSnapshotAction/)
+  assert.match(live, /POLL_INTERVAL_MS/)
+  assert.match(live, /isTerminalStatus/)
+  assert.match(live, /clearTimeout/)
+})
+
