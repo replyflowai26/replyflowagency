@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
-import { CLIENT_STATUSES, type ClientStatus } from "@/types/client"
+import type { ClientStatus, OutreachStatus } from "@/types/client"
 import { logClientActivity } from "@/lib/client-activity"
+import { parseClientPipelineInput } from "@/lib/leads/client-pipeline"
 
 type ActionState = { error?: string; success?: string }
 
@@ -38,8 +39,12 @@ export async function createClientRecord(_previous: ActionState, formData: FormD
   const source = clean(formData.get("source")) || null
   const notes = clean(formData.get("notes")) || null
 
-  if (name.length < 2) return { error: "Client/company name is required." }
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Enter a valid client email." }
+  const pipeline = parseClientPipelineInput({
+    name,
+    email,
+    nextFollowUpAt: clean(formData.get("nextFollowUpAt")),
+  })
+  if ("error" in pipeline) return pipeline
 
   const { supabase, userId, membership } = await getMembership()
   if (!userId) return { error: "Authentication required." }
@@ -59,6 +64,8 @@ export async function createClientRecord(_previous: ActionState, formData: FormD
       industry,
       source,
       notes,
+      outreach_status: pipeline.value.outreach_status,
+      next_follow_up_at: pipeline.value.next_follow_up_at,
       owner_user_id: userId,
       created_by: userId,
     })
@@ -93,10 +100,16 @@ export async function updateClientRecord(_previous: ActionState, formData: FormD
   const notes = clean(formData.get("notes")) || null
   const status = clean(formData.get("status")) as ClientStatus
 
+  const pipeline = parseClientPipelineInput({
+    name,
+    email,
+    status,
+    outreachStatus: clean(formData.get("outreachStatus")),
+    nextFollowUpAt: clean(formData.get("nextFollowUpAt")),
+  })
+  if ("error" in pipeline) return pipeline
+
   if (!id) return { error: "Client id is required." }
-  if (name.length < 2) return { error: "Client/company name is required." }
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Enter a valid client email." }
-  if (!CLIENT_STATUSES.includes(status)) return { error: "Invalid client status." }
 
   const { supabase, userId, membership } = await getMembership()
   if (!userId) return { error: "Authentication required." }
@@ -106,7 +119,7 @@ export async function updateClientRecord(_previous: ActionState, formData: FormD
 
   const { data: existing, error: existingError } = await supabase
     .from("clients")
-    .select("id, name, contact_name, email, phone, website_url, industry, source, notes, status")
+    .select("id, name, contact_name, email, phone, website_url, industry, source, notes, status, outreach_status")
     .eq("id", id)
     .eq("organization_id", membership.organization_id)
     .maybeSingle()
@@ -117,7 +130,19 @@ export async function updateClientRecord(_previous: ActionState, formData: FormD
 
   const { error } = await supabase
     .from("clients")
-    .update({ name, contact_name: contactName, email, phone, website_url: websiteUrl, industry, source, notes, status })
+    .update({
+      name,
+      contact_name: contactName,
+      email,
+      phone,
+      website_url: websiteUrl,
+      industry,
+      source,
+      notes,
+      status,
+      outreach_status: pipeline.value.outreach_status,
+      next_follow_up_at: pipeline.value.next_follow_up_at,
+    })
     .eq("id", id)
     .eq("organization_id", membership.organization_id)
 
@@ -131,6 +156,16 @@ export async function updateClientRecord(_previous: ActionState, formData: FormD
       title: `Status changed from ${existing.status} to ${status}`,
       actorUserId: userId,
       metadata: { from: existing.status, to: status },
+    })
+  }
+  if (existing.outreach_status !== pipeline.value.outreach_status) {
+    await logClientActivity({
+      organizationId: membership.organization_id,
+      clientId: id,
+      activityType: "client.outreach_updated",
+      title: `Outreach status changed from ${existing.outreach_status} to ${pipeline.value.outreach_status}`,
+      actorUserId: userId,
+      metadata: { from: existing.outreach_status, to: pipeline.value.outreach_status },
     })
   } else if (
     name !== existing.name ||

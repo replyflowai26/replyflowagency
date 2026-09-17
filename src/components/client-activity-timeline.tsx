@@ -4,6 +4,9 @@ function activityStyle(activityType: string) {
   if (activityType === "client.status_changed") {
     return { dot: "bg-amber-300 shadow-[0_0_14px_rgba(252,211,77,.6)]", border: "border-amber-300/20", label: "text-amber-200" }
   }
+  if (activityType === "client.outreach_updated") {
+    return { dot: "bg-orange-300 shadow-[0_0_14px_rgba(253,186,116,.6)]", border: "border-orange-300/20", label: "text-orange-200" }
+  }
   if (activityType === "client.created") {
     return { dot: "bg-emerald-300 shadow-[0_0_14px_rgba(110,231,183,.6)]", border: "border-emerald-300/20", label: "text-emerald-200" }
   }

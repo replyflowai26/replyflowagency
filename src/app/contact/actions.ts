@@ -1,17 +1,36 @@
 "use server"
 
+import { headers } from "next/headers"
 import { createClient } from "@/lib/supabase/server"
+import { rateLimit } from "@/lib/security/rate-limit"
 
 type ContactState = { error?: string; success?: boolean }
 
+const CONTACT_RATE_LIMIT = 5
+const CONTACT_RATE_WINDOW_MS = 10 * 60_000
+
 function clean(value: FormDataEntryValue | null) {
   return String(value ?? "").trim()
+}
+
+function clientIp(requestHeaders: Headers): string {
+  const forwarded = requestHeaders.get("x-forwarded-for")
+  if (forwarded) return forwarded.split(",")[0]!.trim()
+  return requestHeaders.get("x-real-ip") ?? "unknown"
 }
 
 export async function submitContactLead(
   _previousState: ContactState,
   formData: FormData,
 ): Promise<ContactState> {
+  const limit = rateLimit(`contact:${clientIp(await headers())}`, {
+    limit: CONTACT_RATE_LIMIT,
+    windowMs: CONTACT_RATE_WINDOW_MS,
+  })
+  if (!limit.allowed) {
+    return { error: "Too many requests. Please try again in a few minutes." }
+  }
+
   const name = clean(formData.get("name"))
   const email = clean(formData.get("email")).toLowerCase()
   const company = clean(formData.get("company"))

@@ -3,6 +3,10 @@
     {
       "path": "/api/internal/automation/recovery",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/internal/automation/retention",
+      "schedule": "0 3 * * *"
     }
   ]
 }

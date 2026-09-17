@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import { logClientActivity } from "@/lib/client-activity"
+import { parseWorkflowMappingInput } from "@/lib/automation/webhook"
 
 const slugify = (value: string) =>
   value
@@ -189,4 +190,49 @@ export async function updateProjectClient(formData: FormData) {
 
   revalidatePath(`/dashboard/projects/${projectId}`)
   revalidatePath(`/dashboard/projects`)
+}
+
+export async function updateWorkflowMapping(formData: FormData) {
+  const parsed = parseWorkflowMappingInput({
+    workflowId: String(formData.get("workflowId") ?? ""),
+    n8nWorkflowId: String(formData.get("n8nWorkflowId") ?? ""),
+    n8nWebhookPath: String(formData.get("n8nWebhookPath") ?? ""),
+  })
+  if (!parsed.ok) throw new Error(parsed.error)
+
+  const { supabase, membership } = await getMembership()
+  if (!["owner", "admin", "member"].includes(membership.role)) {
+    throw new Error("You do not have permission to modify workflows.")
+  }
+
+  const { data: workflow, error: workflowError } = await supabase
+    .from("workflows")
+    .select("id, project_id, organization_id")
+    .eq("id", parsed.value.workflowId)
+    .eq("organization_id", membership.organization_id)
+    .maybeSingle()
+
+  if (workflowError || !workflow) {
+    throw new Error("Workflow not found in this workspace.")
+  }
+
+  const { error } = await supabase
+    .from("workflows")
+    .update({
+      n8n_workflow_id: parsed.value.n8nWorkflowId,
+      n8n_webhook_path: parsed.value.n8nWebhookPath,
+    })
+    .eq("id", workflow.id)
+    .eq("organization_id", membership.organization_id)
+    .eq("project_id", workflow.project_id)
+
+  if (error) {
+    if (error.code === "23505") {
+      throw new Error("A workflow is already mapped to this n8n workflow id.")
+    }
+    throw new Error("Unable to update workflow mapping.")
+  }
+
+  revalidatePath(`/dashboard/projects/${workflow.project_id}`)
+  revalidatePath("/dashboard/projects")
 }

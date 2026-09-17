@@ -6,10 +6,37 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "outDir": ".test-dist"
+    "outDir": ".test-dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": [
     "tests/client-automation-bridge.test.ts",
-    "src/types/client.ts"
+    "tests/security-headers-rate-limit.test.ts",
+    "tests/csp.test.ts",
+    "tests/event-retention.test.ts",
+    "tests/automation-runtime-state.test.ts",
+    "tests/callback-core.test.ts",
+    "tests/callback-apply.test.ts",
+    "tests/client-sales-pipeline.test.ts",
+    "tests/client-pipeline-validation.test.ts",
+    "tests/guarded-submit.test.ts",
+    "tests/workflow-runs-access-grants.test.ts",
+    "tests/workflow-run-not-found.test.ts",
+    "tests/workflow-webhook-mapping.test.ts",
+    "tests/n8n-dispatch.test.ts",
+    "tests/local-dev-launcher.test.ts",
+    "tests/local-login-harness.test.ts",
+    "src/types/client.ts",
+    "src/lib/leads/client-pipeline.ts",
+    "src/lib/forms/guarded-submit.ts",
+    "src/lib/security/csp.ts",
+    "src/lib/automation/run-state-machine.ts",
+    "src/lib/automation/webhook.ts",
+    "src/lib/automation/n8n-dispatch-core.ts",
+    "src/lib/automation/callback-core.ts",
+    "src/lib/automation/callback-apply.ts"
   ]
 }

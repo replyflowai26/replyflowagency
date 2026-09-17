@@ -28,7 +28,6 @@ type RunRow = {
   updated_at: string
   workflows: { id: string; name: string } | { id: string; name: string }[] | null
   automation_projects: { id: string; name: string } | { id: string; name: string }[] | null
-  clients: { id: string; name: string } | { id: string; name: string }[] | null
 }
 
 async function loadRunRow(
@@ -38,7 +37,7 @@ async function loadRunRow(
 ) {
   const { data: raw, error: runError } = await supabase
     .from("workflow_runs")
-    .select("id, workflow_id, project_id, client_id, status, trigger_type, requested_by, external_execution_id, error_code, error_message, started_at, completed_at, created_at, updated_at, workflows(id, name), automation_projects(id, name), clients(id, name)")
+    .select("id, workflow_id, project_id, client_id, status, trigger_type, requested_by, external_execution_id, error_code, error_message, started_at, completed_at, created_at, updated_at, workflows!workflow_runs_workflow_id_organization_id_fkey(id, name), automation_projects!workflow_runs_project_id_organization_id_fkey(id, name)")
     .eq("id", runId)
     .eq("organization_id", organizationId)
     .maybeSingle()
@@ -57,7 +56,25 @@ async function loadRunRow(
   const run = raw as unknown as RunRow
   const workflow = Array.isArray(run.workflows) ? run.workflows[0] : run.workflows
   const project = Array.isArray(run.automation_projects) ? run.automation_projects[0] : run.automation_projects
-  const client = Array.isArray(run.clients) ? run.clients[0] : run.clients
+
+  let client: { id: string; name: string } | null = null
+  if (run.client_id) {
+    const { data: clientRow, error: clientError } = await supabase
+      .from("clients")
+      .select("id, name")
+      .eq("id", run.client_id)
+      .eq("organization_id", organizationId)
+      .maybeSingle()
+    if (clientError) {
+      logError("run.client", "Unable to load linked client", clientError, {
+        organization_id: organizationId,
+        run_id: runId,
+        client_id: run.client_id,
+      })
+    } else {
+      client = clientRow ?? null
+    }
+  }
 
   return { run, workflow, project, client }
 }

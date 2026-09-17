@@ -87,6 +87,7 @@ test("existing automation RLS is preserved (no weakening)", () => {
 test("CLIENT_ACTIVITY_TYPES are strict and complete", () => {
   assert.deepEqual([...CLIENT_ACTIVITY_TYPES].sort(), [
     "client.created",
+    "client.outreach_updated",
     "client.status_changed",
     "client.updated",
     "workflow_run.associated",

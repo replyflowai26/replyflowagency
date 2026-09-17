@@ -4,6 +4,7 @@ node_modules
 *.tsbuildinfo
 out
 .env*
+.local-test-login.json
 .vercel
 *.log
 supabase/.temp/

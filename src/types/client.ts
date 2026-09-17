@@ -1,6 +1,9 @@
 export const CLIENT_STATUSES = ["lead", "prospect", "active", "paused", "completed", "archived"] as const
 export type ClientStatus = (typeof CLIENT_STATUSES)[number]
 
+export const OUTREACH_STATUSES = ["not_started", "contacted", "following_up", "meeting_scheduled", "closed_won", "closed_lost"] as const
+export type OutreachStatus = (typeof OUTREACH_STATUSES)[number]
+
 export type Client = {
   id: string
   organization_id: string
@@ -13,6 +16,8 @@ export type Client = {
   status: ClientStatus
   source: string | null
   notes: string | null
+  outreach_status: OutreachStatus
+  next_follow_up_at: string | null
   owner_user_id: string | null
   created_by: string
   created_at: string
@@ -22,6 +27,7 @@ export type Client = {
 export const CLIENT_ACTIVITY_TYPES = [
   "client.created",
   "client.status_changed",
+  "client.outreach_updated",
   "client.updated",
   "workflow_run.associated",
 ] as const

@@ -43,6 +43,10 @@ const RUN_EVENT_LABELS: Record<string, { label: string; description?: string }> 
       label: "Dispatched",
       description: "The execution adapter accepted the run.",
     },
+    "run.dispatch_uncertain": {
+      label: "Dispatch outcome uncertain",
+      description: "The dispatch may not have reached the execution adapter; the run is being reconciled.",
+    },
     "run.succeeded": {
       label: "Succeeded",
       description: "The execution completed successfully.",

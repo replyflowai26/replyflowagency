@@ -33,7 +33,7 @@ export default async function ProjectRunsPage({ params }: Props) {
 
   const { data: runs, error } = await supabase
     .from("workflow_runs")
-    .select("id, workflow_id, client_id, clients(id, name), status, trigger_type, requested_by, external_execution_id, error_message, started_at, completed_at, created_at")
+    .select("id, workflow_id, client_id, status, trigger_type, requested_by, external_execution_id, error_message, started_at, completed_at, created_at")
     .eq("project_id", id)
     .eq("organization_id", membership.organization_id)
     .order("created_at", { ascending: false })
@@ -46,8 +46,14 @@ export default async function ProjectRunsPage({ params }: Props) {
     ? await supabase.from("workflows").select("id, name").in("id", workflowIds)
     : { data: [] as { id: string; name: string }[] }
   const workflowNames = new Map((workflows ?? []).map((workflow) => [workflow.id, workflow.name]))
+
+  const clientIds = [...new Set((runs ?? []).map((run) => run.client_id).filter((cid): cid is string => Boolean(cid)))]
+  const { data: clients } = clientIds.length
+    ? await supabase.from("clients").select("id, name").eq("organization_id", membership.organization_id).in("id", clientIds)
+    : { data: [] as { id: string; name: string }[] }
+  const clientMap = new Map((clients ?? []).map((client) => [client.id, client]))
   const runClients = new Map((runs ?? []).map((run) => {
-    const client = Array.isArray(run.clients) ? run.clients[0] : run.clients
+    const client = run.client_id ? clientMap.get(run.client_id) : undefined
     return [run.id, client ? { id: client.id, name: client.name } : null]
   }))
   const runHrefs = new Map((runs ?? []).map((run) => [run.id, `/dashboard/projects/${id}/runs/${run.id}`]))

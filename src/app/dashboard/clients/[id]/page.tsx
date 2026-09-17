@@ -49,7 +49,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
   const { data, error } = await supabase
     .from("clients")
-    .select("id, organization_id, name, contact_name, email, phone, website_url, industry, status, source, notes, owner_user_id, created_by, created_at, updated_at")
+    .select("id, organization_id, name, contact_name, email, phone, website_url, industry, status, source, notes, outreach_status, next_follow_up_at, owner_user_id, created_by, created_at, updated_at")
     .eq("id", id)
     .eq("organization_id", membership.organization_id)
     .maybeSingle()
@@ -103,10 +103,18 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         <ClientDeleteButton clientId={client.id} />
       </header>
 
-        <section className="mb-6 grid gap-3 sm:grid-cols-3">
+        <section className="mb-6 grid gap-3 sm:grid-cols-5">
           <div className="rounded-2xl border border-white/10 bg-[#090c12]/80 p-5">
             <p className="text-xs uppercase tracking-wider text-white/35">Status</p>
             <p className="mt-2 font-medium capitalize">{client.status}</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-[#090c12]/80 p-5">
+            <p className="text-xs uppercase tracking-wider text-white/35">Outreach</p>
+            <p className="mt-2 font-medium capitalize">{client.outreach_status.split("_").join(" ")}</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-[#090c12]/80 p-5">
+            <p className="text-xs uppercase tracking-wider text-white/35">Next follow-up</p>
+            <p className="mt-2 font-medium">{client.next_follow_up_at ? new Date(client.next_follow_up_at).toLocaleDateString() : "Not set"}</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-[#090c12]/80 p-5">
             <p className="text-xs uppercase tracking-wider text-white/35">Industry</p>
