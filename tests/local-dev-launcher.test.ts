@@ -33,6 +33,7 @@ const localEnv = loadEnvFile(".env.e2e.local")
 test("dev:local script is wired into package.json and ignores no env file", () => {
   assert.match(packageJson, /"dev:local": "node scripts\/run-local-dev\.mjs"/)
   assert.match(packageJson, /"dev:local:3001": "node scripts\/run-local-dev\.mjs --port 3001"/)
+  assert.match(packageJson, /"dev:local:e2e": "node scripts\/run-local-dev\.mjs --container-callbacks"/)
   assert.match(gitIgnore, /\.env\*/)
 })
 
@@ -55,6 +56,12 @@ test("launcher refuses non-local URLs before booting", () => {
   assert.match(launcher, /hostname === "localhost"/)
   assert.match(launcher, /hostname === "127\.0\.0\.1"/)
   assert.match(launcher, /refusing to start against a non-local host/)
+})
+
+test("launcher binds to loopback except when the local E2E callback mode is explicit", () => {
+  assert.match(launcher, /args\.includes\("--container-callbacks"\)/)
+  assert.match(launcher, /containerCallbacks \? "0\.0\.0\.0" : "127\.0\.0\.1"/)
+  assert.match(launcher, /"--hostname", hostname/)
 })
 
 test("launcher requires every variable the app needs from the local stack", () => {

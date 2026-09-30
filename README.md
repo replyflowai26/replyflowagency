@@ -9,6 +9,12 @@ Production-oriented marketing website foundation.
 stack defined in `.env.e2e.local` (git-ignored). Use `npm run dev:local:3001`
 for a second local instance.
 
+The `dev:local` launcher binds to loopback by default. For local E2E tests
+where a Docker service such as n8n must call back into the app, use the
+explicit `npm run dev:local:e2e` launcher. It binds to all interfaces for that
+test session; use it only on a trusted network and stop it when E2E testing is
+finished.
+
 > Do NOT use plain `npm run dev` for local sign-in work: it loads `.env.local`,
 > which points at the hosted Supabase project, so browser login fails with
 > "Unable to sign in right now."

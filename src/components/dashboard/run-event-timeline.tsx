@@ -1,11 +1,22 @@
-import type { RunEventView } from "@/lib/dashboard/run-observability-core"
+"use client"
 
-function formatEventTime(iso: string): string {
-  try {
-    return new Date(iso).toLocaleString()
-  } catch {
-    return iso
-  }
+import { useSyncExternalStore } from "react"
+import type { RunEventView } from "@/lib/dashboard/run-observability-core"
+import { formatRunEventTime } from "@/lib/dashboard/format-run-event-time"
+
+const subscribe = () => () => {}
+
+function LocalEventTime({ iso }: { iso: string }) {
+  const displayTime = useSyncExternalStore(
+    subscribe,
+    () => {
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+      return formatRunEventTime(iso, timeZone)
+    },
+    () => iso,
+  )
+
+  return <time dateTime={iso}>{displayTime}</time>
 }
 
 export function RunEventTimeline({ events }: { events: RunEventView[] }) {
@@ -33,7 +44,7 @@ export function RunEventTimeline({ events }: { events: RunEventView[] }) {
             <p className="mt-0.5 text-xs leading-5 text-white/45">{event.description}</p>
           ) : null}
           <p className="mt-1 text-[10px] uppercase tracking-wider text-white/25">
-            {formatEventTime(event.createdAt)}
+            <LocalEventTime iso={event.createdAt} />
           </p>
         </li>
       ))}

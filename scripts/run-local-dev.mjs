@@ -108,17 +108,28 @@ async function main() {
 
   let port = "3000"
   const args = process.argv.slice(2)
-  const portArgIndex = args.findIndex((a) => a === "--port" || a === "-p")
-  if (portArgIndex >= 0 && args[portArgIndex + 1]) {
-    port = args[portArgIndex + 1]
-    args.splice(portArgIndex, 2)
+  for (let i = 0; i < args.length; i++) {
+    if ((args[i] === "--port" || args[i] === "-p") && args[i + 1]) {
+      port = args[i + 1]
+      args.splice(i, 2)
+      i--
+    }
   }
 
-  console.log(`[dev:local] Starting Next.js on http://127.0.0.1:${port} ...\n`)
+  const containerCallbacks = args.includes("--container-callbacks")
+  if (containerCallbacks) args.splice(args.indexOf("--container-callbacks"), 1)
+  const hostname = containerCallbacks ? "0.0.0.0" : "127.0.0.1"
+
+  const accessUrl = `http://127.0.0.1:${port}`
+  console.log(
+    containerCallbacks
+      ? `[dev:local] Starting Next.js for local container callbacks on all interfaces at port ${port} (local URL: ${accessUrl}).\n`
+      : `[dev:local] Starting Next.js on ${accessUrl} ...\n`,
+  )
 
   const child = execFile(
     process.execPath,
-    [resolve(REPO_ROOT, "node_modules/next/dist/bin/next"), "dev", "--hostname", "127.0.0.1", "-p", port, ...args],
+    [resolve(REPO_ROOT, "node_modules/next/dist/bin/next"), "dev", "--hostname", hostname, "-p", port, ...args],
     { cwd: REPO_ROOT, env: { ...process.env, ...env } },
     (error) => {
       if (error && error.code !== 0 && error.signal !== "SIGTERM") {

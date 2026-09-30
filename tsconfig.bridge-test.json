@@ -28,6 +28,7 @@
     "tests/workflow-webhook-mapping.test.ts",
     "tests/n8n-dispatch.test.ts",
     "tests/local-dev-launcher.test.ts",
+    "tests/run-event-timeline.test.ts",
     "tests/local-login-harness.test.ts",
     "src/types/client.ts",
     "src/lib/leads/client-pipeline.ts",
@@ -37,6 +38,7 @@
     "src/lib/automation/webhook.ts",
     "src/lib/automation/n8n-dispatch-core.ts",
     "src/lib/automation/callback-core.ts",
-    "src/lib/automation/callback-apply.ts"
+    "src/lib/automation/callback-apply.ts",
+    "src/lib/dashboard/format-run-event-time.ts"
   ]
 }
