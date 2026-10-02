@@ -8,6 +8,7 @@ import {
   triggerTypeLabel,
 } from "@/lib/dashboard/run-observability"
 import { RunLive } from "./run-live"
+import { logError } from "@/lib/telemetry/logging"
 
 type Props = { params: Promise<{ id: string; runId: string }> }
 
@@ -56,12 +57,21 @@ export default async function RunDetailPage({ params }: Props) {
   if (membershipError || !membership) redirect("/onboarding")
   const workspace = membership as Membership
 
-  const { data: project } = await supabase
+  const { data: project, error: projectError } = await supabase
     .from("automation_projects")
     .select("id, name")
     .eq("id", id)
     .eq("organization_id", workspace.organization_id)
     .maybeSingle()
+
+  if (projectError) {
+    logError("run.detail.project", "Unable to load project for run", projectError, {
+      organization_id: workspace.organization_id,
+      project_id: id,
+      run_id: runId,
+    })
+    throw new Error("Unable to load project for this run.")
+  }
 
   if (!project) notFound()
 

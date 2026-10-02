@@ -15,6 +15,12 @@
 //   callback to the exact workflow that was dispatched.
 // - The transition is validated by the central state machine; a terminal run
 //   is never moved again (making duplicate callbacks harmless).
+// - The write is a compare-and-set on the observed status, so two concurrent
+//   deliveries cannot both apply: the loser matches no row, writes nothing and
+//   emits no timeline event.
+// - A database failure is raised as an error rather than reported as
+//   `not_found`, so the route's 404 means only "no such run" and a transient
+//   failure stays retryable instead of being silently dropped.
 //
 // The caller (the route handler) is responsible for HMAC signature
 // verification and payload parsing before invoking this function.
@@ -104,7 +110,12 @@ export async function applyCallbackToRun(
       run_id: payload.replyflow_run_id,
       fingerprint,
     })
-    return { outcome: "not_found", runId: null, status: null }
+    // A failed read is NOT a missing run. Reporting `not_found` here would make
+    // the route answer 404, which the caller treats as permanently
+    // undeliverable, silently dropping the terminal result and leaving the run
+    // stuck in a non-terminal state. Surface it as a server error instead, so
+    // `not_found` keeps exactly one meaning: the run genuinely does not exist.
+    throw new Error("Unable to load workflow run.")
   }
 
   if (!run) {
@@ -147,7 +158,7 @@ export async function applyCallbackToRun(
   const now = new Date().toISOString()
   const compatibleExternalId = payload.execution_id ?? run.external_execution_id
 
-  const { error: updateError } = await supabase
+  const { data: claimed, error: updateError } = await supabase
     .from("workflow_runs")
     .update({
       status: to,
@@ -166,6 +177,13 @@ export async function applyCallbackToRun(
     })
     .eq("id", run.id)
     .eq("organization_id", run.organization_id)
+    // Compare-and-set: the write only claims the run while it is still in the
+    // exact state this callback just validated. PostgREST evaluates the WHERE
+    // clause before applying the SET, so a concurrent callback or recovery pass
+    // that already moved the run makes this match zero rows.
+    .eq("status", run.status)
+    .select("id")
+    .maybeSingle()
 
   if (updateError) {
     log("error", "callback.apply", "Unable to update run from callback", updateError, {
@@ -174,7 +192,25 @@ export async function applyCallbackToRun(
       to,
       fingerprint,
     })
-    return { outcome: "not_found", runId: run.id, status: run.status }
+    // Same contract as the load failure above: a failed write must never be
+    // reported as `not_found`, or the route would answer 404 and the terminal
+    // result would be lost rather than retried.
+    throw new Error("Unable to update workflow run.")
+  }
+
+  if (!claimed) {
+    // Lost the race: the run is no longer in the state we validated, so this
+    // delivery must not overwrite the newer state and must not append a second
+    // terminal event. `status_mismatch` is the existing outcome for "the run is
+    // not in the state this callback requires"; no new state is introduced.
+    log("warn", "callback.apply", "Callback lost the state race; run already changed", undefined, {
+      organization_id: payload.organization_id,
+      run_id: run.id,
+      expected_status: run.status,
+      to,
+      fingerprint,
+    })
+    return { outcome: "status_mismatch", runId: run.id, status: run.status }
   }
 
   const eventMeta: Record<string, unknown> = {

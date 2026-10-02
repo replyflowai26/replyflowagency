@@ -66,6 +66,34 @@ function createFakeSupabase(initial: Record<string, Row[]> = {}): DbHandle {
         filters.every((f) => (f.negate ? row[f.col] !== f.val : row[f.col] === f.val)),
       )
 
+    // supabase-js applies a write as part of the same round trip that returns
+    // the affected rows (UPDATE ... WHERE ... RETURNING), so the terminator
+    // must flush pending writes before evaluating filters. `then()` does the
+    // same for write chains that are awaited without a terminator.
+    const flushWrites = (): void => {
+      if (pendingInsert !== null) {
+        ;(tables[table] ??= []).push(pendingInsert)
+        pendingInsert = null
+      }
+      if (pendingDelete) {
+        const rows = applyFilters()
+        rows.forEach((row) => {
+          const idx = tables[table]?.indexOf(row)
+          if (idx !== undefined && idx >= 0) tables[table]?.splice(idx, 1)
+        })
+        pendingDelete = false
+      }
+      if (pendingPatch !== null) {
+        // supabase-js serializes the update body as JSON, which drops
+        // undefined values; mirror that so the fake matches production.
+        const patch = Object.fromEntries(
+          Object.entries(pendingPatch).filter(([, value]) => value !== undefined),
+        )
+        applyFilters().forEach((row) => Object.assign(row, patch))
+        pendingPatch = null
+      }
+    }
+
     const chain: any = {
       select(): any {
         return chain
@@ -91,13 +119,18 @@ function createFakeSupabase(initial: Record<string, Row[]> = {}): DbHandle {
         return chain
       },
       async maybeSingle(): Promise<{ data: Row | null; error: null }> {
-        const rows = applyFilters()
-        return rows.length ? { data: rows[0], error: null } : { data: null, error: null }
+        // WHERE is evaluated once, before the mutation, exactly like
+        // `UPDATE ... WHERE ... RETURNING`. The matched row is returned by
+        // reference, so it reflects the applied patch.
+        const matched = applyFilters()
+        flushWrites()
+        return matched.length ? { data: matched[0], error: null } : { data: null, error: null }
       },
       async single(): Promise<{ data: Row | null; error: { message: string } | null }> {
-        const rows = applyFilters()
-        return rows.length === 1
-          ? { data: rows[0], error: null }
+        const matched = applyFilters()
+        flushWrites()
+        return matched.length === 1
+          ? { data: matched[0], error: null }
           : { data: null, error: { message: "unexpected row count" } }
       },
       // Thenable so `await ...update(...).eq(...)` finalizes the write chain.
@@ -106,27 +139,7 @@ function createFakeSupabase(initial: Record<string, Row[]> = {}): DbHandle {
         onRejected?: (reason: unknown) => unknown,
       ): Promise<unknown> {
         return (async (): Promise<{ error: null }> => {
-          if (pendingInsert !== null) {
-            ;(tables[table] ??= []).push(pendingInsert)
-            pendingInsert = null
-          }
-          if (pendingDelete) {
-            const rows = applyFilters()
-            rows.forEach((row) => {
-              const idx = tables[table]?.indexOf(row)
-              if (idx !== undefined && idx >= 0) tables[table]?.splice(idx, 1)
-            })
-            pendingDelete = false
-          }
-          if (pendingPatch !== null) {
-            // supabase-js serializes the update body as JSON, which drops
-            // undefined values; mirror that so the fake matches production.
-            const patch = Object.fromEntries(
-              Object.entries(pendingPatch).filter(([, value]) => value !== undefined),
-            )
-            applyFilters().forEach((row) => Object.assign(row, patch))
-            pendingPatch = null
-          }
+          flushWrites()
           return { error: null }
         })().then(onFulfilled, onRejected)
       },
@@ -326,6 +339,171 @@ test("cancelled callback marks the run cancelled with a run.cancelled event", as
   assert.equal(result.status, "cancelled")
   assert.equal(db.tables.workflow_runs[0].status, "cancelled")
   assert.equal(db.tables.workflow_run_events[0].event_type, "run.cancelled")
+})
+
+// ─── not_found means exactly "no such run" (HTTP 404 contract) ──────────────
+
+/** Read terminator fails, so no run can be found. */
+function withLoadError(db: DbHandle, message: string): DbHandle {
+  return {
+    tables: db.tables,
+    from: (table: string) => {
+      const chain = db.from(table)
+      let sawUpdate = false
+      const originalUpdate = chain.update.bind(chain)
+      chain.update = (patch: Row) => {
+        sawUpdate = true
+        return originalUpdate(patch)
+      }
+      const originalMaybeSingle = chain.maybeSingle.bind(chain)
+      chain.maybeSingle = async () => {
+        if (sawUpdate) return originalMaybeSingle()
+        return { data: null, error: { message } }
+      }
+      return chain
+    },
+  }
+}
+
+/** Write terminator fails, so the terminal write cannot land. */
+function withUpdateError(db: DbHandle, message: string): DbHandle {
+  return {
+    tables: db.tables,
+    from: (table: string) => {
+      const chain = db.from(table)
+      let sawUpdate = false
+      const originalUpdate = chain.update.bind(chain)
+      chain.update = (patch: Row) => {
+        sawUpdate = true
+        return originalUpdate(patch)
+      }
+      const originalMaybeSingle = chain.maybeSingle.bind(chain)
+      chain.maybeSingle = async () => {
+        if (sawUpdate) return { data: null, error: { message } }
+        return originalMaybeSingle()
+      }
+      return chain
+    },
+  }
+}
+
+/**
+ * Simulates a competing writer committing between this apply's read and its
+ * write: the row's status is moved as soon as the update is issued, which is
+ * exactly the window the compare-and-set has to close.
+ */
+function withConcurrentStatusChange(db: DbHandle, newStatus: string): DbHandle {
+  return {
+    tables: db.tables,
+    from: (table: string) => {
+      const chain = db.from(table)
+      const originalUpdate = chain.update.bind(chain)
+      chain.update = (patch: Row) => {
+        // Replace the row rather than mutating it: the apply under test already
+        // holds a snapshot from its read, and a competing transaction would not
+        // retroactively change what that snapshot saw.
+        const rows = db.tables[table] ?? []
+        const idx = rows.findIndex((row) => row.id === RUN)
+        if (idx >= 0) rows[idx] = { ...rows[idx], status: newStatus }
+        return originalUpdate(patch)
+      }
+      return chain
+    },
+  }
+}
+
+function collectingLogger(): { log: (...args: any[]) => void; entries: Row[] } {
+  const entries: Row[] = []
+  return {
+    entries,
+    log: (level: string, scope: string, message: string, _error?: unknown, meta?: Row) => {
+      entries.push({ level, scope, message, ...(meta ?? {}) })
+    },
+  }
+}
+
+test("a read failure is raised, never reported as not_found (so 404 stays truthful)", async () => {
+  const db = createFakeSupabase({ workflow_runs: [seededRun()], workflow_run_events: [] })
+  const { payload } = signedPayload()
+  const logger = collectingLogger()
+
+  await assert.rejects(
+    () => applyCallbackToRun(payload, { supabase: withLoadError(db, "connection reset"), secret: SECRET, log: logger.log }),
+    /Unable to load workflow run\./,
+  )
+
+  // A transient read failure must leave the run untouched and emit no event.
+  assert.equal(db.tables.workflow_runs[0].status, "running")
+  assert.equal(db.tables.workflow_run_events.length, 0)
+  assert.ok(logger.entries.some((e) => e.level === "error" && e.scope === "callback.apply"))
+})
+
+test("a write failure is raised, never reported as not_found", async () => {
+  const db = createFakeSupabase({ workflow_runs: [seededRun()], workflow_run_events: [] })
+  const { payload } = signedPayload()
+  const logger = collectingLogger()
+
+  await assert.rejects(
+    () => applyCallbackToRun(payload, { supabase: withUpdateError(db, "deadlock detected"), secret: SECRET, log: logger.log }),
+    /Unable to update workflow run\./,
+  )
+
+  assert.equal(db.tables.workflow_runs[0].status, "running")
+  assert.equal(db.tables.workflow_run_events.length, 0)
+  assert.ok(logger.entries.some((e) => e.level === "error" && e.scope === "callback.apply"))
+})
+
+test("a genuinely missing run is the only thing that yields not_found", async () => {
+  const db = createFakeSupabase({ workflow_runs: [], workflow_run_events: [] })
+  const { payload } = signedPayload()
+
+  const result = await applyCallbackToRun(payload, { supabase: db, secret: SECRET })
+
+  assert.equal(result.outcome, "not_found")
+  assert.equal(result.runId, RUN)
+  assert.equal(db.tables.workflow_run_events.length, 0)
+})
+
+// ─── Compare-and-set: a concurrent state change must not be overwritten ──────
+
+test("a concurrent state change loses the compare-and-set and writes nothing", async () => {
+  const db = createFakeSupabase({ workflow_runs: [seededRun()], workflow_run_events: [] })
+  const { payload } = signedPayload()
+  const logger = collectingLogger()
+
+  const result = await applyCallbackToRun(payload, {
+    supabase: withConcurrentStatusChange(db, "cancelled"),
+    secret: SECRET,
+    log: logger.log,
+  })
+
+  // The competing writer's terminal state survives; this delivery is refused.
+  assert.equal(result.outcome, "status_mismatch")
+  assert.equal(result.runId, RUN)
+  assert.equal(db.tables.workflow_runs[0].status, "cancelled")
+  assert.equal(db.tables.workflow_runs[0].completed_at, null)
+
+  // Critically: the loser must not append a second terminal event.
+  assert.equal(db.tables.workflow_run_events.length, 0)
+  assert.ok(logger.entries.some((e) => e.level === "warn" && e.expected_status === "running"))
+})
+
+test("only the winner of a concurrent race writes the terminal state and one event", async () => {
+  const db = createFakeSupabase({ workflow_runs: [seededRun()], workflow_run_events: [] })
+  const { payload } = signedPayload()
+
+  // First delivery wins the compare-and-set and moves the run to succeeded.
+  const first = await applyCallbackToRun(payload, { supabase: db, secret: SECRET })
+  assert.equal(first.outcome, "applied")
+  assert.equal(db.tables.workflow_runs[0].status, "succeeded")
+
+  // A concurrent duplicate arriving afterwards must be inert: no state
+  // regression, no second timeline event.
+  const second = await applyCallbackToRun(payload, { supabase: db, secret: SECRET })
+  assert.equal(second.outcome, "already_terminal")
+  assert.equal(db.tables.workflow_runs[0].status, "succeeded")
+  assert.equal(db.tables.workflow_run_events.length, 1)
+  assert.equal(db.tables.workflow_run_events[0].event_type, "run.succeeded")
 })
 
 // ─── Harness structural integrity ───────────────────────────────────────────

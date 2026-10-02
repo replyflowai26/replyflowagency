@@ -49,6 +49,12 @@ const CALLBACK_SECRET = env.REPLYFLOW_CALLBACK_SECRET || process.env.REPLYFLOW_C
 const N8N_BASE = env.N8N_BASE_URL || process.env.N8N_BASE_URL || "http://127.0.0.1:5678"
 const N8N_API_KEY = env.N8N_API_KEY || process.env.N8N_API_KEY || ""
 
+// The n8n workflow this test drives. It is referenced here only to read its
+// webhook path and to POST the dispatch below. It is deliberately NOT written
+// to `workflows.n8n_workflow_id`, because that column is a global one-to-one
+// mapping that may already belong to an unrelated pre-existing workflow row.
+const N8N_WORKFLOW_ID = "ODCxASjOnuMk8fyW"
+
 if (!SUPABASE_URL || !SERVICE_KEY || !CALLBACK_SECRET) {
   console.error("FATAL: missing env vars in .env.e2e.local")
   process.exit(1)
@@ -178,7 +184,7 @@ async function main(): Promise<boolean> {
 
     // Get the webhook path from the n8n workflow
     log("3. LOOKUP N8N WEBHOOK PATH", "querying n8n...")
-    const wfResp = await fetch(`${N8N_BASE}/api/v1/workflows/ODCxASjOnuMk8fyW`, {
+    const wfResp = await fetch(`${N8N_BASE}/api/v1/workflows/${N8N_WORKFLOW_ID}`, {
       headers: { "X-N8N-API-KEY": N8N_API_KEY, Accept: "application/json" },
     })
     const wfData = await wfResp.json()
@@ -196,7 +202,23 @@ async function main(): Promise<boolean> {
         name: "E2E Test Workflow",
         status: "active",
         created_by: userId,
-        n8n_workflow_id: "ODCxASjOnuMk8fyW",
+        // Deliberately NOT claimed. `workflows_n8n_workflow_id_idx` is a
+        // deliberate global one-to-one mapping (migration
+        // 20260816000004_n8n_workflow_mapping.sql), so at most one ReplyFlow
+        // workflow may reference a given n8n workflow. The n8n workflow this
+        // test drives is a real, shared local workflow that can already be
+        // mapped to an unrelated pre-existing workflow row; claiming it here
+        // would fail the insert with unique-violation 23505, and reclaiming it
+        // by deleting the other row would destroy unrelated local data.
+        //
+        // NULL is valid: the index is partial ("where n8n_workflow_id is not
+        // null"), so any number of unmapped fixture rows may coexist. Nothing in
+        // this test depends on the mapping — it triggers n8n directly by
+        // webhook path, and the callback path only compares workflow_id for
+        // forgery detection. Only execution-service.ts (dispatch) reads this
+        // column, and this test never uses it.
+        n8n_workflow_id: null,
+        // Kept for traceability/debugging; this index is non-unique.
         n8n_webhook_path: webhookPath,
       })
       .select("id")

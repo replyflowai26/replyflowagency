@@ -26,6 +26,7 @@
     "tests/workflow-runs-access-grants.test.ts",
     "tests/workflow-run-not-found.test.ts",
     "tests/workflow-webhook-mapping.test.ts",
+    "tests/local-e2e-fixture.test.ts",
     "tests/n8n-dispatch.test.ts",
     "tests/local-dev-launcher.test.ts",
     "tests/run-event-timeline.test.ts",

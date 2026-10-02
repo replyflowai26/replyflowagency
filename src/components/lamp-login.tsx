@@ -18,6 +18,7 @@ function authErrorMessage(message: string) {
   if (normalized.includes("email not confirmed")) return "Your email is not confirmed yet. Check your inbox and confirm your ReplyFlow account before signing in."
   if (normalized.includes("invalid login credentials")) return "The email or password is incorrect. If you are new to ReplyFlow, create a workspace first."
   if (normalized.includes("too many requests")) return "Too many sign-in attempts. Please wait a moment and try again."
+  if (process.env.NODE_ENV !== "production") return `Sign-in failed: ${message}`
   return "Unable to sign in right now. Please check your account details and try again."
 }
 
@@ -49,13 +50,18 @@ export function LampLogin() {
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password })
       if (error) {
+        console.error("[login] sign-in rejected:", error.message)
         setErrorMessage(authErrorMessage(error.message))
         return
       }
       router.replace("/dashboard")
       router.refresh()
-    } catch {
-      setErrorMessage("Unable to sign in right now. Please try again.")
+    } catch (error) {
+      console.error("[login] sign-in request failed:", error)
+      const detail = error instanceof Error && process.env.NODE_ENV !== "production"
+        ? ` Sign-in failed: ${error.message}`
+        : ""
+      setErrorMessage(`Unable to sign in right now. Please try again.${detail}`)
     } finally {
       setIsSubmitting(false)
     }

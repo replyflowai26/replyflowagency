@@ -25,8 +25,16 @@ If login fails against the local stack with the generic
 "Unable to sign in right now. Please check your account details and try again."
 message, the usual causes, in order:
 
-1. **Local stack is not running** — run `supabase start` (the `dev:local`
-   launcher checks this and warns before booting).
+1. **Local stack is not running or not responding** — run `supabase start` (the
+   `dev:local` launcher checks this and warns before booting). Note that Docker
+   Desktop can report containers as "Running" while its engine is frozen: the
+   ports still accept TCP connections but never answer HTTP, so every sign-in
+   fails with the generic message above. Verify with a bounded health check,
+   not Docker's status:
+   `Invoke-WebRequest -Uri http://127.0.0.1:54321/auth/v1/health -TimeoutSec 10`
+   An HTTP 200 means Auth is healthy. A timeout (or an empty HTTP 400 instead of
+   a JSON error body from `/auth/v1/token`) means the stack is unhealthy —
+   restart Docker Desktop and run `supabase start` again.
 2. **Broken local auth schema** — a local volume created by an older CLI then run
    against a newer GoTrue image can leave `auth.users` token columns NULL, which
    GoTrue cannot scan ("converting NULL to string is unsupported"). This breaks
