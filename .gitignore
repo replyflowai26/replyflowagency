@@ -9,3 +9,15 @@ out
 *.log
 supabase/.temp/
 supabase/migrations/*.backup
+
+# Local Playwright MCP output and snapshots
+.playwright-mcp/
+
+# Local smoke-test screenshots
+smoke-*.png
+
+# Machine-local VS Code MCP configuration
+.vscode/mcp.json
+
+# Local OpenCode agent configuration
+/opencode.json
