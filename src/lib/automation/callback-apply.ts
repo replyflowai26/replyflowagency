@@ -13,11 +13,16 @@
 //   organization's run.
 // - The payload's workflow_id must match the run's workflow_id, tying the
 //   callback to the exact workflow that was dispatched.
-// - The transition is validated by the central state machine; a terminal run
-//   is never moved again (making duplicate callbacks harmless).
-// - The write is a compare-and-set on the observed status, so two concurrent
-//   deliveries cannot both apply: the loser matches no row, writes nothing and
-//   emits no timeline event.
+// - The transition is validated by the central state machine before the write is
+//   attempted, and the database re-validates it under a row lock.
+// - A terminal run is never moved again (making duplicate callbacks harmless);
+//   the RPC reports that as `already_terminal` without writing.
+// - The transition and its workflow_run_events audit record are committed by a
+//   single RPC call, so a terminal state can never be committed without the
+//   event that documents it.
+// - The write is a compare-and-set on the observed status, enforced inside the
+//   RPC under the row lock, so two concurrent deliveries cannot both apply: the
+//   loser is told it lost, writes nothing and emits no timeline event.
 // - A database failure is raised as an error rather than reported as
 //   `not_found`, so the route's 404 means only "no such run" and a transient
 //   failure stays retryable instead of being silently dropped.
@@ -30,8 +35,16 @@ import {
   isWorkflowRunStatus,
   isTerminalRunStatus,
   canTransitionRun,
-  type WorkflowRunStatus,
 } from "./run-state-machine"
+import {
+  applyAtomicTransition,
+  buildTransitionArgs,
+  callbackTargetStatus,
+  shouldAttemptTransition,
+  withCallbackDiagnostic,
+  CALLBACK_DIAGNOSTIC_CODES,
+  type AtomicTransitionClient,
+} from "./atomic-transition"
 
 export type CallbackOutcome =
   | "applied"
@@ -47,10 +60,10 @@ export type CallbackResult = {
 }
 
 // Minimal structural shape of the Supabase client this module needs. The real
-// admin client (from @/lib/supabase/admin) satisfies it structurally and tests
-// substitute an in-memory fake that also matches the same query surface used
-// below (.from(...).select/update/insert with .eq filters).
-export type CallbackClient = {
+// admin client (from @/lib/supabase/admin) satisfies it structurally, and tests
+// substitute an in-memory fake that serves the same two operations this module
+// performs: a read of the run row, and the atomic transition RPC.
+export type CallbackClient = AtomicTransitionClient & {
   from: (table: string) => any
 }
 
@@ -70,18 +83,8 @@ export type CallbackApplyDeps = {
   log?: CallbackLogger
 }
 
-function mapCallbackStatusToRun(callbackStatus: string): WorkflowRunStatus | null {
-  switch (callbackStatus) {
-    case "success":
-      return "succeeded"
-    case "error":
-      return "failed"
-    case "cancelled":
-      return "cancelled"
-    default:
-      return null
-  }
-}
+// mapCallbackStatusToRun is replaced by callbackTargetStatus from
+// atomic-transition to keep the mapping in a single, shared location.
 
 /**
  * Apply a verified n8n callback to the durable workflow_runs record using the
@@ -115,7 +118,10 @@ export async function applyCallbackToRun(
     // undeliverable, silently dropping the terminal result and leaving the run
     // stuck in a non-terminal state. Surface it as a server error instead, so
     // `not_found` keeps exactly one meaning: the run genuinely does not exist.
-    throw new Error("Unable to load workflow run.")
+    throw withCallbackDiagnostic(
+      new Error("Unable to load workflow run."),
+      CALLBACK_DIAGNOSTIC_CODES.runLoadFailed,
+    )
   }
 
   if (!run) {
@@ -139,14 +145,13 @@ export async function applyCallbackToRun(
     return { outcome: "status_mismatch", runId: run.id, status: run.status }
   }
 
-  const to = mapCallbackStatusToRun(payload.status)
+  const to = callbackTargetStatus(payload)
   if (!to) {
     return { outcome: "status_mismatch", runId: run.id, status: run.status }
   }
 
-  // Idempotency: if the run already reached a terminal state (or the exact
-  // target) a duplicate callback is a no-op. Never push a terminal run out of
-  // its state.
+  // Idempotency: if the run already reached a terminal state a duplicate
+  // callback is a no-op. Never push a terminal run out of its state.
   if (isTerminalRunStatus(run.status)) {
     return { outcome: "already_terminal", runId: run.id, status: run.status }
   }
@@ -156,61 +161,10 @@ export async function applyCallbackToRun(
   }
 
   const now = new Date().toISOString()
-  const compatibleExternalId = payload.execution_id ?? run.external_execution_id
 
-  const { data: claimed, error: updateError } = await supabase
-    .from("workflow_runs")
-    .update({
-      status: to,
-      completed_at: now,
-      last_activity_at: now,
-      external_execution_id: compatibleExternalId,
-      output: to === "succeeded" ? (payload.output ?? null) : run.output ?? null,
-      error_code:
-        to === "failed"
-          ? payload.error_code ?? "CALLBACK_ERROR"
-          : null,
-      error_message:
-        to === "failed"
-          ? payload.error_message ?? "Workflow reported an error."
-          : null,
-    })
-    .eq("id", run.id)
-    .eq("organization_id", run.organization_id)
-    // Compare-and-set: the write only claims the run while it is still in the
-    // exact state this callback just validated. PostgREST evaluates the WHERE
-    // clause before applying the SET, so a concurrent callback or recovery pass
-    // that already moved the run makes this match zero rows.
-    .eq("status", run.status)
-    .select("id")
-    .maybeSingle()
-
-  if (updateError) {
-    log("error", "callback.apply", "Unable to update run from callback", updateError, {
-      organization_id: payload.organization_id,
-      run_id: run.id,
-      to,
-      fingerprint,
-    })
-    // Same contract as the load failure above: a failed write must never be
-    // reported as `not_found`, or the route would answer 404 and the terminal
-    // result would be lost rather than retried.
-    throw new Error("Unable to update workflow run.")
-  }
-
-  if (!claimed) {
-    // Lost the race: the run is no longer in the state we validated, so this
-    // delivery must not overwrite the newer state and must not append a second
-    // terminal event. `status_mismatch` is the existing outcome for "the run is
-    // not in the state this callback requires"; no new state is introduced.
-    log("warn", "callback.apply", "Callback lost the state race; run already changed", undefined, {
-      organization_id: payload.organization_id,
-      run_id: run.id,
-      expected_status: run.status,
-      to,
-      fingerprint,
-    })
-    return { outcome: "status_mismatch", runId: run.id, status: run.status }
+  // Cheap first check: if the app's view already says terminal, skip the RPC.
+  if (!shouldAttemptTransition(run.status)) {
+    return { outcome: "already_terminal", runId: run.id, status: run.status }
   }
 
   const eventMeta: Record<string, unknown> = {
@@ -227,13 +181,55 @@ export async function applyCallbackToRun(
         ? "Workflow execution was cancelled."
         : "Workflow execution returned an error."
 
-  await supabase.from("workflow_run_events").insert({
-    organization_id: payload.organization_id,
-    run_id: run.id,
-    event_type: eventType,
-    message,
-    payload: eventMeta,
+  let patchOutput: unknown = null
+  if (to === "succeeded") {
+    patchOutput = payload.output ?? run.output ?? null
+  }
+
+  let errorCode: string | null = null
+  let errorMessage: string | null = null
+  if (to === "failed") {
+    errorCode = payload.error_code ?? "CALLBACK_ERROR"
+    errorMessage = payload.error_message ?? "Workflow reported an error."
+  }
+
+  const transitionArgs = buildTransitionArgs({
+    runId: run.id,
+    organizationId: run.organization_id,
+    patch: {
+      status: to,
+      completed_at: to === "succeeded" || to === "failed" || to === "cancelled" ? now : null,
+      last_activity_at: now,
+      external_execution_id: payload.execution_id ?? run.external_execution_id,
+      output: patchOutput,
+      error_code: errorCode,
+      error_message: errorMessage,
+    },
+    eventType,
+    eventMessage: message,
+    eventPayload: eventMeta,
+    expectedStatus: run.status,
   })
 
-  return { outcome: "applied", runId: run.id, status: to }
+  const resultRow = await applyAtomicTransition(transitionArgs, {
+    supabase,
+    log: (messageText, meta) => {
+      log("error", "callback.apply", messageText, undefined, meta)
+    },
+  })
+
+  switch (resultRow.outcome) {
+    case "applied":
+      return { outcome: "applied", runId: run.id, status: to }
+    case "already_terminal":
+      return { outcome: "already_terminal", runId: run.id, status: resultRow.status ?? run.status }
+    case "status_mismatch":
+    case "invalid_transition":
+      return { outcome: "status_mismatch", runId: run.id, status: resultRow.status ?? run.status }
+    default:
+      throw withCallbackDiagnostic(
+        new Error("Unable to apply workflow run transition."),
+        CALLBACK_DIAGNOSTIC_CODES.unexpectedOutcome,
+      )
+  }
 }

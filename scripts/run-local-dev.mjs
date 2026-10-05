@@ -15,6 +15,14 @@
 //   - Aborts unless every URL variable points at localhost/127.0.0.1.
 //   - Aborts unless all required variables are present.
 //   - Prints only host names and ports — never keys, tokens or secrets.
+//
+// WHY INTERNAL_AUTOMATION_SECRET IS REQUIRED
+//   `/api/internal/automation/retention` and `/api/internal/automation/recovery`
+//   authenticate with this secret (or with CRON_SECRET). It is deliberately NOT
+//   in `.env.e2e.local`'s URL set, but it must still come from the local stack:
+//   when it is absent here, Next.js fills the gap from `.env.local`, so the
+//   local server would end up accepting a hosted secret value. Requiring it
+//   here makes that fallthrough impossible — the launcher aborts instead.
 
 import { execFile } from "node:child_process"
 import { existsSync, readFileSync } from "node:fs"
@@ -31,6 +39,9 @@ const REQUIRED = [
   "REPLYFLOW_CALLBACK_SECRET",
   "N8N_BASE_URL",
   "N8N_API_KEY",
+  // Present-and-non-empty is enforced by the `!env[name]` check below, which
+  // treats an empty value exactly like a missing one.
+  "INTERNAL_AUTOMATION_SECRET",
 ]
 
 const URL_VARS = [

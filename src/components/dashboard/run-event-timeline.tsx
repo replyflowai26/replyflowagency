@@ -16,7 +16,7 @@ function LocalEventTime({ iso }: { iso: string }) {
     () => iso,
   )
 
-  return <time dateTime={iso}>{displayTime}</time>
+  return <time dateTime={iso} suppressHydrationWarning>{displayTime}</time>
 }
 
 export function RunEventTimeline({ events }: { events: RunEventView[] }) {

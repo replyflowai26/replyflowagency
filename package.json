@@ -9,6 +9,7 @@
     "dev:local:e2e": "node scripts/run-local-dev.mjs --container-callbacks",
     "local:repair": "node scripts/repair-local-auth-nulls.mjs",
     "test:local:login": "node scripts/run-local-login-smoke.mjs",
+    "test:e2e:local": "node scripts/run-local-e2e.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

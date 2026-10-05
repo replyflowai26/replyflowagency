@@ -1,6 +1,7 @@
 node_modules
 .next
 .test-dist
+/.test-dist-e2e/
 *.tsbuildinfo
 out
 .env*

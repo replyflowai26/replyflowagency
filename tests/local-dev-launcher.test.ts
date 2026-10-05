@@ -1,6 +1,8 @@
 import assert from "node:assert/strict"
-import { readFileSync } from "node:fs"
-import { resolve } from "node:path"
+import { spawnSync } from "node:child_process"
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join, resolve } from "node:path"
 import test from "node:test"
 
 //
@@ -73,6 +75,7 @@ test("launcher requires every variable the app needs from the local stack", () =
     "REPLYFLOW_CALLBACK_SECRET",
     "N8N_BASE_URL",
     "N8N_API_KEY",
+    "INTERNAL_AUTOMATION_SECRET",
   ]) {
     assert.match(launcher, new RegExp(`"${name}"`), `launcher must verify ${name}`)
   }
@@ -110,4 +113,107 @@ test(".env.e2e.local targets localhost/127.0.0.1 only", () => {
   // The app must never be configured against hosted Supabase from the local file.
   assert.doesNotMatch(read(".env.e2e.local"), /supabase\.co/)
   assert.doesNotMatch(read(".env.e2e.local"), /supabase\.in/)
+})
+
+//
+// Behavioural coverage for INTERNAL_AUTOMATION_SECRET isolation.
+//
+// These run the real launcher in a throwaway directory. The launcher derives its
+// repo root from its own file location, so copying it into a temp dir makes it
+// read that temp dir's `.env.e2e.local` and spawn that temp dir's (absent)
+// Next.js binary. Nothing here starts a server or touches a real stack.
+//
+// All values below are deliberate non-secrets chosen so that a leak is obvious.
+//
+
+const LOCAL_STACK: Record<string, string> = {
+  NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "fixture-publishable-key",
+  SUPABASE_URL: "http://127.0.0.1:54321",
+  SUPABASE_SERVICE_ROLE_KEY: "fixture-service-role-key",
+  REPLYFLOW_CALLBACK_SECRET: "fixture-callback-secret",
+  N8N_BASE_URL: "http://127.0.0.1:5678",
+  N8N_API_KEY: "fixture-n8n-api-key",
+  INTERNAL_AUTOMATION_SECRET: "fixture-internal-secret",
+}
+
+const HOSTED_ONLY_VALUE = "hosted-only-must-never-be-used-locally"
+
+function renderLocalEnv(omit: string[] = [], blank: string[] = []): string {
+  return `${Object.entries(LOCAL_STACK)
+    .filter(([name]) => !omit.includes(name))
+    .map(([name, value]) => `${name}=${blank.includes(name) ? "" : value}`)
+    .join("\n")}\n`
+}
+
+function runLauncherInSandbox(files: Record<string, string>): { code: number | null; output: string } {
+  const dir = mkdtempSync(join(tmpdir(), "replyflow-launcher-"))
+  try {
+    mkdirSync(join(dir, "scripts"))
+    copyFileSync(
+      resolve(process.cwd(), "scripts/run-local-dev.mjs"),
+      join(dir, "scripts/run-local-dev.mjs"),
+    )
+    for (const [name, content] of Object.entries(files)) {
+      writeFileSync(join(dir, name), content, "utf8")
+    }
+    const result = spawnSync(process.execPath, [join(dir, "scripts/run-local-dev.mjs")], {
+      cwd: dir,
+      encoding: "utf8",
+      timeout: 30_000,
+      env: { ...process.env, NEXT_TELEMETRY_DISABLED: "1" },
+    })
+    return { code: result.status, output: `${result.stdout ?? ""}${result.stderr ?? ""}` }
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+}
+
+test("launcher accepts a local INTERNAL_AUTOMATION_SECRET and proceeds past validation", () => {
+  const { output } = runLauncherInSandbox({ ".env.e2e.local": renderLocalEnv() })
+
+  assert.doesNotMatch(output, /BLOCKED/, "a complete local env file must not be blocked")
+  // Printed only after the required-variable gate, so it proves validation ran
+  // and passed. The exit code is intentionally not asserted: the sandbox has no
+  // Next.js binary, so the launcher exits non-zero *after* this line.
+  assert.match(output, /Connected to LOCAL stack/)
+  assert.doesNotMatch(output, /fixture-internal-secret/, "must never print a secret value")
+})
+
+test("launcher aborts when INTERNAL_AUTOMATION_SECRET is missing from the local env", () => {
+  const { code, output } = runLauncherInSandbox({
+    ".env.e2e.local": renderLocalEnv(["INTERNAL_AUTOMATION_SECRET"]),
+  })
+
+  assert.equal(code, 1)
+  assert.match(output, /BLOCKED/)
+  // Names the offending variable, but never its value.
+  assert.match(output, /INTERNAL_AUTOMATION_SECRET/)
+  assert.doesNotMatch(output, /fixture-internal-secret/)
+  assert.doesNotMatch(output, /Connected to LOCAL stack/, "must abort before booting Next.js")
+})
+
+test("launcher aborts when INTERNAL_AUTOMATION_SECRET is present but empty", () => {
+  const { code, output } = runLauncherInSandbox({
+    ".env.e2e.local": renderLocalEnv([], ["INTERNAL_AUTOMATION_SECRET"]),
+  })
+
+  assert.equal(code, 1)
+  assert.match(output, /BLOCKED/)
+  assert.match(output, /INTERNAL_AUTOMATION_SECRET/)
+})
+
+test("launcher will not fall back to a hosted .env.local value for the internal secret", () => {
+  // Regression: when the local file omits the variable, Next.js fills the gap
+  // from `.env.local`. The launcher must refuse to start rather than let a
+  // hosted secret reach the local process.
+  const { code, output } = runLauncherInSandbox({
+    ".env.e2e.local": renderLocalEnv(["INTERNAL_AUTOMATION_SECRET"]),
+    ".env.local": `INTERNAL_AUTOMATION_SECRET=${HOSTED_ONLY_VALUE}\n`,
+  })
+
+  assert.equal(code, 1, "a hosted-only secret must not satisfy local validation")
+  assert.match(output, /BLOCKED/)
+  assert.match(output, /INTERNAL_AUTOMATION_SECRET/)
+  assert.doesNotMatch(output, new RegExp(HOSTED_ONLY_VALUE), "hosted value must never be read or printed")
 })

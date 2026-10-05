@@ -6,6 +6,7 @@ import {
   parseCallbackPayload,
   verifyCallbackSignature,
 } from "@/lib/automation/callback-core"
+import { describeCallbackFailure } from "@/lib/automation/atomic-transition"
 import { applyCallbackResult } from "@/lib/automation/callback-service"
 
 export const runtime = "nodejs"
@@ -123,9 +124,14 @@ async function handleCallback(request: Request) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Callback processing failed."
+    // Single diagnostic emission point for every failure inside
+    // applyCallbackResult. describeCallbackFailure returns {} in production, so
+    // the stage code, capped message and database error code are confined to
+    // local development; the HTTP status and response body are unchanged.
     logError("automation.callback", "Callback processing failed", error instanceof Error ? error : undefined, {
       run_id: validation.payload.replyflow_run_id,
       organization_id: validation.payload.organization_id,
+      ...describeCallbackFailure(error),
     })
     return NextResponse.json({ error: message }, { status: 500, headers })
   }
