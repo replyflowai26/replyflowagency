@@ -2,7 +2,7 @@
 
 import { motion, useInView, useReducedMotion, useScroll } from "motion/react"
 import { useRef } from "react"
-import { fadeUp, cardViewport } from "@/lib/motion"
+import { fadeUp, fadeUpInstant, cardViewport } from "@/lib/motion"
 
 const steps = [
   ["01", "Audit", "Map the manual work and bottlenecks."],
@@ -15,12 +15,13 @@ function ProcessStep({ number, title, description }: { number: string; title: st
   const reduceMotion = useReducedMotion()
   const ref = useRef<HTMLElement | null>(null)
   const inView = useInView(ref, { amount: 0.6 })
+  const fadeUpV = reduceMotion ? fadeUpInstant : fadeUp
 
   return (
     <motion.article
       ref={ref}
-      variants={fadeUp}
-      initial={reduceMotion ? false : "hidden"}
+      variants={fadeUpV}
+      initial="hidden"
       whileInView="visible"
       viewport={cardViewport}
       className={[
@@ -57,8 +58,8 @@ export function Process() {
       <div className="container">
         <div className="grid gap-12 lg:grid-cols-[.7fr_1.3fr]">
           <motion.div
-            variants={fadeUp}
-            initial={reduceMotion ? false : "hidden"}
+            variants={reduceMotion ? fadeUpInstant : fadeUp}
+            initial="hidden"
             whileInView="visible"
             viewport={cardViewport}
           >
@@ -73,12 +74,10 @@ export function Process() {
 
           <div ref={stepsRef} className="relative">
             <div className="absolute bottom-8 left-[15px] top-8 hidden w-px bg-gradient-to-b from-cyan-300/40 via-violet-300/20 to-transparent sm:block" />
-            {!reduceMotion && (
-              <motion.div
-                className="absolute bottom-8 left-[15px] top-8 hidden w-px origin-top bg-gradient-to-b from-cyan-300/80 via-violet-300/50 to-cyan-300/20 sm:block"
-                style={{ scaleY: scrollYProgress }}
-              />
-            )}
+            <motion.div
+              className="absolute bottom-8 left-[15px] top-8 hidden w-px origin-top bg-gradient-to-b from-cyan-300/80 via-violet-300/50 to-cyan-300/20 sm:block"
+              style={{ scaleY: reduceMotion ? 0 : scrollYProgress }}
+            />
             <div className="space-y-4">
               {steps.map(([number, title, description]) => (
                 <ProcessStep key={number} number={number} title={title} description={description} />

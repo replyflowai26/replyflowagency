@@ -1,12 +1,17 @@
 "use client"
 
 import { motion, useReducedMotion } from "motion/react"
-import { staggerContainer, fadeUp, fadeUpLarge, fadeFromLeft, scaleIn } from "@/lib/motion"
+import { staggerContainer, staggerContainerInstant, fadeUp, fadeUpInstant, fadeUpLarge, fadeUpLargeInstant, fadeFromLeft, fadeFromLeftInstant, scaleIn, scaleInInstant } from "@/lib/motion"
 
 const signals = ["LEADS", "SALES", "SUPPORT", "OPS"]
 
 export function Hero() {
   const reduceMotion = useReducedMotion()
+  const stagger = reduceMotion ? staggerContainerInstant : staggerContainer
+  const fadeUpV = reduceMotion ? fadeUpInstant : fadeUp
+  const fadeUpLargeV = reduceMotion ? fadeUpLargeInstant : fadeUpLarge
+  const fadeFromLeftV = reduceMotion ? fadeFromLeftInstant : fadeFromLeft
+  const scaleInV = reduceMotion ? scaleInInstant : scaleIn
 
   return (
     <section className="grid-bg relative flex min-h-[760px] items-center overflow-hidden pt-28 sm:min-h-screen">
@@ -18,49 +23,49 @@ export function Hero() {
       <div className="container relative py-20 sm:py-28">
         <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_.95fr] lg:gap-8">
           <motion.div
-            variants={staggerContainer}
-            initial={reduceMotion ? false : "hidden"}
+            variants={stagger}
+            initial="hidden"
             animate="visible"
             className="relative z-10 max-w-3xl"
           >
             <motion.div
-              variants={fadeFromLeft}
+              variants={fadeFromLeftV}
               className="mb-7 inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/[0.06] px-4 py-2 text-sm text-white/70 backdrop-blur-md"
             >
               <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-cyan-300" />
               AI automation for ambitious businesses
             </motion.div>
 
-            <motion.h1 variants={fadeUpLarge} className="text-5xl font-semibold leading-[0.98] tracking-[-0.055em] text-white sm:text-7xl lg:text-[5.4rem]">
+            <motion.h1 variants={fadeUpLargeV} className="text-5xl font-semibold leading-[0.98] tracking-[-0.055em] text-white sm:text-7xl lg:text-[5.4rem]">
               Stop doing manually
               <span className="block text-gradient">what AI can run.</span>
             </motion.h1>
 
-            <motion.p variants={fadeUp} className="mt-7 max-w-2xl text-base leading-7 text-white/60 sm:text-lg sm:leading-8">
+            <motion.p variants={fadeUpV} className="mt-7 max-w-2xl text-base leading-7 text-white/60 sm:text-lg sm:leading-8">
               ReplyFlow AI designs connected automation systems for lead generation,
               sales, customer support and operations — so your team can focus on growth.
             </motion.p>
 
-            <motion.div variants={fadeUp} className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <motion.div variants={fadeUpV} className="mt-9 flex flex-col gap-3 sm:flex-row">
               <motion.a
                 href="#contact"
-                whileHover={reduceMotion ? undefined : { y: -2, scale: 1.015 }}
-                whileTap={reduceMotion ? undefined : { scale: 0.985 }}
+                whileHover={reduceMotion ? {} : { y: -2, scale: 1.015 }}
+                whileTap={reduceMotion ? {} : { scale: 0.985 }}
                 className="rounded-xl bg-white px-6 py-3.5 text-center font-semibold text-black shadow-[0_0_40px_rgba(255,255,255,.08)]"
               >
                 Build my automation <span className="ml-1">→</span>
               </motion.a>
               <motion.a
                 href="#services"
-                whileHover={reduceMotion ? undefined : { y: -2 }}
-                whileTap={reduceMotion ? undefined : { scale: 0.985 }}
+                whileHover={reduceMotion ? {} : { y: -2 }}
+                whileTap={reduceMotion ? {} : { scale: 0.985 }}
                 className="glass rounded-xl px-6 py-3.5 text-center font-semibold text-white/85 transition hover:border-cyan-300/20"
               >
                 Explore systems
               </motion.a>
             </motion.div>
 
-            <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs tracking-[0.16em] text-white/30">
+            <motion.div variants={fadeUpV} className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs tracking-[0.16em] text-white/30">
               {signals.map((signal) => <span key={signal}>{signal}</span>)}
               <span className="h-px w-10 bg-white/10" />
               <span>CONNECTED BY DESIGN</span>
@@ -68,8 +73,8 @@ export function Hero() {
           </motion.div>
 
           <motion.div
-            variants={scaleIn}
-            initial={reduceMotion ? false : "hidden"}
+            variants={scaleInV}
+            initial="hidden"
             animate="visible"
             className="hero-glow relative mx-auto h-[360px] w-full max-w-[480px] sm:h-[430px]"
           >
@@ -111,9 +116,9 @@ export function Hero() {
                   </div>
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/5">
                     <motion.div
-                      initial={reduceMotion ? { width: "98.4%" } : { width: 0 }}
+                      initial={{ width: 0 }}
                       animate={{ width: "98.4%" }}
-                      transition={{ delay: 0.9, duration: 1.1, ease: "easeOut" }}
+                      transition={reduceMotion ? { duration: 0 } : { delay: 0.9, duration: 1.1, ease: "easeOut" }}
                       className="h-full rounded-full bg-gradient-to-r from-violet-300 to-cyan-300"
                     />
                   </div>

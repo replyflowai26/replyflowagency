@@ -30,3 +30,19 @@ export const scaleIn: Variants = {
   hidden: { opacity: 0, scale: 0.94, y: 20 },
   visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.9, ease: EASE } },
 }
+
+const instantize = (v: Variants): Variants => {
+  const visible = v.visible
+  if (!visible || typeof visible === "function") return { ...v }
+  return { ...v, visible: { ...visible, transition: { duration: 0, delay: 0 } } }
+}
+
+export const fadeUpInstant = instantize(fadeUp)
+export const fadeUpLargeInstant = instantize(fadeUpLarge)
+export const fadeFromLeftInstant = instantize(fadeFromLeft)
+export const scaleInInstant = instantize(scaleIn)
+
+export const staggerContainerInstant: Variants = {
+  hidden: {},
+  visible: { transition: { duration: 0 } },
+}

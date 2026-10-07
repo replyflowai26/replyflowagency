@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from "motion/react"
 import { useActionState } from "react"
 import { submitContactLead } from "@/app/contact/actions"
-import { staggerContainer, fadeUp, fadeFromLeft, scaleIn, cardViewport } from "@/lib/motion"
+import { staggerContainer, staggerContainerInstant, fadeUp, fadeUpInstant, fadeFromLeft, fadeFromLeftInstant, scaleIn, scaleInInstant, cardViewport } from "@/lib/motion"
 
 const initialState = { error: "", success: false }
 
@@ -12,6 +12,10 @@ const inputClass = "w-full rounded-xl border border-white/10 bg-white/[0.035] px
 export function CTA() {
   const [state, formAction, isPending] = useActionState(submitContactLead, initialState)
   const reduceMotion = useReducedMotion()
+  const stagger = reduceMotion ? staggerContainerInstant : staggerContainer
+  const fadeUpV = reduceMotion ? fadeUpInstant : fadeUp
+  const fadeFromLeftV = reduceMotion ? fadeFromLeftInstant : fadeFromLeft
+  const scaleInV = reduceMotion ? scaleInInstant : scaleIn
 
   return (
     <section id="contact" className="relative overflow-hidden py-28 sm:py-36">
@@ -19,28 +23,28 @@ export function CTA() {
       <div className="container relative">
         <motion.div
           className="overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.07] via-white/[0.035] to-cyan-300/[0.025] p-7 shadow-2xl sm:p-12 lg:p-14"
-          variants={staggerContainer}
-          initial={reduceMotion ? false : "hidden"}
+          variants={stagger}
+          initial="hidden"
           whileInView="visible"
           viewport={cardViewport}
         >
           <div className="grid gap-10 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
             <div>
               <motion.div
-                variants={fadeFromLeft}
+                variants={fadeFromLeftV}
                 className="inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/[0.05] px-3 py-1.5 text-xs tracking-[0.15em] text-cyan-300"
               >
                 <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-cyan-300" />
                 READY WHEN YOU ARE
               </motion.div>
-              <motion.h2 variants={fadeUp} className="mt-6 max-w-xl text-4xl font-semibold leading-[1.02] tracking-[-0.045em] sm:text-6xl">
+              <motion.h2 variants={fadeUpV} className="mt-6 max-w-xl text-4xl font-semibold leading-[1.02] tracking-[-0.045em] sm:text-6xl">
                 Let&apos;s automate the work your team shouldn&apos;t be doing manually.
               </motion.h2>
-              <motion.p variants={fadeUp} className="mt-7 max-w-xl text-base leading-7 text-white/45 sm:text-lg">
+              <motion.p variants={fadeUpV} className="mt-7 max-w-xl text-base leading-7 text-white/45 sm:text-lg">
                 Tell us what is repetitive, slow or leaking revenue. We&apos;ll map the system before recommending a build.
               </motion.p>
 
-              <motion.div variants={fadeUp} className="mt-8 grid grid-cols-2 gap-3 text-xs text-white/40 sm:max-w-md">
+              <motion.div variants={fadeUpV} className="mt-8 grid grid-cols-2 gap-3 text-xs text-white/40 sm:max-w-md">
                 {[
                   ["01", "Business audit"],
                   ["02", "Automation map"],
@@ -55,7 +59,7 @@ export function CTA() {
               </motion.div>
             </div>
 
-            <motion.div variants={scaleIn} className="rounded-3xl border border-white/10 bg-black/20 p-5 backdrop-blur-xl sm:p-6">
+            <motion.div variants={scaleInV} className="rounded-3xl border border-white/10 bg-black/20 p-5 backdrop-blur-xl sm:p-6">
               {state.success ? (
                 <div className="flex min-h-[340px] flex-col items-center justify-center text-center">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10 text-2xl text-cyan-300">✓</div>
@@ -88,8 +92,8 @@ export function CTA() {
                   <motion.button
                     type="submit"
                     disabled={isPending}
-                    whileHover={reduceMotion ? undefined : { y: -2 }}
-                    whileTap={reduceMotion ? undefined : { scale: 0.985 }}
+                    whileHover={reduceMotion ? {} : { y: -2 }}
+                    whileTap={reduceMotion ? {} : { scale: 0.985 }}
                     className="w-full rounded-xl bg-white px-6 py-3.5 font-semibold text-black transition hover:bg-cyan-50 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {isPending ? "Sending brief…" : "Start the automation conversation →"}

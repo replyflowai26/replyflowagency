@@ -44,9 +44,9 @@ export function TechnologyStack() {
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {technologies.map((tech, index) => (
             <Reveal key={tech.name} delay={index * 0.05}>
-              <motion.article
-                whileHover={reduceMotion ? undefined : { y: -4, scale: 1.01 }}
-                whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+<motion.article
+                whileHover={reduceMotion ? {} : { y: -4, scale: 1.01 }}
+                whileTap={reduceMotion ? {} : { scale: 0.98 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className="group relative h-full rounded-2xl border border-white/10 bg-[#0b0f16]/90 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-xl hover:border-cyan-300/25 focus-within:border-cyan-300/25 transition-all duration-200"
                 aria-label={`${tech.name} - ${tech.description}`}

@@ -4,11 +4,13 @@ import { motion, useReducedMotion } from "motion/react"
 import { useState } from "react"
 import { services, type Service } from "@/data/services"
 import { ServiceDetail } from "@/components/service-detail"
-import { staggerContainer, fadeUp, cardViewport } from "@/lib/motion"
+import { staggerContainer, staggerContainerInstant, fadeUp, fadeUpInstant, cardViewport } from "@/lib/motion"
 
 export function Services() {
   const [selectedService, setSelectedService] = useState<Service | null>(null)
   const reduceMotion = useReducedMotion()
+  const stagger = reduceMotion ? staggerContainerInstant : staggerContainer
+  const fadeUpV = reduceMotion ? fadeUpInstant : fadeUp
 
   return (
     <>
@@ -16,8 +18,8 @@ export function Services() {
         <div className="services-network absolute inset-0 opacity-40" aria-hidden="true" />
         <div className="container relative">
           <motion.div
-            variants={fadeUp}
-            initial={reduceMotion ? false : "hidden"}
+            variants={fadeUpV}
+            initial="hidden"
             whileInView="visible"
             viewport={cardViewport}
             className="max-w-3xl"
@@ -32,8 +34,8 @@ export function Services() {
           </motion.div>
 
           <motion.div
-            variants={staggerContainer}
-            initial={reduceMotion ? false : "hidden"}
+            variants={stagger}
+            initial="hidden"
             whileInView="visible"
             viewport={cardViewport}
             className="mt-14 grid gap-4 md:grid-cols-2"
@@ -43,9 +45,9 @@ export function Services() {
                 key={service.id}
                 type="button"
                 onClick={() => setSelectedService(service)}
-                variants={fadeUp}
-                whileHover={reduceMotion ? undefined : { y: -5 }}
-                whileTap={reduceMotion ? undefined : { scale: 0.99 }}
+                variants={fadeUpV}
+                whileHover={reduceMotion ? {} : { y: -5 }}
+                whileTap={reduceMotion ? {} : { scale: 0.99 }}
                 className="group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#080b10]/75 p-7 text-left shadow-2xl shadow-black/10 backdrop-blur-xl transition-colors hover:border-cyan-300/20 hover:bg-[#0b1017]/90 sm:p-8"
               >
                 <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-cyan-300/[0.05] blur-3xl transition-opacity group-hover:opacity-100" />
