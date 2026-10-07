@@ -1,12 +1,14 @@
 "use client"
 
-import { motion } from "motion/react"
+import { motion, useReducedMotion } from "motion/react"
 import { useState } from "react"
 import { services, type Service } from "@/data/services"
 import { ServiceDetail } from "@/components/service-detail"
+import { staggerContainer, fadeUp, cardViewport } from "@/lib/motion"
 
 export function Services() {
   const [selectedService, setSelectedService] = useState<Service | null>(null)
+  const reduceMotion = useReducedMotion()
 
   return (
     <>
@@ -14,10 +16,10 @@ export function Services() {
         <div className="services-network absolute inset-0 opacity-40" aria-hidden="true" />
         <div className="container relative">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.65 }}
+            variants={fadeUp}
+            initial={reduceMotion ? false : "hidden"}
+            whileInView="visible"
+            viewport={cardViewport}
             className="max-w-3xl"
           >
             <p className="text-sm font-medium tracking-[0.2em] text-cyan-300">WHAT WE BUILD</p>
@@ -29,19 +31,22 @@ export function Services() {
             </p>
           </motion.div>
 
-          <div className="mt-14 grid gap-4 md:grid-cols-2">
-            {services.map((service, index) => (
+          <motion.div
+            variants={staggerContainer}
+            initial={reduceMotion ? false : "hidden"}
+            whileInView="visible"
+            viewport={cardViewport}
+            className="mt-14 grid gap-4 md:grid-cols-2"
+          >
+            {services.map((service) => (
               <motion.button
                 key={service.id}
                 type="button"
                 onClick={() => setSelectedService(service)}
+                variants={fadeUp}
+                whileHover={reduceMotion ? undefined : { y: -5 }}
+                whileTap={reduceMotion ? undefined : { scale: 0.99 }}
                 className="group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#080b10]/75 p-7 text-left shadow-2xl shadow-black/10 backdrop-blur-xl transition-colors hover:border-cyan-300/20 hover:bg-[#0b1017]/90 sm:p-8"
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.18 }}
-                transition={{ duration: 0.5, delay: index * 0.07 }}
-                whileHover={{ y: -5 }}
-                whileTap={{ scale: 0.99 }}
               >
                 <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-cyan-300/[0.05] blur-3xl transition-opacity group-hover:opacity-100" />
                 <div className="relative flex min-h-52 flex-col justify-between">
@@ -56,7 +61,7 @@ export function Services() {
                 </div>
               </motion.button>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 

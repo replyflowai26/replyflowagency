@@ -1,10 +1,13 @@
 "use client"
 
-import { motion } from "motion/react"
+import { motion, useReducedMotion } from "motion/react"
+import { staggerContainer, fadeUp, fadeUpLarge, fadeFromLeft, scaleIn } from "@/lib/motion"
 
 const signals = ["LEADS", "SALES", "SUPPORT", "OPS"]
 
 export function Hero() {
+  const reduceMotion = useReducedMotion()
+
   return (
     <section className="grid-bg relative flex min-h-[760px] items-center overflow-hidden pt-28 sm:min-h-screen">
       <div className="hero-network absolute inset-0 opacity-80" aria-hidden="true" />
@@ -15,61 +18,59 @@ export function Hero() {
       <div className="container relative py-20 sm:py-28">
         <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_.95fr] lg:gap-8">
           <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            variants={staggerContainer}
+            initial={reduceMotion ? false : "hidden"}
+            animate="visible"
             className="relative z-10 max-w-3xl"
           >
             <motion.div
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.15, duration: 0.6 }}
+              variants={fadeFromLeft}
               className="mb-7 inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/[0.06] px-4 py-2 text-sm text-white/70 backdrop-blur-md"
             >
               <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-cyan-300" />
               AI automation for ambitious businesses
             </motion.div>
 
-            <h1 className="text-5xl font-semibold leading-[0.98] tracking-[-0.055em] text-white sm:text-7xl lg:text-[5.4rem]">
+            <motion.h1 variants={fadeUpLarge} className="text-5xl font-semibold leading-[0.98] tracking-[-0.055em] text-white sm:text-7xl lg:text-[5.4rem]">
               Stop doing manually
               <span className="block text-gradient">what AI can run.</span>
-            </h1>
+            </motion.h1>
 
-            <p className="mt-7 max-w-2xl text-base leading-7 text-white/60 sm:text-lg sm:leading-8">
+            <motion.p variants={fadeUp} className="mt-7 max-w-2xl text-base leading-7 text-white/60 sm:text-lg sm:leading-8">
               ReplyFlow AI designs connected automation systems for lead generation,
               sales, customer support and operations — so your team can focus on growth.
-            </p>
+            </motion.p>
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <motion.div variants={fadeUp} className="mt-9 flex flex-col gap-3 sm:flex-row">
               <motion.a
                 href="#contact"
-                whileHover={{ y: -2, scale: 1.015 }}
-                whileTap={{ scale: 0.985 }}
+                whileHover={reduceMotion ? undefined : { y: -2, scale: 1.015 }}
+                whileTap={reduceMotion ? undefined : { scale: 0.985 }}
                 className="rounded-xl bg-white px-6 py-3.5 text-center font-semibold text-black shadow-[0_0_40px_rgba(255,255,255,.08)]"
               >
                 Build my automation <span className="ml-1">→</span>
               </motion.a>
               <motion.a
                 href="#services"
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.985 }}
+                whileHover={reduceMotion ? undefined : { y: -2 }}
+                whileTap={reduceMotion ? undefined : { scale: 0.985 }}
                 className="glass rounded-xl px-6 py-3.5 text-center font-semibold text-white/85 transition hover:border-cyan-300/20"
               >
                 Explore systems
               </motion.a>
-            </div>
+            </motion.div>
 
-            <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs tracking-[0.16em] text-white/30">
+            <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs tracking-[0.16em] text-white/30">
               {signals.map((signal) => <span key={signal}>{signal}</span>)}
               <span className="h-px w-10 bg-white/10" />
               <span>CONNECTED BY DESIGN</span>
-            </div>
+            </motion.div>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 24 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 1, ease: "easeOut" }}
+            variants={scaleIn}
+            initial={reduceMotion ? false : "hidden"}
+            animate="visible"
             className="hero-glow relative mx-auto h-[360px] w-full max-w-[480px] sm:h-[430px]"
           >
             <div className="absolute inset-10 rounded-full border border-violet-300/10" />
@@ -110,9 +111,9 @@ export function Hero() {
                   </div>
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/5">
                     <motion.div
-                      initial={{ width: 0 }}
+                      initial={reduceMotion ? { width: "98.4%" } : { width: 0 }}
                       animate={{ width: "98.4%" }}
-                      transition={{ delay: 0.8, duration: 1.2, ease: "easeOut" }}
+                      transition={{ delay: 0.9, duration: 1.1, ease: "easeOut" }}
                       className="h-full rounded-full bg-gradient-to-r from-violet-300 to-cyan-300"
                     />
                   </div>
@@ -121,7 +122,7 @@ export function Hero() {
             </div>
 
             <motion.div
-              animate={{ y: [0, -8, 0] }}
+              animate={reduceMotion ? undefined : { y: [0, -8, 0] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
               className="absolute -left-1 top-16 hidden rounded-2xl border border-white/10 bg-[#0b0f16]/90 px-4 py-3 shadow-2xl backdrop-blur-xl sm:block"
             >
@@ -130,7 +131,7 @@ export function Hero() {
             </motion.div>
 
             <motion.div
-              animate={{ y: [0, 8, 0] }}
+              animate={reduceMotion ? undefined : { y: [0, 8, 0] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
               className="absolute -right-1 bottom-16 hidden rounded-2xl border border-cyan-300/10 bg-[#0b0f16]/90 px-4 py-3 shadow-2xl backdrop-blur-xl sm:block"
             >

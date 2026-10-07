@@ -28,7 +28,7 @@ export function TechnologyStack() {
       <div className="container relative">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="eyebrow mb-4 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-white/40">
+<p className="eyebrow mb-4">
               Built on a Modern Automation Stack
             </p>
             <h2 className="section-heading text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
@@ -52,9 +52,9 @@ export function TechnologyStack() {
                 aria-label={`${tech.name} - ${tech.description}`}
               >
                 <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-cyan-400/5 via-transparent to-violet-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <div className="mb-4 inline-flex items-center justify-between gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02]">
-                    <span className="text-lg font-semibold text-white/80">{tech.name.charAt(0)}</span>
+<div className="mb-4 inline-flex items-center justify-between gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] transition-all duration-300 group-hover:scale-110 group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10">
+                    <span className="text-lg font-semibold text-white/80 transition-colors duration-300 group-hover:text-cyan-200">{tech.name.charAt(0)}</span>
                   </div>
                   <span className="rounded-full border border-white/10 px-2.5 py-1 text-[0.6rem] font-medium uppercase tracking-[0.14em] text-white/40">{tech.category}</span>
                 </div>

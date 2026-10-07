@@ -101,3 +101,14 @@ button, a { -webkit-tap-highlight-color: transparent; }
   html { scroll-behavior: auto; }
   .hero-network, .services-network, .hero-glow, .pulse-dot, .marquee-line, .orbit, .orbit-reverse, .scan-line { animation: none; }
 }
+
+section { scroll-margin-top: 6rem; }
+@media (min-width: 640px) { section { scroll-margin-top: 7rem; } }
+
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(245, 247, 251, 0.4);
+}
