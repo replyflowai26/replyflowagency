@@ -74,6 +74,30 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .orbit { animation: orbit 18s linear infinite; transform-origin: center; }
 .orbit-reverse { animation: orbit-reverse 24s linear infinite; transform-origin: center; }
 .scan-line { animation: scan 4s ease-in-out infinite; }
+.workflow-pulse,
+.workflow-pulse-v {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: #67e8f9;
+  box-shadow: 0 0 8px rgba(103, 232, 249, 0.55);
+  opacity: 0;
+}
+.workflow-pulse { top: calc(50% - 2.5px); left: 0; animation: workflow-pulse-x 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.workflow-pulse-v { top: 0; left: calc(50% - 2.5px); animation: workflow-pulse-y 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+@keyframes workflow-pulse-x {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) scale(1); }
+  14% { opacity: 1; }
+  78% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate3d(19px, 0, 0) scale(0.8); }
+}
+@keyframes workflow-pulse-y {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) scale(1); }
+  14% { opacity: 1; }
+  78% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate3d(0, 19px, 0) scale(0.8); }
+}
 
 @keyframes network-breathe {
   0%, 100% { opacity: .55; transform: scale(1); }
@@ -100,6 +124,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .hero-network, .services-network, .hero-glow, .pulse-dot, .marquee-line, .orbit, .orbit-reverse, .scan-line { animation: none; }
+  .workflow-pulse, .workflow-pulse-v { animation: none; opacity: 0; box-shadow: none; }
 }
 
 section { scroll-margin-top: 6rem; }
