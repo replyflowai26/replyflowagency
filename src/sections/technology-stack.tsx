@@ -1,36 +1,71 @@
 ﻿"use client";
 
+import type { ReactElement, SVGProps } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Reveal } from "@/components/reveal";
 
-const technologies = [
-  { name: "Next.js", description: "Production-ready React framework", category: "Frontend" },
-  { name: "React", description: "Composable UI library", category: "Frontend" },
-  { name: "TypeScript", description: "Type-safe engineering", category: "Frontend" },
-  { name: "Supabase", description: "Database, authentication and secure data", category: "Backend" },
-  { name: "n8n", description: "Workflow automation and orchestration", category: "Automation" },
-  { name: "OpenAI", description: "AI-powered automation and intelligence", category: "AI" },
-  { name: "Vercel", description: "Production hosting and deployment", category: "Infrastructure" },
-  { name: "GitHub", description: "Version control and CI workflows", category: "Engineering" },
-  { name: "WhatsApp Cloud API", description: "Business messaging and follow-ups", category: "Integrations" },
-  { name: "Gmail API", description: "Email communication and automation", category: "Integrations" },
+type Technology = {
+  name: string;
+  description: string;
+  category: string;
+  layer: string;
+  feature?: boolean;
+};
+
+const technologies: Technology[] = [
+  { name: "Next.js", description: "Production-ready React framework", category: "Frontend", layer: "Presentation" },
+  { name: "React", description: "Composable UI library", category: "Frontend", layer: "Interface" },
+  { name: "TypeScript", description: "Type-safe engineering", category: "Frontend", layer: "Type safety" },
+  { name: "Supabase", description: "Database, authentication and secure data", category: "Backend", layer: "Data layer" },
+  { name: "n8n", description: "Workflow automation and orchestration", category: "Automation", layer: "Orchestration", feature: true },
+  { name: "OpenAI", description: "AI-powered automation and intelligence", category: "AI", layer: "Intelligence", feature: true },
+  { name: "Vercel", description: "Production hosting and deployment", category: "Infrastructure", layer: "Delivery" },
+  { name: "GitHub", description: "Version control and CI workflows", category: "Engineering", layer: "Repository" },
+  { name: "WhatsApp Cloud API", description: "Business messaging and follow-ups", category: "Integrations", layer: "Messaging channel" },
+  { name: "Gmail API", description: "Email communication and automation", category: "Integrations", layer: "Email channel" },
 ];
+
+function AutomationGlyph(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 44 20" fill="none" aria-hidden="true" {...props}>
+      <rect x="1.5" y="6" width="8" height="8" rx="2" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="18" y="6" width="8" height="8" rx="2" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="34.5" y="6" width="8" height="8" rx="2" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M10 10h7M27 10h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IntelligenceGlyph(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 44 20" fill="none" aria-hidden="true" {...props}>
+      <path d="M6 14a4 4 0 0 1 4-4h24a4 4 0 0 1 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="10" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="22" cy="4.5" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="34" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M10 9.5v2M22 7v5M34 9.5v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+const featureGlyphs: Record<string, (props: SVGProps<SVGSVGElement>) => ReactElement> = {
+  n8n: AutomationGlyph,
+  OpenAI: IntelligenceGlyph,
+};
 
 export function TechnologyStack() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section id="tech-stack" aria-label="Technology Stack" className="relative py-24 sm:py-32 overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none -z-10">
+    <section id="tech-stack" aria-label="Technology Stack" className="relative overflow-hidden py-24 sm:py-32">
+      <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(124,58,237,0.12),transparent_32rem)]" />
-        <div className="absolute bottom-[-12rem] left-1/2 -translate-x-1/2 h-[28rem] w-[28rem] rounded-full bg-cyan-400/8 blur-[110px]" />
+        <div className="absolute bottom-[-12rem] left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-cyan-400/8 blur-[110px]" />
       </div>
       <div className="container relative">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-<p className="eyebrow mb-4">
-              Built on a Modern Automation Stack
-            </p>
+            <p className="eyebrow mb-4">What powers the system</p>
             <h2 className="section-heading text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
               Reliable tools powering
               <span className="text-gradient"> intelligent automation</span>
@@ -41,25 +76,61 @@ export function TechnologyStack() {
             </p>
           </div>
         </Reveal>
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+
+        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {technologies.map((tech, index) => (
-            <Reveal key={tech.name} delay={index * 0.05}>
-<motion.article
-                whileHover={reduceMotion ? {} : { y: -4, scale: 1.01 }}
-                whileTap={reduceMotion ? {} : { scale: 0.98 }}
+              <Reveal key={tech.name} delay={index * 0.05} className={tech.feature ? "sm:col-span-2" : undefined}>
+              <motion.article
+                whileHover={reduceMotion ? {} : { y: -3 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="group relative h-full rounded-2xl border border-white/10 bg-[#0b0f16]/90 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-xl hover:border-cyan-300/25 focus-within:border-cyan-300/25 transition-all duration-200"
+                className={[
+                  "group relative flex h-full flex-col rounded-2xl border border-white/10 bg-[#0b0f16]/90 backdrop-blur-xl transition-all duration-200",
+                  "shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:border-cyan-300/30 hover:shadow-[0_28px_70px_rgba(0,0,0,0.4)] focus-within:border-cyan-300/30",
+                  tech.feature ? "p-6 sm:p-7" : "p-6",
+                ].join(" ")}
                 aria-label={`${tech.name} - ${tech.description}`}
               >
                 <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-cyan-400/5 via-transparent to-violet-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-<div className="mb-4 inline-flex items-center justify-between gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] transition-all duration-300 group-hover:scale-110 group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10">
-                    <span className="text-lg font-semibold text-white/80 transition-colors duration-300 group-hover:text-cyan-200">{tech.name.charAt(0)}</span>
-                  </div>
-                  <span className="rounded-full border border-white/10 px-2.5 py-1 text-[0.6rem] font-medium uppercase tracking-[0.14em] text-white/40">{tech.category}</span>
+
+                <div className="flex items-start justify-between gap-4">
+                  <span
+                    className={[
+                      "grid place-items-center rounded-xl border border-white/10 bg-white/[0.02] font-semibold text-white/80 transition-all duration-300",
+                      "group-hover:-translate-y-1 group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10 group-hover:text-cyan-200",
+                      tech.feature ? "h-12 w-12 text-xl" : "h-10 w-10 text-lg",
+                    ].join(" ")}
+                  >
+                    {tech.name.charAt(0)}
+                  </span>
+                  <span className="font-mono text-[0.65rem] tracking-widest text-white/25 transition-colors duration-300 group-hover:text-cyan-300/60">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
                 </div>
-                <h3 className="text-lg font-medium text-white/90">{tech.name}</h3>
-                <p className="mt-2 text-sm leading-6 text-white/55">{tech.description}</p>
+
+                <div className={tech.feature ? "mt-5 flex flex-1 flex-col sm:flex-row sm:items-end sm:justify-between sm:gap-8" : "flex flex-1 flex-col"}>
+                  <div className={tech.feature ? "" : "mt-4"}>
+                    <h3 className={tech.feature ? "text-xl font-semibold tracking-tight text-white" : "text-lg font-medium text-white/90"}>
+                      {tech.name}
+                    </h3>
+                    <p className={tech.feature ? "mt-2 max-w-sm text-sm leading-6 text-white/55" : "mt-2 text-sm leading-6 text-white/55"}>
+                      {tech.description}
+                    </p>
+                  </div>
+                  {tech.feature && featureGlyphs[tech.name] && (
+                    <span className="mt-5 shrink-0 text-cyan-300/50 transition-all duration-300 group-hover:text-cyan-300/90 sm:mt-0">
+                      {featureGlyphs[tech.name]({ className: "h-5 w-11" })}
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-5 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-4">
+                  <span className="rounded-full border border-white/10 px-2.5 py-1 text-[0.6rem] font-medium uppercase tracking-[0.14em] text-white/40 transition-colors duration-300 group-hover:border-cyan-300/25 group-hover:text-cyan-200/80">
+                    {tech.category}
+                  </span>
+                  <span className="min-h-[1.25rem] text-right font-mono text-[0.6rem] uppercase tracking-[0.14em] text-white/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    {tech.layer}
+                  </span>
+                </div>
               </motion.article>
             </Reveal>
           ))}
@@ -68,4 +139,3 @@ export function TechnologyStack() {
     </section>
   );
 }
-

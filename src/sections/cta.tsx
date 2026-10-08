@@ -7,6 +7,13 @@ import { staggerContainer, staggerContainerInstant, fadeUp, fadeUpInstant, fadeF
 
 const initialState = { error: "", success: false }
 
+const conversationFlow = [
+  { label: "You describe the repetitive work", detail: "The bottleneck, the tools involved and the outcome you need." },
+  { label: "ReplyFlow maps the workflow", detail: "We design the system before recommending a build." },
+  { label: "The automation gets built", detail: "AI, CRM and messaging connected into one working flow." },
+  { label: "The work runs on its own", detail: "Your team moves from repeating tasks to running the business." },
+]
+
 const inputClass = "w-full rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-white outline-none transition-colors duration-200 placeholder:text-white/25 focus:border-cyan-300/40 focus:bg-white/[0.06] focus:shadow-[0_0_0_3px_rgba(103,232,249,.05)]"
 
 export function CTA() {
@@ -22,7 +29,7 @@ export function CTA() {
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400/[0.06] blur-[120px]" />
       <div className="container relative">
         <motion.div
-          className="overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.07] via-white/[0.035] to-cyan-300/[0.025] p-7 shadow-2xl sm:p-12 lg:p-14"
+          className="overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.07] via-white/[0.035] to-cyan-300/[0.025] p-7 shadow-[0_40px_120px_rgba(0,0,0,0.55)] sm:p-12 lg:p-14"
           variants={stagger}
           initial="hidden"
           whileInView="visible"
@@ -44,18 +51,38 @@ export function CTA() {
                 Tell us what is repetitive, slow or leaking revenue. We&apos;ll map the system before recommending a build.
               </motion.p>
 
-              <motion.div variants={fadeUpV} className="mt-8 grid grid-cols-2 gap-3 text-xs text-white/40 sm:max-w-md">
-                {[
-                  ["01", "Business audit"],
-                  ["02", "Automation map"],
-                  ["03", "Build plan"],
-                  ["04", "Scale & optimize"],
-                ].map(([number, label]) => (
-                  <div key={number} className="rounded-xl border border-white/8 bg-black/10 p-3">
-                    <span className="font-mono text-cyan-300/50">{number}</span>
-                    <p className="mt-2 text-white/60">{label}</p>
-                  </div>
-                ))}
+              <motion.div variants={fadeUpV} className="mt-8 max-w-md">
+                <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-white/30">
+                  How a conversation becomes a system
+                </p>
+                <ol className="mt-4" aria-label="From problem to outcome">
+                  {conversationFlow.map((stage, index) => (
+                    <li key={stage.label} className="relative flex gap-3.5">
+                      <div className="flex flex-col items-center" aria-hidden="true">
+                        <span className="mt-1.5 h-2 w-2 rounded-full border border-cyan-300/50 bg-cyan-300/20" />
+                        {index < conversationFlow.length - 1 && (
+                          <span className="relative my-1.5 min-h-[28px] w-px flex-1 bg-white/12">
+                            <span className="workflow-pulse workflow-pulse-v" style={{ animationDelay: `${index * 0.5}s` }} />
+                          </span>
+                        )}
+                      </div>
+                      <div className={index < conversationFlow.length - 1 ? "pb-5" : ""}>
+                        <p className="text-sm font-medium text-white/85">
+                          <span className="mr-2 font-mono text-[10px] tracking-widest text-cyan-300/50">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          {stage.label}
+                        </p>
+                        <p className="mt-1 text-xs leading-5 text-white/40">{stage.detail}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+                <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-white/30">
+                  <span>Map before build</span>
+                  <span className="h-px w-6 bg-white/15" aria-hidden="true" />
+                  <span>No spam</span>
+                </div>
               </motion.div>
             </div>
 
@@ -94,7 +121,7 @@ export function CTA() {
                     disabled={isPending}
                     whileHover={reduceMotion ? {} : { y: -2 }}
                     whileTap={reduceMotion ? {} : { scale: 0.985 }}
-                    className="w-full rounded-xl bg-white px-6 py-3.5 font-semibold text-black transition hover:bg-cyan-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="w-full rounded-xl bg-white px-6 py-3.5 font-semibold text-black transition hover:bg-cyan-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {isPending ? "Sending brief…" : "Start the automation conversation →"}
                   </motion.button>
