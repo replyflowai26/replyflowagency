@@ -1,9 +1,29 @@
 "use client"
 
-import { motion, useReducedMotion } from "motion/react"
-import { staggerContainer, staggerContainerInstant, fadeUp, fadeUpInstant, fadeUpLarge, fadeUpLargeInstant, fadeFromLeft, fadeFromLeftInstant, scaleIn, scaleInInstant } from "@/lib/motion"
+import { motion, useReducedMotion, type Variants } from "motion/react"
+import {
+  EASE,
+  staggerContainer,
+  staggerContainerInstant,
+  fadeUp,
+  fadeUpInstant,
+  fadeUpLarge,
+  fadeUpLargeInstant,
+  fadeFromLeft,
+  fadeFromLeftInstant,
+  scaleInInstant,
+} from "@/lib/motion"
 
 const signals = ["LEADS", "SALES", "SUPPORT", "OPS"]
+
+const pipeline = [
+  { step: "01", label: "Lead", detail: "Enquiry captured", status: "LIVE", pulse: true, dot: "bg-cyan-300", chip: "text-cyan-300/85 border-cyan-300/20 bg-cyan-300/[0.07]" },
+  { step: "02", label: "AI", detail: "Qualify & respond", status: "RUNNING", pulse: false, dot: "bg-violet-300", chip: "text-violet-300/85 border-violet-300/20 bg-violet-300/[0.07]" },
+  { step: "03", label: "CRM", detail: "Record synced", status: "SYNCED", pulse: false, dot: "bg-cyan-300", chip: "text-cyan-300/85 border-cyan-300/20 bg-cyan-300/[0.07]" },
+  { step: "04", label: "WhatsApp / Email", detail: "Message delivered", status: "SENT", pulse: false, dot: "bg-violet-300", chip: "text-violet-300/85 border-violet-300/20 bg-violet-300/[0.07]" },
+  { step: "05", label: "Follow-up", detail: "Sequenced outreach", status: "QUEUED", pulse: false, dot: "bg-cyan-300", chip: "text-cyan-300/85 border-cyan-300/20 bg-cyan-300/[0.07]" },
+  { step: "06", label: "Reporting", detail: "Metrics streaming", status: "LIVE", pulse: true, dot: "bg-violet-300", chip: "text-violet-300/85 border-violet-300/20 bg-violet-300/[0.07]" },
+]
 
 export function Hero() {
   const reduceMotion = useReducedMotion()
@@ -11,14 +31,27 @@ export function Hero() {
   const fadeUpV = reduceMotion ? fadeUpInstant : fadeUp
   const fadeUpLargeV = reduceMotion ? fadeUpLargeInstant : fadeUpLarge
   const fadeFromLeftV = reduceMotion ? fadeFromLeftInstant : fadeFromLeft
-  const scaleInV = reduceMotion ? scaleInInstant : scaleIn
+
+  const visualEntrance: Variants = reduceMotion
+    ? scaleInInstant
+    : {
+        hidden: { opacity: 0, scale: 0.94, y: 20 },
+        visible: {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          transition: { duration: 0.9, ease: EASE, delay: 0.55 },
+        },
+      }
 
   return (
     <section className="grid-bg relative flex min-h-[760px] items-center overflow-hidden pt-28 sm:min-h-screen">
-      <div className="hero-network absolute inset-0 opacity-80" aria-hidden="true" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,transparent_0,rgba(5,7,11,.18)_42%,rgba(5,7,11,.82)_100%)]" />
-      <div className="pointer-events-none absolute left-1/2 top-[12%] h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-violet-500/10 blur-[120px]" />
-      <div className="pointer-events-none absolute right-[-8rem] top-[28%] h-72 w-72 rounded-full bg-cyan-400/10 blur-[100px]" />
+      <div className="hero-depth absolute inset-0" aria-hidden="true">
+        <div className="hero-network absolute inset-0 opacity-80" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,transparent_0,rgba(5,7,11,.18)_42%,rgba(5,7,11,.82)_100%)]" />
+        <div className="pointer-events-none absolute left-1/2 top-[12%] h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-violet-500/10 blur-[120px]" />
+        <div className="pointer-events-none absolute right-[-8rem] top-[28%] h-72 w-72 rounded-full bg-cyan-400/10 blur-[100px]" />
+      </div>
 
       <div className="container relative py-20 sm:py-28">
         <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_.95fr] lg:gap-8">
@@ -51,6 +84,7 @@ export function Hero() {
                 href="#contact"
                 whileHover={reduceMotion ? {} : { y: -2, scale: 1.015 }}
                 whileTap={reduceMotion ? {} : { scale: 0.985 }}
+                transition={{ duration: 0.18, ease: EASE }}
                 className="rounded-xl bg-white px-6 py-3.5 text-center font-semibold text-black shadow-[0_0_40px_rgba(255,255,255,.08)]"
               >
                 Build my automation <span className="ml-1">→</span>
@@ -59,6 +93,7 @@ export function Hero() {
                 href="#services"
                 whileHover={reduceMotion ? {} : { y: -2 }}
                 whileTap={reduceMotion ? {} : { scale: 0.985 }}
+                transition={{ duration: 0.18, ease: EASE }}
                 className="glass rounded-xl px-6 py-3.5 text-center font-semibold text-white/85 transition hover:border-cyan-300/20"
               >
                 Explore systems
@@ -73,43 +108,50 @@ export function Hero() {
           </motion.div>
 
           <motion.div
-            variants={scaleInV}
+            variants={visualEntrance}
             initial="hidden"
             animate="visible"
-            className="hero-glow relative mx-auto h-[360px] w-full max-w-[480px] sm:h-[430px]"
+            className="hero-glow relative mx-auto w-full max-w-[460px]"
           >
-            <div className="absolute inset-10 rounded-full border border-violet-300/10" />
-            <div className="orbit absolute inset-4 rounded-full border border-cyan-300/10 border-dashed" />
-            <div className="orbit-reverse absolute inset-16 rounded-full border border-violet-300/10" />
+            <div className="pointer-events-none absolute -left-5 -right-5 -top-5 bottom-12 rounded-full border border-violet-300/10" />
+            <div className="orbit pointer-events-none absolute -left-9 -right-9 -top-1 bottom-4 rounded-full border border-cyan-300/10 border-dashed" />
+            <div className="orbit-reverse pointer-events-none absolute -left-2 -right-2 -top-9 bottom-20 rounded-full border border-violet-300/10" />
 
-            <div className="absolute left-1/2 top-1/2 w-[86%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[2rem] border border-white/10 bg-[#090c12]/90 shadow-2xl shadow-black/40 backdrop-blur-2xl">
+            <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#090c12]/90 shadow-2xl shadow-black/40 backdrop-blur-2xl">
               <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
                 <div className="flex items-center gap-2">
                   <span className="pulse-dot h-2 w-2 rounded-full bg-cyan-300" />
-                  <span className="text-xs font-medium text-white/65">REPLYFLOW OS</span>
+                  <span className="text-xs font-medium text-white/65">REPLYFLOW OS · PIPELINE</span>
                 </div>
                 <span className="text-[10px] tracking-widest text-white/25">LIVE</span>
               </div>
 
-              <div className="relative p-5">
-                <div className="scan-line absolute left-0 right-0 top-1/2 h-px bg-gradient-to-r from-transparent via-cyan-300/50 to-transparent" />
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    ["Lead intake", "Connected", "bg-cyan-300"],
-                    ["Qualification", "AI running", "bg-violet-300"],
-                    ["Follow-up", "Automated", "bg-cyan-300"],
-                    ["Reporting", "Synced", "bg-violet-300"],
-                  ].map(([label, value, dot]) => (
-                    <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.035] p-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] uppercase tracking-wider text-white/30">{label}</span>
-                        <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+              <div className="px-5 pb-5 pt-4">
+                {pipeline.map((item, i) => (
+                  <div key={item.label}>
+                    {i > 0 && (
+                      <div aria-hidden="true" className="relative ml-[17px] h-5 w-px bg-white/10">
+                        <span
+                          className="pipeline-flow absolute -left-[3.5px] top-0 h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.55)]"
+                          style={{ animationDelay: `${(i * 0.45).toFixed(2)}s` }}
+                        />
                       </div>
-                      <p className="mt-5 text-sm font-medium text-white/80">{value}</p>
+                    )}
+                    <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.035] px-3.5 py-2.5">
+                      <span className="font-mono text-[10px] tabular-nums text-white/25">{item.step}</span>
+                      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${item.dot} ${item.pulse ? "pulse-dot" : ""}`} />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[13px] font-medium text-white/85">{item.label}</p>
+                        <p className="truncate text-[11px] text-white/35">{item.detail}</p>
+                      </div>
+                      <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[9px] tracking-wider ${item.chip}`}>
+                        {item.status}
+                      </span>
                     </div>
-                  ))}
-                </div>
-                <div className="mt-3 rounded-2xl border border-white/8 bg-gradient-to-r from-violet-400/[0.08] to-cyan-300/[0.05] p-4">
+                  </div>
+                ))}
+
+                <div className="mt-4 rounded-2xl border border-white/8 bg-gradient-to-r from-violet-400/[0.08] to-cyan-300/[0.05] p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-white/40">AUTOMATION HEALTH</span>
                     <span className="text-xs text-cyan-300">98.4%</span>
@@ -118,7 +160,7 @@ export function Hero() {
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: "98.4%" }}
-                      transition={reduceMotion ? { duration: 0 } : { delay: 0.9, duration: 1.1, ease: "easeOut" }}
+                      transition={reduceMotion ? { duration: 0 } : { delay: 1.1, duration: 1.1, ease: "easeOut" }}
                       className="h-full rounded-full bg-gradient-to-r from-violet-300 to-cyan-300"
                     />
                   </div>
@@ -140,8 +182,8 @@ export function Hero() {
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
               className="absolute -right-1 bottom-16 hidden rounded-2xl border border-cyan-300/10 bg-[#0b0f16]/90 px-4 py-3 shadow-2xl backdrop-blur-xl sm:block"
             >
-              <p className="text-[10px] tracking-wider text-cyan-300/60">WORKFLOW</p>
-              <p className="mt-1 text-sm text-white/80">Running automatically</p>
+              <p className="text-[10px] tracking-wider text-cyan-300/60">FOLLOW-UP</p>
+              <p className="mt-1 text-sm text-white/80">Sent automatically</p>
             </motion.div>
           </motion.div>
         </div>
