@@ -130,7 +130,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   color: transparent;
 }
 .hero-glow { animation: hero-float 7s ease-in-out infinite; }
-.pulse-dot { animation: pulse-dot 2.2s ease-in-out infinite; }
+.pulse-dot { animation: pulse-dot 3.2s ease-in-out infinite; }
 .marquee-line { animation: marquee 18s linear infinite; }
 .orbit { animation: orbit 18s linear infinite; transform-origin: center; }
 .orbit-reverse { animation: orbit-reverse 24s linear infinite; transform-origin: center; }
@@ -145,11 +145,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
   box-shadow: 0 0 8px rgba(103, 232, 249, 0.55);
   opacity: 0;
 }
-.workflow-pulse { top: calc(50% - 2.5px); left: 0; animation: workflow-pulse-x 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
-.workflow-pulse-v { top: 0; left: calc(50% - 2.5px); animation: workflow-pulse-y 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.workflow-pulse { top: calc(50% - 2.5px); left: 0; animation: workflow-pulse-x 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.workflow-pulse-v { top: 0; left: calc(50% - 2.5px); animation: workflow-pulse-y 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
 .pipeline-flow {
   opacity: 0;
-  animation: pipeline-flow 2.8s var(--ease) infinite;
+  animation: pipeline-flow 3.6s var(--ease) infinite;
 }
 @keyframes pipeline-flow {
   0% { opacity: 0; transform: translate3d(0, -8px, 0); }
@@ -183,8 +183,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
   50% { transform: translate3d(0, -12px, 0) scale(1.025); }
 }
 @keyframes pulse-dot {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(34,211,238,.35); }
-  50% { box-shadow: 0 0 0 8px rgba(34,211,238,0); }
+  0%, 100% { opacity: .55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.35); }
 }
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes orbit { to { transform: rotate(360deg); } }

@@ -57,7 +57,7 @@ export function TechnologyStack() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section id="tech-stack" aria-label="Technology Stack" className="relative overflow-hidden py-24 sm:py-32">
+    <section id="tech-stack" aria-label="Technology Stack" className="relative overflow-hidden py-20 sm:py-32">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(124,58,237,0.12),transparent_32rem)]" />
         <div className="absolute bottom-[-12rem] left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-cyan-400/8 blur-[110px]" />
@@ -86,7 +86,7 @@ export function TechnologyStack() {
                 className={[
                   "group relative flex h-full flex-col rounded-2xl border border-white/10 bg-[#0b0f16]/90 backdrop-blur-xl transition-all duration-200",
                   "shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:border-cyan-300/30 hover:shadow-[0_28px_70px_rgba(0,0,0,0.4)] focus-within:border-cyan-300/30",
-                  tech.feature ? "p-6 sm:p-7" : "p-6",
+                  tech.feature ? "p-5 sm:p-7" : "p-5 sm:p-6",
                 ].join(" ")}
                 aria-label={`${tech.name} - ${tech.description}`}
               >
@@ -97,7 +97,7 @@ export function TechnologyStack() {
                     className={[
                       "grid place-items-center rounded-xl border border-white/10 bg-white/[0.02] font-semibold text-white/80 transition-all duration-300",
                       "group-hover:-translate-y-1 group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10 group-hover:text-cyan-200",
-                      tech.feature ? "h-12 w-12 text-xl" : "h-10 w-10 text-lg",
+                      tech.feature ? "h-10 w-10 text-lg sm:h-12 sm:w-12 sm:text-xl" : "h-10 w-10 text-lg",
                     ].join(" ")}
                   >
                     {tech.name.charAt(0)}
@@ -107,9 +107,9 @@ export function TechnologyStack() {
                   </span>
                 </div>
 
-                <div className={tech.feature ? "mt-5 flex flex-1 flex-col sm:flex-row sm:items-end sm:justify-between sm:gap-8" : "flex flex-1 flex-col"}>
+                <div className={tech.feature ? "mt-4 flex flex-1 flex-col sm:mt-5 sm:flex-row sm:items-end sm:justify-between sm:gap-8" : "flex flex-1 flex-col"}>
                   <div className={tech.feature ? "" : "mt-4"}>
-                    <h3 className={tech.feature ? "text-xl font-semibold tracking-tight text-white" : "text-lg font-medium text-white/90"}>
+                    <h3 className={tech.feature ? "text-lg font-semibold tracking-tight text-white sm:text-xl" : "text-base font-medium text-white/90 sm:text-lg"}>
                       {tech.name}
                     </h3>
                     <p className={tech.feature ? "mt-2 max-w-sm text-sm leading-6 text-white/55" : "mt-2 text-sm leading-6 text-white/55"}>
@@ -117,17 +117,17 @@ export function TechnologyStack() {
                     </p>
                   </div>
                   {tech.feature && featureGlyphs[tech.name] && (
-                    <span className="mt-5 shrink-0 text-cyan-300/50 transition-all duration-300 group-hover:text-cyan-300/90 sm:mt-0">
+                    <span className="mt-4 shrink-0 text-cyan-300/50 transition-all duration-300 group-hover:text-cyan-300/90 sm:mt-0">
                       {featureGlyphs[tech.name]({ className: "h-5 w-11" })}
                     </span>
                   )}
                 </div>
 
-                <div className="mt-5 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-4">
-                  <span className="rounded-full border border-white/10 px-2.5 py-1 text-[0.6rem] font-medium uppercase tracking-[0.14em] text-white/40 transition-colors duration-300 group-hover:border-cyan-300/25 group-hover:text-cyan-200/80">
+                <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-3.5 sm:mt-5 sm:pt-4">
+                  <span className="rounded-full border border-white/10 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-[0.14em] text-white/40 transition-colors duration-300 group-hover:border-cyan-300/25 group-hover:text-cyan-200/80">
                     {tech.category}
                   </span>
-                  <span className="min-h-[1.25rem] text-right font-mono text-[0.6rem] uppercase tracking-[0.14em] text-white/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <span className="min-h-[1.25rem] text-right font-mono text-[0.65rem] uppercase tracking-[0.14em] text-white/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     {tech.layer}
                   </span>
                 </div>

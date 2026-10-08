@@ -147,7 +147,7 @@ export function WhyReplyFlow() {
                     </div>
                     <div className={index < primaryFlow.length - 1 ? "pb-5" : ""}>
                       <p className="text-sm font-medium text-white/85">
-                        <span className="mr-2 font-mono text-[10px] tracking-widest text-cyan-300/50">
+                        <span className="mr-2 font-mono text-[11px] tracking-widest text-cyan-300/50">
                           {String(index + 1).padStart(2, "0")}
                         </span>
                         {stage.label}

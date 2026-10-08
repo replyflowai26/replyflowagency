@@ -55,7 +55,7 @@ function WorkflowStep({ node, index, hasNext }: { node: WorkflowNode; index: num
     <li className="group flex w-full flex-col items-center xl:w-auto xl:flex-1 xl:flex-row xl:items-stretch xl:self-stretch">
       <article className="flex h-full w-full max-w-md flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] backdrop-blur-sm transition-[border-color,background-color,box-shadow] duration-300 hover:border-cyan-300/35 hover:bg-white/[0.055] hover:shadow-[0_18px_50px_rgba(34,211,238,0.10)] xl:max-w-none">
         <div className="flex items-center justify-between gap-3">
-          <span className="font-mono text-[10px] tracking-[0.18em] text-white/30">
+          <span className="font-mono text-[11px] tracking-[0.18em] text-white/30">
             {String(index + 1).padStart(2, "0")} · {node.tag}
           </span>
           <span
@@ -78,7 +78,7 @@ function WorkflowStep({ node, index, hasNext }: { node: WorkflowNode; index: num
           <div className="relative h-px w-full overflow-hidden bg-white/10" aria-hidden="true">
             <span className="absolute inset-0 origin-left scale-x-0 bg-cyan-300/70 transition-transform duration-500 ease-out group-hover:scale-x-100" />
           </div>
-          <p className="mt-2 text-[10px] tracking-[0.16em] text-white/0 transition-colors duration-300 group-hover:text-cyan-200/80">
+          <p className="mt-2 text-[11px] tracking-[0.16em] text-white/0 transition-colors duration-300 group-hover:text-cyan-200/80">
             AUTOMATED HANDOFF
           </p>
         </div>
@@ -86,7 +86,7 @@ function WorkflowStep({ node, index, hasNext }: { node: WorkflowNode; index: num
 
       {hasNext && (
         <>
-          <div aria-hidden="true" className="relative flex h-7 w-px flex-col items-center bg-gradient-to-b from-white/15 to-white/25 transition-colors duration-300 group-hover:from-cyan-300/50 group-hover:to-cyan-300/25 xl:hidden">
+          <div aria-hidden="true" className="relative flex h-7 w-px flex-col items-center bg-gradient-to-b from-white/15 to-white/25 transition-colors duration-300 group-hover:from-cyan-300/50 group-hover:to-cyan-300/25 md:hidden">
             <span className="workflow-pulse workflow-pulse-v" style={{ animationDelay: connectorDelay }} />
             <ChevronRight className="absolute -bottom-1 h-2.5 w-2.5 rotate-90 text-white/25 transition-colors duration-300 group-hover:text-cyan-300/80" />
           </div>
@@ -128,16 +128,16 @@ export function Workflow() {
                 <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-cyan-300" aria-hidden="true" />
                 AUTOMATION RUNTIME
               </span>
-              <span className="font-mono text-[10px] tracking-[0.18em] text-white/30">01 → 06 · LIVE</span>
+              <span className="font-mono text-[11px] tracking-[0.18em] text-white/30">01 → 06 · LIVE</span>
             </div>
 
-            <ol className="relative flex list-none flex-col items-center xl:flex-row xl:items-stretch">
+            <ol className="relative grid list-none grid-cols-1 items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3 xl:flex xl:flex-row xl:items-stretch xl:gap-0">
               {workflowNodes.map((node, index) => (
                 <WorkflowStep key={node.title} node={node} index={index} hasNext={index < workflowNodes.length - 1} />
               ))}
             </ol>
 
-            <div className="relative mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-white/10 pt-4 text-[10px] tracking-[0.18em] text-white/30">
+            <div className="relative mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-white/10 pt-4 text-[11px] tracking-[0.18em] text-white/30">
               <span>NO MANUAL HANDOFFS</span>
               <span className="hidden h-3 w-px bg-white/10 sm:block" aria-hidden="true" />
               <span>EVERY STEP CONNECTED</span>

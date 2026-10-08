@@ -52,7 +52,7 @@ export function CTA() {
               </motion.p>
 
               <motion.div variants={fadeUpV} className="mt-8 max-w-md">
-                <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-white/30">
+                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/30">
                   How a conversation becomes a system
                 </p>
                 <ol className="mt-4" aria-label="From problem to outcome">
@@ -68,7 +68,7 @@ export function CTA() {
                       </div>
                       <div className={index < conversationFlow.length - 1 ? "pb-5" : ""}>
                         <p className="text-sm font-medium text-white/85">
-                          <span className="mr-2 font-mono text-[10px] tracking-widest text-cyan-300/50">
+                          <span className="mr-2 font-mono text-[11px] tracking-widest text-cyan-300/50">
                             {String(index + 1).padStart(2, "0")}
                           </span>
                           {stage.label}
@@ -78,7 +78,7 @@ export function CTA() {
                     </li>
                   ))}
                 </ol>
-                <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-white/30">
+                <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[10.5px] uppercase tracking-[0.16em] text-white/30">
                   <span>Map before build</span>
                   <span className="h-px w-6 bg-white/15" aria-hidden="true" />
                   <span>No spam</span>
