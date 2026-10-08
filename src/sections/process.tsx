@@ -1,48 +1,95 @@
 "use client"
 
 import { motion, useInView, useReducedMotion, useScroll } from "motion/react"
-import { useRef } from "react"
+import { useRef, type ReactElement, type SVGProps } from "react"
 import { fadeUp, fadeUpInstant, cardViewport } from "@/lib/motion"
 
+function AuditIcon(props: SVGProps<SVGSVGElement>): ReactElement {
+  return <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" {...props}><path d="M3.5 4.5h13l-4.8 5.8v4.9L8.3 16.5v-6.2L3.5 4.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M7 8h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+}
+
+function DesignIcon(props: SVGProps<SVGSVGElement>): ReactElement {
+  return <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" {...props}><circle cx="5" cy="5.5" r="2.2" stroke="currentColor" strokeWidth="1.5" /><circle cx="15" cy="5.5" r="2.2" stroke="currentColor" strokeWidth="1.5" /><circle cx="10" cy="15" r="2.2" stroke="currentColor" strokeWidth="1.5" /><path d="M7.2 5.5h5.6M6 7.5l3 5.6M14 7.5l-3 5.6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+}
+
+function BuildIcon(props: SVGProps<SVGSVGElement>): ReactElement {
+  return <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" {...props}><circle cx="4.5" cy="10" r="2.2" stroke="currentColor" strokeWidth="1.5" /><circle cx="15.5" cy="10" r="2.2" stroke="currentColor" strokeWidth="1.5" /><path d="M7 10h4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><path d="M10 7.8 12.4 10 10 12.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+}
+
+function OptimizeIcon(props: SVGProps<SVGSVGElement>): ReactElement {
+  return <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" {...props}><path d="M3.5 13.5a6.5 6.5 0 1 1 13 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><path d="M10 13.5 13.2 8.8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><circle cx="10" cy="13.5" r="1.3" fill="currentColor" /></svg>
+}
+
 const steps = [
-  ["01", "Audit", "Map the manual work and bottlenecks."],
-  ["02", "Design", "Design the automation architecture."],
-  ["03", "Build", "Connect AI, data and business tools."],
-  ["04", "Optimize", "Measure, improve and scale the system."],
+  { number: "01", title: "Audit", description: "Map the manual work and bottlenecks.", meta: "DISCOVERY", Icon: AuditIcon },
+  { number: "02", title: "Design", description: "Design the automation architecture.", meta: "ARCHITECTURE", Icon: DesignIcon },
+  { number: "03", title: "Build", description: "Connect AI, data and business tools.", meta: "INTEGRATION", Icon: BuildIcon },
+  { number: "04", title: "Optimize", description: "Measure, improve and scale the system.", meta: "IMPROVEMENT", Icon: OptimizeIcon },
 ]
 
-function ProcessStep({ number, title, description }: { number: string; title: string; description: string }) {
+function ProcessStep({
+  number,
+  title,
+  description,
+  meta,
+  Icon,
+}: {
+  number: string
+  title: string
+  description: string
+  meta: string
+  Icon: (props: SVGProps<SVGSVGElement>) => ReactElement
+}) {
   const reduceMotion = useReducedMotion()
   const ref = useRef<HTMLElement | null>(null)
   const inView = useInView(ref, { amount: 0.6 })
-  const fadeUpV = reduceMotion ? fadeUpInstant : fadeUp
 
   return (
     <motion.article
       ref={ref}
-      variants={fadeUpV}
+      variants={reduceMotion ? fadeUpInstant : fadeUp}
       initial="hidden"
       whileInView="visible"
       viewport={cardViewport}
       className={[
-        "group relative rounded-3xl border p-6 transition-colors duration-300 sm:ml-8 sm:p-7",
+        "group relative ml-10 rounded-3xl border p-6 transition-colors duration-300 sm:p-7",
         inView
           ? "border-cyan-300/30 bg-white/[0.05]"
           : "border-white/8 bg-white/[0.025] hover:border-white/15 hover:bg-white/[0.04]",
       ].join(" ")}
     >
       <motion.div
-        className="absolute -left-[41px] top-8 hidden h-3 w-3 rounded-full border border-cyan-300/40 bg-[#05070b] sm:block"
+        aria-hidden="true"
+        className="absolute -left-[30px] top-8 block h-3 w-3 rounded-full border border-cyan-300/40 bg-[#05070b]"
         animate={reduceMotion ? undefined : { scale: inView ? 1.35 : 1 }}
         transition={{ type: "spring", stiffness: 320, damping: 22 }}
         style={inView ? { boxShadow: "0 0 22px rgba(103, 232, 249, 0.55)", borderColor: "rgba(103, 232, 249, 0.85)" } : undefined}
       />
-      <div className="flex gap-5">
-        <span className="font-mono text-xs tracking-widest text-white/25">{number}</span>
-        <div>
-          <h3 className="text-xl font-semibold tracking-tight text-white">{title}</h3>
-          <p className="mt-2 text-sm leading-6 text-white/45">{description}</p>
+      <div className="flex items-start gap-4 sm:gap-5">
+        <span
+          className={[
+            "pt-1 font-mono text-xs tracking-widest transition-colors duration-300",
+            inView ? "text-cyan-300" : "text-white/25",
+          ].join(" ")}
+        >
+          {number}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-mono text-[10px] tracking-[0.18em] text-white/30">{meta}</p>
+          <h3 className="mt-1.5 text-xl font-semibold tracking-tight text-white sm:text-2xl">{title}</h3>
+          <p className="mt-2 text-sm leading-6 text-white/45 sm:text-base sm:leading-7">{description}</p>
         </div>
+        <span
+          className={[
+            "mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-xl border transition-colors duration-300",
+            inView
+              ? "border-cyan-300/40 bg-cyan-300/10 text-cyan-200"
+              : "border-white/10 bg-white/[0.04] text-white/45 group-hover:border-white/20",
+          ].join(" ")}
+          aria-hidden="true"
+        >
+          <Icon className="h-5 w-5" />
+        </span>
       </div>
     </motion.article>
   )
@@ -63,7 +110,7 @@ export function Process() {
             whileInView="visible"
             viewport={cardViewport}
           >
-            <p className="text-sm font-medium tracking-[0.2em] text-violet-300">OUR PROCESS</p>
+            <p className="text-sm font-medium tracking-[0.2em] text-violet-300">HOW WE BUILD IT</p>
             <h2 className="mt-4 max-w-md text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl">
               Built like a system, not a collection of hacks.
             </h2>
@@ -73,14 +120,15 @@ export function Process() {
           </motion.div>
 
           <div ref={stepsRef} className="relative">
-            <div className="absolute bottom-8 left-[15px] top-8 hidden w-px bg-gradient-to-b from-cyan-300/40 via-violet-300/20 to-transparent sm:block" />
+            <div aria-hidden="true" className="absolute bottom-8 left-[16px] top-8 w-px bg-gradient-to-b from-white/12 via-white/8 to-transparent" />
             <motion.div
-              className="absolute bottom-8 left-[15px] top-8 hidden w-px origin-top bg-gradient-to-b from-cyan-300/80 via-violet-300/50 to-cyan-300/20 sm:block"
+              aria-hidden="true"
+              className="absolute bottom-8 left-[16px] top-8 w-px origin-top bg-gradient-to-b from-cyan-300/80 via-violet-300/50 to-cyan-300/20"
               style={{ scaleY: reduceMotion ? 0 : scrollYProgress }}
             />
             <div className="space-y-4">
-              {steps.map(([number, title, description]) => (
-                <ProcessStep key={number} number={number} title={title} description={description} />
+              {steps.map((step) => (
+                <ProcessStep key={step.number} {...step} />
               ))}
             </div>
           </div>
