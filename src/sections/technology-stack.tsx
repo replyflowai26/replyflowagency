@@ -4,26 +4,69 @@ import type { ReactElement, SVGProps } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Reveal } from "@/components/reveal";
 
+type Accent = "sky" | "cyan" | "violet";
+
 type Technology = {
   name: string;
   description: string;
   category: string;
   layer: string;
   tone: string;
+  accent: Accent;
   feature?: boolean;
 };
 
+const techAccents: Record<
+  Accent,
+  { chip: string; card: string; num: string; tile: string; glyph: string; hairline: string }
+> = {
+  sky: {
+    chip: "group-hover:border-sky-300/25 group-hover:text-sky-200/80",
+    card: "hover:border-sky-300/30 focus-within:border-sky-300/30",
+    num: "group-hover:text-sky-300/60",
+    tile: "group-hover:border-sky-300/30 group-hover:bg-sky-300/10 group-hover:text-sky-200",
+    glyph: "text-sky-300/50 group-hover:text-sky-300/80",
+    hairline: "via-sky-300/25",
+  },
+  cyan: {
+    chip: "group-hover:border-cyan-300/25 group-hover:text-cyan-200/80",
+    card: "hover:border-cyan-300/30 focus-within:border-cyan-300/30",
+    num: "group-hover:text-cyan-300/60",
+    tile: "group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10 group-hover:text-cyan-200",
+    glyph: "text-cyan-300/50 group-hover:text-cyan-300/90",
+    hairline: "via-cyan-300/40",
+  },
+  violet: {
+    chip: "group-hover:border-violet-300/25 group-hover:text-violet-200/80",
+    card: "hover:border-violet-300/30 focus-within:border-violet-300/30",
+    num: "group-hover:text-violet-300/60",
+    tile: "group-hover:border-violet-300/30 group-hover:bg-violet-300/10 group-hover:text-violet-200",
+    glyph: "text-violet-300/50 group-hover:text-violet-300/90",
+    hairline: "via-violet-300/40",
+  },
+};
+
 const technologies: Technology[] = [
-  { name: "Next.js", description: "Production-ready React framework", category: "Frontend", layer: "Presentation", tone: "bg-sky-300/70" },
-  { name: "React", description: "Composable UI library", category: "Frontend", layer: "Interface", tone: "bg-sky-300/70" },
-  { name: "TypeScript", description: "Type-safe engineering", category: "Frontend", layer: "Type safety", tone: "bg-sky-300/70" },
-  { name: "Supabase", description: "Database, authentication and secure data", category: "Backend", layer: "Data layer", tone: "bg-sky-300/70" },
-  { name: "n8n", description: "Workflow automation and orchestration", category: "Automation", layer: "Orchestration", tone: "bg-cyan-300/80", feature: true },
-  { name: "OpenAI", description: "AI-powered automation and intelligence", category: "AI", layer: "Intelligence", tone: "bg-violet-300/80", feature: true },
-  { name: "Vercel", description: "Production hosting and deployment", category: "Infrastructure", layer: "Delivery", tone: "bg-sky-300/70" },
-  { name: "GitHub", description: "Version control and CI workflows", category: "Engineering", layer: "Repository", tone: "bg-sky-300/70" },
-  { name: "WhatsApp Cloud API", description: "Business messaging and follow-ups", category: "Integrations", layer: "Messaging channel", tone: "bg-cyan-300/80" },
-  { name: "Gmail API", description: "Email communication and automation", category: "Integrations", layer: "Email channel", tone: "bg-cyan-300/80" },
+  { name: "Next.js", description: "Production-ready React framework", category: "Frontend", layer: "Presentation", tone: "bg-sky-300/70", accent: "sky" },
+  { name: "React", description: "Composable UI library", category: "Frontend", layer: "Interface", tone: "bg-sky-300/70", accent: "sky" },
+  { name: "TypeScript", description: "Type-safe engineering", category: "Frontend", layer: "Type safety", tone: "bg-sky-300/70", accent: "sky" },
+  { name: "Supabase", description: "Database, authentication and secure data", category: "Backend", layer: "Data layer", tone: "bg-sky-300/70", accent: "sky" },
+  { name: "n8n", description: "Workflow automation and orchestration", category: "Automation", layer: "Orchestration", tone: "bg-cyan-300/80", accent: "cyan", feature: true },
+  { name: "OpenAI", description: "AI-powered automation and intelligence", category: "AI", layer: "Intelligence", tone: "bg-violet-300/80", accent: "violet", feature: true },
+  { name: "Vercel", description: "Production hosting and deployment", category: "Infrastructure", layer: "Delivery", tone: "bg-sky-300/70", accent: "sky" },
+  { name: "GitHub", description: "Version control and CI workflows", category: "Engineering", layer: "Repository", tone: "bg-sky-300/70", accent: "sky" },
+  { name: "WhatsApp Cloud API", description: "Business messaging and follow-ups", category: "Integrations", layer: "Messaging channel", tone: "bg-cyan-300/80", accent: "cyan" },
+  { name: "Gmail API", description: "Email communication and automation", category: "Integrations", layer: "Email channel", tone: "bg-cyan-300/80", accent: "cyan" },
+];
+
+const categoryLegend = [
+  { label: "Frontend", tone: "bg-sky-300/70" },
+  { label: "Backend", tone: "bg-sky-300/70" },
+  { label: "Automation", tone: "bg-cyan-300/80" },
+  { label: "AI", tone: "bg-violet-300/80" },
+  { label: "Infrastructure", tone: "bg-sky-300/70" },
+  { label: "Engineering", tone: "bg-sky-300/70" },
+  { label: "Integrations", tone: "bg-cyan-300/80" },
 ];
 
 function AutomationGlyph(props: SVGProps<SVGSVGElement>) {
@@ -78,7 +121,18 @@ export function TechnologyStack() {
           </div>
         </Reveal>
 
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Reveal delay={0.1}>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2" aria-label="Technology categories">
+            {categoryLegend.map((cat) => (
+              <span key={cat.label} className="flex items-center gap-2 font-mono text-[0.6rem] uppercase tracking-[0.18em] text-white/35">
+                <span className={`h-1.5 w-1.5 rounded-full ${cat.tone}`} aria-hidden="true" />
+                {cat.label}
+              </span>
+            ))}
+          </div>
+        </Reveal>
+
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {technologies.map((tech, index) => (
               <Reveal key={tech.name} delay={index * 0.05} className={tech.feature ? "sm:col-span-2" : undefined}>
               <motion.article
@@ -86,24 +140,30 @@ export function TechnologyStack() {
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className={[
                   "group relative flex h-full flex-col rounded-2xl border border-white/10 bg-[#0b0f16]/90 backdrop-blur-xl transition-all duration-200",
-                  "shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:border-cyan-300/30 hover:shadow-[0_28px_70px_rgba(0,0,0,0.4)] focus-within:border-cyan-300/30",
+                  "shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:shadow-[0_28px_70px_rgba(0,0,0,0.4)]",
+                  techAccents[tech.accent].card,
                   tech.feature ? "p-5 sm:p-7" : "p-5 sm:p-6",
                 ].join(" ")}
                 aria-label={`${tech.name} - ${tech.description}`}
               >
                 <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-cyan-400/5 via-transparent to-violet-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
+                {tech.feature && (
+                  <div aria-hidden="true" className={`absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent to-transparent sm:inset-x-7 ${techAccents[tech.accent].hairline}`} />
+                )}
+
                 <div className="flex items-start justify-between gap-4">
                   <span
                     className={[
                       "grid place-items-center rounded-xl border border-white/10 bg-white/[0.02] font-semibold text-white/80 transition-all duration-300",
-                      "group-hover:-translate-y-1 group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10 group-hover:text-cyan-200",
+                      "group-hover:-translate-y-1",
+                      techAccents[tech.accent].tile,
                       tech.feature ? "h-10 w-10 text-lg sm:h-12 sm:w-12 sm:text-xl" : "h-10 w-10 text-lg",
                     ].join(" ")}
                   >
                     {tech.name.charAt(0)}
                   </span>
-                  <span className="font-mono text-[0.65rem] tracking-widest text-white/25 transition-colors duration-300 group-hover:text-cyan-300/60">
+                  <span className={["font-mono text-[0.65rem] tracking-widest text-white/25 transition-colors duration-300", techAccents[tech.accent].num].join(" ")}>
                     {String(index + 1).padStart(2, "0")}
                   </span>
                 </div>
@@ -118,18 +178,18 @@ export function TechnologyStack() {
                     </p>
                   </div>
                   {tech.feature && featureGlyphs[tech.name] && (
-                    <span className="mt-4 shrink-0 text-cyan-300/50 transition-all duration-300 group-hover:text-cyan-300/90 sm:mt-0">
+                    <span className={["mt-4 shrink-0 transition-all duration-300 sm:mt-0", techAccents[tech.accent].glyph].join(" ")}>
                       {featureGlyphs[tech.name]({ className: "h-5 w-11" })}
                     </span>
                   )}
                 </div>
 
                 <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-3.5 sm:mt-5 sm:pt-4">
-                  <span className="flex items-center gap-2 rounded-full border border-white/10 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-[0.14em] text-white/40 transition-colors duration-300 group-hover:border-cyan-300/25 group-hover:text-cyan-200/80">
-                    <span className={`h-1.5 w-1.5 rounded-full ${tech.tone} transition-transform duration-300 group-hover:scale-125`} aria-hidden="true" />
+                  <span className={["flex items-center gap-2 rounded-full border border-white/10 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-[0.14em] text-white/40 transition-colors duration-300", techAccents[tech.accent].chip].join(" ")}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${tech.tone} ${tech.feature ? "pulse-dot" : ""} transition-transform duration-300 group-hover:scale-125`} aria-hidden="true" />
                     {tech.category}
                   </span>
-                  <span className="min-h-[1.25rem] text-right font-mono text-[0.65rem] uppercase tracking-[0.14em] text-white/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <span className="min-h-[1.25rem] text-right font-mono text-[0.65rem] uppercase tracking-[0.14em] text-white/35 transition-colors duration-300 group-hover:text-white/70">
                     {tech.layer}
                   </span>
                 </div>
