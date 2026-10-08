@@ -51,7 +51,7 @@ export function Navbar() {
           data-scrolled={scrolled ? "true" : "false"}
           className="navbar-surface relative flex items-center justify-between gap-4 rounded-2xl py-2.5 pl-4 pr-2.5 sm:py-3 sm:pl-5 sm:pr-3"
         >
-          <a href="#" className="group flex items-center gap-2.5" aria-label="ReplyFlow AI home">
+          <a href="#" className="group flex items-center gap-2.5 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300/70" aria-label="ReplyFlow AI home">
             <span className="relative flex h-7 w-7 items-center justify-center rounded-lg border border-cyan-300/25 bg-cyan-300/10 transition-colors duration-[var(--dur-fast)] group-hover:border-cyan-300/45">
               <span className="pulse-dot h-2 w-2 rounded-full bg-cyan-300" />
             </span>
@@ -65,7 +65,7 @@ export function Navbar() {
               <a
                 key={link.href}
                 href={link.href}
-                className="rounded-lg px-3 py-2 text-sm text-white/55 transition-colors duration-[var(--dur-fast)] hover:bg-white/[0.05] hover:text-white"
+                className="rounded-lg px-3 py-2 text-sm text-white/55 transition-colors duration-[var(--dur-fast)] hover:bg-white/[0.05] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300/70"
               >
                 {link.label}
               </a>

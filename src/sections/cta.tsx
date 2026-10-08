@@ -4,8 +4,27 @@ import { motion, useReducedMotion } from "motion/react"
 import { useActionState } from "react"
 import { submitContactLead } from "@/app/contact/actions"
 import { staggerContainer, staggerContainerInstant, fadeUp, fadeUpInstant, fadeFromLeft, fadeFromLeftInstant, scaleIn, scaleInInstant, cardViewport } from "@/lib/motion"
+import { Reveal } from "@/components/reveal"
 
 const initialState = { error: "", success: false }
+
+const trustSignals = [
+  {
+    label: "CONNECTED BY DESIGN",
+    tone: "bg-cyan-300",
+    text: "Lead capture, CRM, messaging and AI run as one flow.",
+  },
+  {
+    label: "SECURE DATA",
+    tone: "bg-sky-300",
+    text: "Authentication and data handled with Supabase.",
+  },
+  {
+    label: "HUMAN-CONTROLLED",
+    tone: "bg-violet-300",
+    text: "Starts with an audit and a design we review with you.",
+  },
+]
 
 const conversationFlow = [
   { label: "You describe the repetitive work", detail: "The bottleneck, the tools involved and the outcome you need." },
@@ -29,6 +48,20 @@ export function CTA() {
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400/[0.06] blur-[120px]" />
       <div className="pointer-events-none absolute -right-32 top-1/3 h-80 w-80 rounded-full bg-violet-500/[0.05] blur-[110px]" />
       <div className="container relative">
+        <Reveal className="mb-8">
+          <ul className="grid gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:grid-cols-3 sm:p-5" aria-label="Reliability signals">
+            {trustSignals.map((signal) => (
+              <li key={signal.label} className="flex items-start gap-3">
+                <span className={`mt-1 h-1.5 w-1.5 shrink-0 rounded-full ${signal.tone}`} aria-hidden="true" />
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/35">{signal.label}</p>
+                  <p className="mt-1 text-sm leading-5 text-white/70">{signal.text}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+
         <motion.div
           className="relative overflow-hidden rounded-[2rem] border border-cyan-300/[0.10] bg-[#08111F]/80 bg-gradient-to-br from-[#08111F]/90 via-[#08111F]/60 to-cyan-300/[0.04] p-7 shadow-[0_40px_120px_rgba(0,0,0,0.55)] sm:p-12 lg:p-14"
           variants={stagger}

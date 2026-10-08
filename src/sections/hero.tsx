@@ -85,7 +85,7 @@ export function Hero() {
                 whileHover={reduceMotion ? {} : { y: -2, scale: 1.015 }}
                 whileTap={reduceMotion ? {} : { scale: 0.985 }}
                 transition={{ duration: 0.18, ease: EASE }}
-                className="rounded-xl bg-white px-6 py-3.5 text-center font-semibold text-black shadow-[0_0_40px_rgba(255,255,255,.08)]"
+                className="rounded-xl bg-white px-6 py-3.5 text-center font-semibold text-black shadow-[0_0_40px_rgba(255,255,255,.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300/70"
               >
                 Build my automation <span className="ml-1">→</span>
               </motion.a>
@@ -94,7 +94,7 @@ export function Hero() {
                 whileHover={reduceMotion ? {} : { y: -2 }}
                 whileTap={reduceMotion ? {} : { scale: 0.985 }}
                 transition={{ duration: 0.18, ease: EASE }}
-                className="glass rounded-xl px-6 py-3.5 text-center font-semibold text-white/85 transition hover:border-cyan-300/20"
+                className="glass rounded-xl px-6 py-3.5 text-center font-semibold text-white/85 transition hover:border-cyan-300/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300/70"
               >
                 Explore systems
               </motion.a>

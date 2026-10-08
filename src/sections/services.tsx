@@ -248,7 +248,7 @@ export function Services() {
               One automation layer for the work that slows you down.
             </h2>
             <p className="mt-6 max-w-2xl text-base leading-7 text-white/45 sm:text-lg">
-              Modular systems that connect your people, data and tools into one reliable operating flow.
+              Modular automation systems we design, build and maintain — connecting your people, data and tools into one reliable operating flow.
             </p>
           </motion.div>
 
