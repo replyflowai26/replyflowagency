@@ -17,12 +17,12 @@ import {
 const signals = ["LEADS", "SALES", "SUPPORT", "OPS"]
 
 const pipeline = [
-  { step: "01", label: "Lead", detail: "Enquiry captured", status: "LIVE", pulse: true, dot: "bg-cyan-300", chip: "text-cyan-300/85 border-cyan-300/20 bg-cyan-300/[0.07]" },
-  { step: "02", label: "AI", detail: "Qualify & respond", status: "RUNNING", pulse: false, dot: "bg-violet-300", chip: "text-violet-300/85 border-violet-300/20 bg-violet-300/[0.07]" },
-  { step: "03", label: "CRM", detail: "Record synced", status: "SYNCED", pulse: false, dot: "bg-cyan-300", chip: "text-cyan-300/85 border-cyan-300/20 bg-cyan-300/[0.07]" },
-  { step: "04", label: "WhatsApp / Email", detail: "Message delivered", status: "SENT", pulse: false, dot: "bg-violet-300", chip: "text-violet-300/85 border-violet-300/20 bg-violet-300/[0.07]" },
-  { step: "05", label: "Follow-up", detail: "Sequenced outreach", status: "QUEUED", pulse: false, dot: "bg-cyan-300", chip: "text-cyan-300/85 border-cyan-300/20 bg-cyan-300/[0.07]" },
-  { step: "06", label: "Reporting", detail: "Metrics streaming", status: "LIVE", pulse: true, dot: "bg-violet-300", chip: "text-violet-300/85 border-violet-300/20 bg-violet-300/[0.07]" },
+  { step: "01", label: "Lead", detail: "Enquiry captured", status: "LIVE", pulse: true, ai: false, dot: "bg-cyan-300", chip: "text-cyan-300/85 border-cyan-300/20 bg-cyan-300/[0.07]" },
+  { step: "02", label: "AI", detail: "Qualify & respond", status: "RUNNING", pulse: false, ai: true, dot: "bg-violet-300", chip: "text-violet-300/85 border-violet-300/20 bg-violet-300/[0.07]" },
+  { step: "03", label: "CRM", detail: "Record synced", status: "SYNCED", pulse: false, ai: true, dot: "bg-sky-300", chip: "text-sky-300/85 border-sky-300/20 bg-sky-300/[0.07]" },
+  { step: "04", label: "WhatsApp / Email", detail: "Message delivered", status: "SENT", pulse: false, ai: false, dot: "bg-cyan-300", chip: "text-cyan-300/85 border-cyan-300/20 bg-cyan-300/[0.07]" },
+  { step: "05", label: "Follow-up", detail: "Sequenced outreach", status: "QUEUED", pulse: false, ai: false, dot: "bg-sky-300", chip: "text-sky-300/85 border-sky-300/20 bg-sky-300/[0.07]" },
+  { step: "06", label: "Reporting", detail: "Metrics streaming", status: "LIVE", pulse: true, ai: false, dot: "bg-emerald-300", chip: "text-emerald-300/85 border-emerald-300/20 bg-emerald-300/[0.07]" },
 ]
 
 export function Hero() {
@@ -118,6 +118,7 @@ export function Hero() {
             <div className="orbit-reverse pointer-events-none absolute -left-2 -right-2 -top-9 bottom-20 rounded-full border border-violet-300/10" />
 
             <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#090c12]/90 shadow-2xl shadow-black/40 backdrop-blur-2xl">
+              <div aria-hidden="true" className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent" />
               <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
                 <div className="flex items-center gap-2">
                   <span className="pulse-dot h-2 w-2 rounded-full bg-cyan-300" />
@@ -132,7 +133,7 @@ export function Hero() {
                     {i > 0 && (
                       <div aria-hidden="true" className="relative ml-[17px] h-5 w-px bg-white/10">
                         <span
-                          className="pipeline-flow absolute -left-[3.5px] top-0 h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.55)]"
+                          className={`pipeline-flow ${item.ai ? "pipeline-flow-ai" : ""} absolute -left-[3.5px] top-0 h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.55)]`}
                           style={{ animationDelay: `${(i * 0.45).toFixed(2)}s` }}
                         />
                       </div>

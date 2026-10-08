@@ -8,6 +8,9 @@ type WorkflowNode = {
   detail: string;
   tag: string;
   Icon: IconComponent;
+  dot: string;
+  iconTone: string;
+  iconHover: string;
 };
 
 function LeadIcon(props: SVGProps<SVGSVGElement>) {
@@ -35,12 +38,12 @@ function ChartIcon(props: SVGProps<SVGSVGElement>) {
 }
 
 const workflowNodes: WorkflowNode[] = [
-  { title: "Lead", detail: "Captured from any channel", tag: "INPUT", Icon: LeadIcon },
-  { title: "AI Processing", detail: "Qualify, enrich, score", tag: "LOGIC", Icon: AIIcon },
-  { title: "CRM", detail: "Structured with context", tag: "STATE", Icon: CRMIcon },
-  { title: "WhatsApp / Email", detail: "Personal outreach", tag: "CHANNEL", Icon: MailIcon },
-  { title: "Follow-up", detail: "Timed for conversion", tag: "SEQUENCE", Icon: ClockIcon },
-  { title: "Reporting", detail: "Pipeline visibility", tag: "OUTPUT", Icon: ChartIcon },
+  { title: "Lead", detail: "Captured from any channel", tag: "INPUT", Icon: LeadIcon, dot: "bg-cyan-300", iconTone: "text-cyan-200/90", iconHover: "group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10" },
+  { title: "AI Processing", detail: "Qualify, enrich, score", tag: "LOGIC", Icon: AIIcon, dot: "bg-violet-300", iconTone: "text-violet-200/90", iconHover: "group-hover:border-violet-300/30 group-hover:bg-violet-300/10" },
+  { title: "CRM", detail: "Structured with context", tag: "STATE", Icon: CRMIcon, dot: "bg-sky-300", iconTone: "text-sky-200/90", iconHover: "group-hover:border-sky-300/30 group-hover:bg-sky-300/10" },
+  { title: "WhatsApp / Email", detail: "Personal outreach", tag: "CHANNEL", Icon: MailIcon, dot: "bg-cyan-300", iconTone: "text-cyan-200/90", iconHover: "group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10" },
+  { title: "Follow-up", detail: "Timed for conversion", tag: "SEQUENCE", Icon: ClockIcon, dot: "bg-sky-300", iconTone: "text-sky-200/90", iconHover: "group-hover:border-sky-300/30 group-hover:bg-sky-300/10" },
+  { title: "Reporting", detail: "Pipeline visibility", tag: "OUTPUT", Icon: ChartIcon, dot: "bg-emerald-300", iconTone: "text-emerald-200/90", iconHover: "group-hover:border-emerald-300/30 group-hover:bg-emerald-300/10" },
 ];
 
 function ChevronRight(props: SVGProps<SVGSVGElement>) {
@@ -59,13 +62,13 @@ function WorkflowStep({ node, index, hasNext }: { node: WorkflowNode; index: num
             {String(index + 1).padStart(2, "0")} · {node.tag}
           </span>
           <span
-            className="pulse-dot h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300"
+            className={`pulse-dot h-1.5 w-1.5 shrink-0 rounded-full ${node.dot}`}
             style={{ animationDelay: nodeDelay }}
             aria-hidden="true"
           />
         </div>
 
-        <span className="mt-4 grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-cyan-200/90 transition-colors duration-300 group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10">
+        <span className={`mt-4 grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] transition-colors duration-300 ${node.iconTone} ${node.iconHover}`}>
           <node.Icon className="h-5 w-5" />
         </span>
 

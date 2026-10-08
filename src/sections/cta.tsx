@@ -27,14 +27,18 @@ export function CTA() {
   return (
     <section id="contact" className="relative overflow-hidden py-28 sm:py-36">
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400/[0.06] blur-[120px]" />
+      <div className="pointer-events-none absolute -right-32 top-1/3 h-80 w-80 rounded-full bg-violet-500/[0.05] blur-[110px]" />
       <div className="container relative">
         <motion.div
-          className="overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.07] via-white/[0.035] to-cyan-300/[0.025] p-7 shadow-[0_40px_120px_rgba(0,0,0,0.55)] sm:p-12 lg:p-14"
+          className="relative overflow-hidden rounded-[2rem] border border-cyan-300/[0.10] bg-[#08111F]/80 bg-gradient-to-br from-[#08111F]/90 via-[#08111F]/60 to-cyan-300/[0.04] p-7 shadow-[0_40px_120px_rgba(0,0,0,0.55)] sm:p-12 lg:p-14"
           variants={stagger}
           initial="hidden"
           whileInView="visible"
           viewport={cardViewport}
         >
+          <div aria-hidden="true" className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/35 to-transparent" />
+          <div aria-hidden="true" className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-cyan-300/15 to-transparent" />
+          <div aria-hidden="true" className="absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-violet-300/10 to-transparent" />
           <div className="grid gap-10 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
             <div>
               <motion.div

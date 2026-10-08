@@ -9,20 +9,21 @@ type Technology = {
   description: string;
   category: string;
   layer: string;
+  tone: string;
   feature?: boolean;
 };
 
 const technologies: Technology[] = [
-  { name: "Next.js", description: "Production-ready React framework", category: "Frontend", layer: "Presentation" },
-  { name: "React", description: "Composable UI library", category: "Frontend", layer: "Interface" },
-  { name: "TypeScript", description: "Type-safe engineering", category: "Frontend", layer: "Type safety" },
-  { name: "Supabase", description: "Database, authentication and secure data", category: "Backend", layer: "Data layer" },
-  { name: "n8n", description: "Workflow automation and orchestration", category: "Automation", layer: "Orchestration", feature: true },
-  { name: "OpenAI", description: "AI-powered automation and intelligence", category: "AI", layer: "Intelligence", feature: true },
-  { name: "Vercel", description: "Production hosting and deployment", category: "Infrastructure", layer: "Delivery" },
-  { name: "GitHub", description: "Version control and CI workflows", category: "Engineering", layer: "Repository" },
-  { name: "WhatsApp Cloud API", description: "Business messaging and follow-ups", category: "Integrations", layer: "Messaging channel" },
-  { name: "Gmail API", description: "Email communication and automation", category: "Integrations", layer: "Email channel" },
+  { name: "Next.js", description: "Production-ready React framework", category: "Frontend", layer: "Presentation", tone: "bg-sky-300/70" },
+  { name: "React", description: "Composable UI library", category: "Frontend", layer: "Interface", tone: "bg-sky-300/70" },
+  { name: "TypeScript", description: "Type-safe engineering", category: "Frontend", layer: "Type safety", tone: "bg-sky-300/70" },
+  { name: "Supabase", description: "Database, authentication and secure data", category: "Backend", layer: "Data layer", tone: "bg-sky-300/70" },
+  { name: "n8n", description: "Workflow automation and orchestration", category: "Automation", layer: "Orchestration", tone: "bg-cyan-300/80", feature: true },
+  { name: "OpenAI", description: "AI-powered automation and intelligence", category: "AI", layer: "Intelligence", tone: "bg-violet-300/80", feature: true },
+  { name: "Vercel", description: "Production hosting and deployment", category: "Infrastructure", layer: "Delivery", tone: "bg-sky-300/70" },
+  { name: "GitHub", description: "Version control and CI workflows", category: "Engineering", layer: "Repository", tone: "bg-sky-300/70" },
+  { name: "WhatsApp Cloud API", description: "Business messaging and follow-ups", category: "Integrations", layer: "Messaging channel", tone: "bg-cyan-300/80" },
+  { name: "Gmail API", description: "Email communication and automation", category: "Integrations", layer: "Email channel", tone: "bg-cyan-300/80" },
 ];
 
 function AutomationGlyph(props: SVGProps<SVGSVGElement>) {
@@ -124,7 +125,8 @@ export function TechnologyStack() {
                 </div>
 
                 <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-3.5 sm:mt-5 sm:pt-4">
-                  <span className="rounded-full border border-white/10 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-[0.14em] text-white/40 transition-colors duration-300 group-hover:border-cyan-300/25 group-hover:text-cyan-200/80">
+                  <span className="flex items-center gap-2 rounded-full border border-white/10 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-[0.14em] text-white/40 transition-colors duration-300 group-hover:border-cyan-300/25 group-hover:text-cyan-200/80">
+                    <span className={`h-1.5 w-1.5 rounded-full ${tech.tone} transition-transform duration-300 group-hover:scale-125`} aria-hidden="true" />
                     {tech.category}
                   </span>
                   <span className="min-h-[1.25rem] text-right font-mono text-[0.65rem] uppercase tracking-[0.14em] text-white/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100">

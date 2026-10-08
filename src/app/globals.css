@@ -47,11 +47,29 @@ body {
   min-width: 320px;
   overflow-x: hidden;
   background:
-    radial-gradient(circle at 15% 5%, rgba(124, 58, 237, 0.16), transparent 30rem),
-    radial-gradient(circle at 90% 15%, rgba(34, 211, 238, 0.12), transparent 28rem),
-    var(--bg);
+    radial-gradient(circle at 15% 5%, rgba(99, 102, 241, 0.12), transparent 30rem),
+    radial-gradient(circle at 90% 15%, rgba(34, 211, 238, 0.10), transparent 28rem),
+    radial-gradient(circle at 50% 100%, rgba(139, 92, 246, 0.08), transparent 34rem),
+    linear-gradient(180deg, #05070b 0%, #060910 45%, #05070b 100%);
   color: var(--fg);
   font-family: var(--font-sans);
+}
+/* Deep Aurora Intelligence — fixed ambient layer, very slow drift */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -18%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(36% 28% at 20% 14%, rgba(99, 102, 241, 0.10), transparent 70%),
+    radial-gradient(32% 26% at 80% 20%, rgba(34, 211, 238, 0.075), transparent 70%),
+    radial-gradient(40% 32% at 52% 86%, rgba(139, 92, 246, 0.065), transparent 70%);
+  animation: aurora-drift 70s ease-in-out infinite alternate;
+}
+@keyframes aurora-drift {
+  from { transform: translate3d(-1.2%, -0.8%, 0) scale(1); }
+  to { transform: translate3d(1.2%, 0.8%, 0) scale(1.04); }
 }
 
 a { color: inherit; text-decoration: none; }
@@ -151,6 +169,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
   opacity: 0;
   animation: pipeline-flow 3.6s var(--ease) infinite;
 }
+.pipeline-flow.pipeline-flow-ai {
+  background: #a78bfa;
+  box-shadow: 0 0 8px rgba(167, 139, 250, 0.55);
+}
 @keyframes pipeline-flow {
   0% { opacity: 0; transform: translate3d(0, -8px, 0); }
   22% { opacity: 1; }
@@ -194,6 +216,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 ::selection { background: rgba(139,92,246,.35); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  body::before { animation: none; }
   .hero-network, .services-network, .hero-glow, .pulse-dot, .marquee-line, .orbit, .orbit-reverse, .scan-line { animation: none; }
   .workflow-pulse, .workflow-pulse-v, .pipeline-flow { animation: none; opacity: 0; box-shadow: none; }
   .hero-depth { animation: none; opacity: 1; }

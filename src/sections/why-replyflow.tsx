@@ -61,9 +61,9 @@ const supportingOutcomes: SupportingOutcome[] = [
 ];
 
 const primaryFlow = [
-  { label: "Repetitive work", detail: "The manual routine slowing the team down" },
-  { label: "Automation system", detail: "AI, CRM and messaging connected into one flow" },
-  { label: "Business outcome", detail: "Work runs on its own, consistently" },
+  { label: "Repetitive work", detail: "The manual routine slowing the team down", dot: "border-white/30 bg-white/10", num: "text-white/40" },
+  { label: "Automation system", detail: "AI, CRM and messaging connected into one flow", dot: "border-cyan-300/50 bg-cyan-300/20", num: "text-cyan-300/60" },
+  { label: "Business outcome", detail: "Work runs on its own, consistently", dot: "border-emerald-300/50 bg-emerald-300/20", num: "text-emerald-300/60" },
 ];
 
 function SignalStrip() {
@@ -138,7 +138,7 @@ export function WhyReplyFlow() {
                 {primaryFlow.map((stage, index) => (
                   <li key={stage.label} className="relative flex gap-3.5">
                     <div className="flex flex-col items-center" aria-hidden="true">
-                      <span className="mt-1.5 h-2 w-2 rounded-full border border-cyan-300/50 bg-cyan-300/20" />
+                      <span className={`mt-1.5 h-2 w-2 rounded-full border ${stage.dot}`} />
                       {index < primaryFlow.length - 1 && (
                         <span className="relative my-1.5 min-h-[30px] w-px flex-1 bg-white/12">
                           <span className="workflow-pulse workflow-pulse-v" style={{ animationDelay: `${index * 0.5}s` }} />
@@ -147,7 +147,7 @@ export function WhyReplyFlow() {
                     </div>
                     <div className={index < primaryFlow.length - 1 ? "pb-5" : ""}>
                       <p className="text-sm font-medium text-white/85">
-                        <span className="mr-2 font-mono text-[11px] tracking-widest text-cyan-300/50">
+                        <span className={`mr-2 font-mono text-[11px] tracking-widest ${stage.num}`}>
                           {String(index + 1).padStart(2, "0")}
                         </span>
                         {stage.label}

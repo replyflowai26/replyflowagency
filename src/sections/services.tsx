@@ -32,6 +32,7 @@ function CustomIcon(props: SVGProps<SVGSVGElement>) {
 
 type Tier = "primary" | "secondary"
 type CardVisual = "route" | "pipeline" | "reply" | "mesh" | "chart" | "slots"
+type Hue = "cyan" | "sky" | "violet" | "emerald"
 
 type CardConfig = {
   area: string
@@ -40,6 +41,9 @@ type CardConfig = {
   status: string
   statusTone: string
   visual: CardVisual
+  hue: Hue
+  tileTone: string
+  tileHover: string
   Icon: (props: SVGProps<SVGSVGElement>) => ReactElement
 }
 
@@ -51,6 +55,9 @@ const cardConfig: Record<string, CardConfig> = {
     status: "LIVE",
     statusTone: "bg-emerald-300",
     visual: "route",
+    hue: "cyan",
+    tileTone: "text-cyan-200/90",
+    tileHover: "group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10",
     Icon: LeadIcon,
   },
   "sales-automation": {
@@ -60,6 +67,9 @@ const cardConfig: Record<string, CardConfig> = {
     status: "ACTIVE",
     statusTone: "bg-cyan-300",
     visual: "pipeline",
+    hue: "sky",
+    tileTone: "text-sky-200/90",
+    tileHover: "group-hover:border-sky-300/30 group-hover:bg-sky-300/10",
     Icon: SalesIcon,
   },
   "customer-support": {
@@ -69,6 +79,9 @@ const cardConfig: Record<string, CardConfig> = {
     status: "AI-ASSISTED",
     statusTone: "bg-violet-300",
     visual: "reply",
+    hue: "cyan",
+    tileTone: "text-cyan-200/90",
+    tileHover: "group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10",
     Icon: SupportIcon,
   },
   "operations": {
@@ -78,6 +91,9 @@ const cardConfig: Record<string, CardConfig> = {
     status: "AUTOMATED",
     statusTone: "bg-cyan-300",
     visual: "mesh",
+    hue: "sky",
+    tileTone: "text-sky-200/90",
+    tileHover: "group-hover:border-sky-300/30 group-hover:bg-sky-300/10",
     Icon: OpsIcon,
   },
   "reporting": {
@@ -87,6 +103,9 @@ const cardConfig: Record<string, CardConfig> = {
     status: "SYNCED",
     statusTone: "bg-emerald-300",
     visual: "chart",
+    hue: "emerald",
+    tileTone: "text-emerald-200/90",
+    tileHover: "group-hover:border-emerald-300/30 group-hover:bg-emerald-300/10",
     Icon: ReportIcon,
   },
   "custom-ai-systems": {
@@ -96,44 +115,91 @@ const cardConfig: Record<string, CardConfig> = {
     status: "CONFIGURABLE",
     statusTone: "bg-violet-300",
     visual: "slots",
+    hue: "violet",
+    tileTone: "text-violet-200/90",
+    tileHover: "group-hover:border-violet-300/30 group-hover:bg-violet-300/10",
     Icon: CustomIcon,
   },
 }
 
-function MiniVisual({ kind }: { kind: CardVisual }) {
+const visualTones: Record<Hue, { node: string; bar: string; barHi: string; line: string; edge: string; edge2: string; slot: string; slotFill: string }> = {
+  cyan: {
+    node: "group-hover:border-cyan-300/70 group-hover:bg-cyan-300/25",
+    bar: "group-hover:bg-cyan-300/50",
+    barHi: "group-hover:bg-cyan-300/80",
+    line: "group-hover:text-cyan-300/70",
+    edge: "group-hover:border-cyan-300/50",
+    edge2: "group-hover:border-cyan-300/60",
+    slot: "group-hover:border-cyan-300/40",
+    slotFill: "group-hover:bg-cyan-300/25",
+  },
+  sky: {
+    node: "group-hover:border-sky-300/70 group-hover:bg-sky-300/25",
+    bar: "group-hover:bg-sky-300/50",
+    barHi: "group-hover:bg-sky-300/80",
+    line: "group-hover:text-sky-300/70",
+    edge: "group-hover:border-sky-300/50",
+    edge2: "group-hover:border-sky-300/60",
+    slot: "group-hover:border-sky-300/40",
+    slotFill: "group-hover:bg-sky-300/25",
+  },
+  violet: {
+    node: "group-hover:border-violet-300/70 group-hover:bg-violet-300/25",
+    bar: "group-hover:bg-violet-300/50",
+    barHi: "group-hover:bg-violet-300/80",
+    line: "group-hover:text-violet-300/70",
+    edge: "group-hover:border-violet-300/50",
+    edge2: "group-hover:border-violet-300/60",
+    slot: "group-hover:border-violet-300/45",
+    slotFill: "group-hover:bg-violet-300/30",
+  },
+  emerald: {
+    node: "group-hover:border-emerald-300/70 group-hover:bg-emerald-300/25",
+    bar: "group-hover:bg-emerald-300/50",
+    barHi: "group-hover:bg-emerald-300/80",
+    line: "group-hover:text-emerald-300/70",
+    edge: "group-hover:border-emerald-300/50",
+    edge2: "group-hover:border-emerald-300/60",
+    slot: "group-hover:border-emerald-300/40",
+    slotFill: "group-hover:bg-emerald-300/25",
+  },
+}
+
+function MiniVisual({ kind, hue }: { kind: CardVisual; hue: Hue }) {
+  const t = visualTones[hue]
   if (kind === "route") {
     return (
       <span className="flex w-24 items-center gap-1.5" aria-hidden="true">
-        <span className="h-2.5 w-2.5 rounded-[3px] border border-white/25 bg-white/5 transition-colors duration-300 group-hover:border-cyan-300/70 group-hover:bg-cyan-300/25" />
-        <span className="h-px flex-1 bg-white/15 transition-colors duration-300 group-hover:bg-cyan-300/50" />
-        <span className="h-2.5 w-2.5 rounded-[3px] border border-white/25 bg-white/5 transition-colors duration-300 delay-100 group-hover:border-cyan-300/70 group-hover:bg-cyan-300/25" />
-        <span className="h-px flex-1 bg-white/15 transition-colors duration-300 delay-100 group-hover:bg-cyan-300/50" />
-        <span className="h-2.5 w-2.5 rounded-[3px] border border-white/25 bg-white/5 transition-colors duration-300 delay-200 group-hover:border-cyan-300/70 group-hover:bg-cyan-300/25" />
+        <span className={`h-2.5 w-2.5 rounded-[3px] border border-white/25 bg-white/5 transition-colors duration-300 ${t.node}`} />
+        <span className={`h-px flex-1 bg-white/15 transition-colors duration-300 ${t.bar}`} />
+        <span className={`h-2.5 w-2.5 rounded-[3px] border border-white/25 bg-white/5 transition-colors duration-300 delay-100 ${t.node}`} />
+        <span className={`h-px flex-1 bg-white/15 transition-colors duration-300 delay-100 ${t.bar}`} />
+        <span className={`h-2.5 w-2.5 rounded-[3px] border border-white/25 bg-white/5 transition-colors duration-300 delay-200 ${t.node}`} />
       </span>
     )
   }
   if (kind === "pipeline") {
     return (
       <span className="flex h-5 items-end gap-1.5" aria-hidden="true">
-        <span className="h-2 w-1.5 rounded-sm bg-white/15 transition-colors duration-300 group-hover:bg-cyan-300/50" />
-        <span className="h-3 w-1.5 rounded-sm bg-white/15 transition-colors duration-300 delay-75 group-hover:bg-cyan-300/50" />
-        <span className="h-4 w-1.5 rounded-sm bg-white/15 transition-colors duration-300 delay-100 group-hover:bg-cyan-300/60" />
-        <span className="h-5 w-1.5 rounded-sm bg-white/15 transition-colors duration-300 delay-150 group-hover:bg-cyan-300/70" />
-        <span className="h-5 w-1.5 rounded-sm bg-white/25 transition-colors duration-300 delay-200 group-hover:bg-cyan-300/90" />
+        <span className={`h-2 w-1.5 rounded-sm bg-white/15 transition-colors duration-300 ${t.bar}`} />
+        <span className={`h-3 w-1.5 rounded-sm bg-white/15 transition-colors duration-300 delay-75 ${t.bar}`} />
+        <span className={`h-4 w-1.5 rounded-sm bg-white/15 transition-colors duration-300 delay-100 ${t.bar}`} />
+        <span className={`h-5 w-1.5 rounded-sm bg-white/15 transition-colors duration-300 delay-150 ${t.barHi}`} />
+        <span className={`h-5 w-1.5 rounded-sm bg-white/25 transition-colors duration-300 delay-200 ${t.barHi}`} />
       </span>
     )
   }
   if (kind === "reply") {
     return (
       <span className="flex h-5 items-end gap-1.5" aria-hidden="true">
-        <span className="h-4 w-6 rounded-md rounded-br-sm border border-white/25 bg-white/5 transition-colors duration-300 group-hover:border-cyan-300/50" />
+        <span className={`h-4 w-6 rounded-md rounded-br-sm border border-white/25 bg-white/5 transition-colors duration-300 ${t.edge}`} />
         <span className="h-3.5 w-5 rounded-md rounded-tl-sm border border-white/15 bg-white/[0.03] transition-colors duration-300 delay-100 group-hover:border-violet-300/60" />
       </span>
     )
   }
   if (kind === "mesh") {
     return (
-      <svg viewBox="0 0 64 20" fill="none" className="h-5 w-24 text-white/25 transition-colors duration-300 group-hover:text-cyan-300/70" aria-hidden="true">
+      <svg viewBox="0 0 64 20" fill="none" className={`h-5 w-24 text-white/25 transition-colors duration-300 ${t.line}`} aria-hidden="true">
         <path d="M10 10h20M34 10h20M32 7.5 10.5 9M32 12.5 53.5 11" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
         <circle cx="7" cy="10" r="3" stroke="currentColor" strokeWidth="1.4" />
         <circle cx="32" cy="6" r="2.6" stroke="currentColor" strokeWidth="1.4" />
@@ -143,7 +209,7 @@ function MiniVisual({ kind }: { kind: CardVisual }) {
   }
   if (kind === "chart") {
     return (
-      <svg viewBox="0 0 64 20" fill="none" className="h-5 w-24 text-white/25 transition-colors duration-300 group-hover:text-cyan-300/70" aria-hidden="true">
+      <svg viewBox="0 0 64 20" fill="none" className={`h-5 w-24 text-white/25 transition-colors duration-300 ${t.line}`} aria-hidden="true">
         <path d="M3 16l12-5 10 2 14-7 10 3 12-7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
         <circle cx="61" cy="2" r="2" fill="currentColor" />
       </svg>
@@ -151,10 +217,10 @@ function MiniVisual({ kind }: { kind: CardVisual }) {
   }
   return (
     <span className="flex items-center gap-1.5" aria-hidden="true">
-      <span className="h-3.5 w-3.5 rounded-[4px] border border-white/15 bg-white/5 transition-colors duration-300 group-hover:border-cyan-300/40" />
-      <span className="h-3.5 w-3.5 rounded-[4px] border border-cyan-300/60 bg-cyan-300/15 transition-colors duration-300 group-hover:bg-cyan-300/30" />
-      <span className="h-3.5 w-3.5 rounded-[4px] border border-white/15 bg-white/5 transition-colors duration-300 delay-100 group-hover:border-cyan-300/40" />
-      <span className="h-3.5 w-3.5 rounded-[4px] border border-white/15 bg-white/5 transition-colors duration-300 delay-200 group-hover:border-cyan-300/40" />
+      <span className={`h-3.5 w-3.5 rounded-[4px] border border-white/15 bg-white/5 transition-colors duration-300 ${t.slot}`} />
+      <span className="h-3.5 w-3.5 rounded-[4px] border border-violet-300/60 bg-violet-300/15 transition-colors duration-300 group-hover:bg-violet-300/30" />
+      <span className={`h-3.5 w-3.5 rounded-[4px] border border-white/15 bg-white/5 transition-colors duration-300 delay-100 ${t.slot}`} />
+      <span className={`h-3.5 w-3.5 rounded-[4px] border border-white/15 bg-white/5 transition-colors duration-300 delay-200 ${t.slot}`} />
     </span>
   )
 }
@@ -222,7 +288,7 @@ export function Services() {
 
               const statusBlock = (
                 <div className="flex items-center gap-3">
-                  <MiniVisual kind={cfg.visual} />
+                  <MiniVisual kind={cfg.visual} hue={cfg.hue} />
                   <span className="h-3 w-px bg-white/10" />
                   <span className="flex items-center gap-1.5 text-[10px] tracking-[0.16em] text-white/35">
                     <span className={`h-1.5 w-1.5 rounded-full ${cfg.statusTone}`} />
@@ -269,7 +335,7 @@ export function Services() {
                     {wide ? (
                       <div className="mt-6 flex flex-1 flex-col justify-between gap-6 sm:flex-row sm:items-end">
                         <div className="flex items-start gap-4">
-                          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-cyan-200/90 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10">
+                          <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.04] transition-all duration-300 group-hover:-translate-y-1 ${cfg.tileTone} ${cfg.tileHover}`}>
                             <cfg.Icon className="h-[18px] w-[18px]" />
                           </span>
                           {textBlock}
@@ -281,7 +347,9 @@ export function Services() {
                         <div className="mt-6 flex-1">
                           <span
                             className={[
-                              "mb-5 grid place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-cyan-200/90 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10",
+                              "mb-5 grid place-items-center rounded-xl border border-white/10 bg-white/[0.04] transition-all duration-300 group-hover:-translate-y-1",
+                              cfg.tileTone,
+                              cfg.tileHover,
                               primary ? "h-12 w-12" : "h-10 w-10",
                             ].join(" ")}
                           >
