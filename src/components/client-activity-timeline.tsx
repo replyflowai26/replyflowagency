@@ -21,7 +21,7 @@ export function ClientActivityTimeline({ activities }: { activities: ClientActiv
     return (
       <div className="px-5 py-12 text-center">
         <p className="text-sm text-white/50">No activity recorded yet.</p>
-        <p className="mt-1 text-xs text-white/25">Client actions and workflow associations will appear here.</p>
+        <p className="mt-1 text-xs text-white/60">Client actions and workflow associations will appear here.</p>
       </div>
     )
   }
@@ -40,8 +40,8 @@ export function ClientActivityTimeline({ activities }: { activities: ClientActiv
                   {activity.activity_type.replace(/\./g, " ")}
                 </span>
               </div>
-              {activity.description ? <p className="mt-1 text-xs leading-5 text-white/40">{activity.description}</p> : null}
-              <p className="mt-1.5 text-[10px] text-white/25">{new Date(activity.created_at).toLocaleString()}</p>
+              {activity.description ? <p className="mt-1 text-xs leading-5 text-white/60">{activity.description}</p> : null}
+              <p className="mt-1.5 text-[10px] text-white/60">{new Date(activity.created_at).toLocaleString()}</p>
             </div>
           </li>
         )

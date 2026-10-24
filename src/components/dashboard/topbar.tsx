@@ -39,7 +39,7 @@ export function Topbar({
 
         <div className="flex items-center gap-3">
           <div className="hidden items-center gap-2.5 rounded-xl border border-white/10 bg-white/[.02] px-3 py-1.5 md:flex">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-300/15 text-xs font-semibold text-cyan-200">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-300/15 text-xs font-semibold text-blue-200">
               {initials}
             </span>
             <div className="min-w-0 leading-tight">
@@ -48,11 +48,11 @@ export function Topbar({
                   {organizationName}
                   <span
                     aria-hidden="true"
-                    className="pulse-dot h-1.5 w-1.5 rounded-full bg-cyan-300"
+                    className="pulse-dot h-1.5 w-1.5 rounded-full bg-blue-300"
                   />
                 </p>
               ) : null}
-              <p className="max-w-[10rem] truncate text-[11px] text-white/35">
+              <p className="max-w-[10rem] truncate text-[11px] text-white/60">
                 {userLabel ?? "Workspace"}
               </p>
             </div>

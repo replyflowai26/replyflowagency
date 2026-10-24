@@ -46,14 +46,14 @@ export default async function ProjectsPage() {
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-semibold">Projects</h1>
-        <p className="mt-1 text-sm text-white/40">Automation projects group related workflows into one operational unit.</p>
+        <p className="mt-1 text-sm text-white/60">Automation projects group related workflows into one operational unit.</p>
       </div>
 
-      {canCreate ? <section className="mb-6 rounded-2xl border border-white/10 bg-[#090c12]/80 p-5 backdrop-blur-xl"><h2 className="font-semibold">Create automation project</h2><p className="mt-1 mb-5 text-sm text-white/40">Projects group related workflows into one operational unit.</p><ProjectCreateForm clients={clientOptions} /></section> : null}
+      {canCreate ? <section className="mb-6 rounded-2xl border border-white/10 bg-[#090c12]/80 p-5 backdrop-blur-xl"><h2 className="font-semibold">Create automation project</h2><p className="mt-1 mb-5 text-sm text-white/60">Projects group related workflows into one operational unit.</p><ProjectCreateForm clients={clientOptions} /></section> : null}
 
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#090c12]/80">
-          <div className="border-b border-white/8 px-5 py-4"><h2 className="font-semibold">Project registry</h2><p className="mt-1 text-xs text-white/35">{projects.length} project{projects.length === 1 ? "" : "s"} in this workspace</p></div>
-          {projects.length === 0 ? <div className="px-5 py-16 text-center"><p className="text-sm text-white/50">No automation projects yet.</p><p className="mt-1 text-xs text-white/25">Create the first project to start organizing workflows.</p></div> : <div className="divide-y divide-white/8">{projects.map((project) => <Link key={project.id} href={`/dashboard/projects/${project.id}`} className="block px-5 py-5 transition hover:bg-white/[.025]"><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-medium">{project.name}</h3><p className="mt-1 text-sm text-white/40">{project.description ?? "No description"}</p></div><span className="rounded-full border border-emerald-300/15 bg-emerald-300/[.04] px-2.5 py-1 text-[10px] uppercase tracking-wider text-emerald-200">{project.status}</span></div></Link>)}</div>}
+          <div className="border-b border-white/8 px-5 py-4"><h2 className="font-semibold">Project registry</h2><p className="mt-1 text-xs text-white/60">{projects.length} project{projects.length === 1 ? "" : "s"} in this workspace</p></div>
+          {projects.length === 0 ? <div className="px-5 py-16 text-center"><p className="text-sm text-white/50">No automation projects yet.</p><p className="mt-1 text-xs text-white/60">Create the first project to start organizing workflows.</p></div> : <div className="divide-y divide-white/8">{projects.map((project) => <Link key={project.id} href={`/dashboard/projects/${project.id}`} className="block px-5 py-5 transition hover:bg-white/[.025]"><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-medium">{project.name}</h3><p className="mt-1 text-sm text-white/60">{project.description ?? "No description"}</p></div><span className="rounded-full border border-emerald-300/15 bg-emerald-300/[.04] px-2.5 py-1 text-[10px] uppercase tracking-wider text-emerald-200">{project.status}</span></div></Link>)}</div>}
         </section>
     </div>
   )

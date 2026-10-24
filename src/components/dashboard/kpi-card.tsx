@@ -14,7 +14,7 @@ const toneClass: Record<KpiTone, string> = {
   default: "text-white",
   success: "text-emerald-200",
   warning: "text-amber-200",
-  muted: "text-white/45",
+  muted: "text-white/60",
 }
 
 export function KpiCard({
@@ -33,11 +33,11 @@ export function KpiCard({
           : "border-white/8 bg-black/20",
       )}
     >
-      <p className="text-[10px] uppercase tracking-[.18em] text-white/25">{label}</p>
+      <p className="text-[10px] uppercase tracking-[.18em] text-white/60">{label}</p>
       <p className={cn("mt-4 text-lg font-semibold leading-tight", toneClass[tone])}>
         {value}
       </p>
-      <p className="mt-1 text-xs leading-5 text-white/40">{caption}</p>
+      <p className="mt-1 text-xs leading-5 text-white/60">{caption}</p>
     </div>
   )
 }

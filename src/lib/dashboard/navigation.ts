@@ -95,8 +95,8 @@ export const dashboardNavigation: DashboardNavGroup[] = [
       {
         label: "Jarvis",
         href: "/dashboard/jarvis",
-        enabled: false,
-        match: () => false,
+        enabled: true,
+        match: (pathname) => startsWithSegment(pathname, "/dashboard/jarvis"),
       },
     ],
   },
@@ -150,6 +150,11 @@ export function dashboardTrail(pathname: string): DashboardCrumb[] {
         }
       }
     }
+    return trail
+  }
+
+  if (startsWithSegment(pathname, "/dashboard/jarvis")) {
+    trail.push({ label: "Jarvis" })
     return trail
   }
 

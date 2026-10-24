@@ -25,7 +25,7 @@ export function ErrorPanel({
           <span className="h-2 w-2 rounded-full bg-red-300" />
         </span>
         <h1 className="mt-5 text-xl font-semibold text-white">{title}</h1>
-        <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-white/45">
+        <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-white/60">
           {message}
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">

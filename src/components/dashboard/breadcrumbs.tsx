@@ -19,7 +19,7 @@ export function Breadcrumbs() {
               {index > 0 ? (
                 <span
                   aria-hidden="true"
-                  className="text-white/20"
+                  className="text-white/60"
                 >
                   /
                 </span>
@@ -29,7 +29,7 @@ export function Breadcrumbs() {
                   aria-current={isLast ? "page" : undefined}
                   className={cn(
                     "truncate",
-                    isLast ? "font-medium text-white" : "text-white/45",
+                    isLast ? "font-medium text-white" : "text-white/60",
                   )}
                 >
                   {crumb.label}
@@ -37,7 +37,7 @@ export function Breadcrumbs() {
               ) : (
                 <Link
                   href={crumb.href}
-                  className="truncate text-white/45 transition-colors hover:text-white"
+                  className="truncate text-white/60 transition-colors hover:text-white"
                 >
                   {crumb.label}
                 </Link>

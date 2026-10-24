@@ -19,7 +19,7 @@ export function InviteMemberForm({ organizationId }: { organizationId: string })
           autoComplete="email"
           required
           disabled={isPending}
-          className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-cyan-300/40"
+          className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/60 focus:border-cyan-300/40"
         />
         <select
           name="role"

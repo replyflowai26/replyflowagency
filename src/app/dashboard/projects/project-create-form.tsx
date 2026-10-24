@@ -21,10 +21,10 @@ export function ProjectCreateForm({ clients }: { clients: { id: string; name: st
         setError(err instanceof Error ? err.message : "Unable to create project.")
       }
     }} className="grid gap-3 sm:grid-cols-[1fr_1.4fr_auto] sm:items-end">
-      <label className="text-xs text-white/45">Name<input name="name" required maxLength={160} placeholder="Lead generation system" className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/20 focus:border-cyan-300/30" /></label>
-      <label className="text-xs text-white/45">Description<input name="description" maxLength={500} placeholder="What this project is responsible for" className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/20 focus:border-cyan-300/30" /></label>
+      <label className="text-xs text-white/60">Name<input name="name" required maxLength={160} placeholder="Lead generation system" className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/60 focus:border-cyan-300/30" /></label>
+      <label className="text-xs text-white/60">Description<input name="description" maxLength={500} placeholder="What this project is responsible for" className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/60 focus:border-cyan-300/30" /></label>
       <SubmitButton />
-      <label className="text-xs text-white/45 sm:col-span-3">Linked client (optional)
+      <label className="text-xs text-white/60 sm:col-span-3">Linked client (optional)
         <select name="clientId" defaultValue="" className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-300/30">
           <option value="">No client linked</option>
           {clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}

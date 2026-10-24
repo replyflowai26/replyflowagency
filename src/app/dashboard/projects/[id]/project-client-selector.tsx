@@ -31,7 +31,7 @@ export function ProjectClientSelector({ projectId, clients, currentClientId }: {
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <label className="text-xs text-white/45">Linked client
+      <label className="text-xs text-white/60">Linked client
         <select
           value={value}
           onChange={(event) => handleChange(event.target.value)}
@@ -42,7 +42,7 @@ export function ProjectClientSelector({ projectId, clients, currentClientId }: {
           {clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}
         </select>
       </label>
-      {pending ? <span className="text-xs text-white/40">Saving…</span> : null}
+      {pending ? <span className="text-xs text-white/60">Saving…</span> : null}
       {status ? <span className={`text-xs ${status.type === "error" ? "text-rose-300" : "text-emerald-300"}`}>{status.text}</span> : null}
     </div>
   )

@@ -21,19 +21,19 @@ function BrandMark({ organizationName }: { organizationName: string | null }) {
       className="flex items-center gap-2.5 rounded-xl px-2 py-1.5"
       aria-label="ReplyFlow AI dashboard"
     >
-      <span className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-300/20 bg-cyan-300/10">
-        <span className="pulse-dot h-2 w-2 rounded-full bg-cyan-300" />
+      <span className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-blue-300/20 bg-blue-300/10">
+        <span className="pulse-dot h-2 w-2 rounded-full bg-blue-300" />
       </span>
       <div className="leading-tight">
         <p className="text-sm font-semibold tracking-tight text-white">
           ReplyFlow AI
         </p>
         {organizationName ? (
-          <p className="max-w-[9.5rem] truncate text-[10px] uppercase tracking-[.16em] text-white/30">
+          <p className="max-w-[9.5rem] truncate text-[10px] uppercase tracking-[.16em] text-white/60">
             {organizationName}
           </p>
         ) : (
-          <p className="text-[10px] uppercase tracking-[.16em] text-white/30">
+          <p className="text-[10px] uppercase tracking-[.16em] text-white/60">
             Company OS
           </p>
         )}
@@ -51,7 +51,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
       <div className="flex flex-col gap-6 px-3 py-4">
         {dashboardNavigation.map((group, groupIndex) => (
           <div key={`${groupId}-${groupIndex}`}>
-            <p className="px-3 pb-2 text-[10px] font-medium uppercase tracking-[.18em] text-white/25">
+            <p className="px-3 pb-2 text-[10px] font-medium uppercase tracking-[.18em] text-white/60">
               {group.label}
             </p>
             <ul className="flex flex-col gap-0.5">
@@ -85,14 +85,14 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                       className={cn(
                         "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
                         active
-                          ? "bg-cyan-300/10 text-cyan-100"
+                          ? "bg-blue-300/10 text-blue-100"
                           : "text-white/55 hover:bg-white/[.04] hover:text-white",
                       )}
                     >
                       <span
                         className={cn(
                           "h-1.5 w-1.5 rounded-full",
-                          active ? "bg-cyan-300" : "bg-white/25",
+                          active ? "bg-blue-300" : "bg-white/25",
                         )}
                         aria-hidden="true"
                       />
@@ -120,7 +120,7 @@ export function Sidebar({
       </div>
       <NavList onNavigate={onNavigate} />
       <div className="border-t border-white/10 px-3 py-3">
-        <p className="px-2 text-[10px] uppercase tracking-[.18em] text-white/25">
+        <p className="px-2 text-[10px] uppercase tracking-[.18em] text-white/60">
           ReplyFlow OS
         </p>
       </div>

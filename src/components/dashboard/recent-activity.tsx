@@ -19,11 +19,11 @@ export function RecentActivity({ items }: { items: RecentActivityItem[] }) {
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#090c12]/80">
         <div className="border-b border-white/8 px-5 py-4">
           <h2 className="font-semibold">Recent activity</h2>
-          <p className="mt-1 text-xs text-white/35">Latest client operations in this workspace</p>
+          <p className="mt-1 text-xs text-white/60">Latest client operations in this workspace</p>
         </div>
         <div className="px-5 py-12 text-center">
           <p className="text-sm text-white/50">No recent activity yet.</p>
-          <p className="mt-1 text-xs text-white/25">Client actions and workflow associations will appear here.</p>
+          <p className="mt-1 text-xs text-white/60">Client actions and workflow associations will appear here.</p>
         </div>
       </div>
     )
@@ -34,9 +34,9 @@ export function RecentActivity({ items }: { items: RecentActivityItem[] }) {
       <div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
         <div>
           <h2 className="font-semibold">Recent activity</h2>
-          <p className="mt-1 text-xs text-white/35">Latest client operations in this workspace</p>
+          <p className="mt-1 text-xs text-white/60">Latest client operations in this workspace</p>
         </div>
-        <span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/40">
+        <span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/60">
           {items.length} recent
         </span>
       </div>
@@ -50,9 +50,9 @@ export function RecentActivity({ items }: { items: RecentActivityItem[] }) {
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-white/80">{activity.title}</p>
               {activity.description ? (
-                <p className="mt-1 text-xs leading-5 text-white/40">{activity.description}</p>
+                <p className="mt-1 text-xs leading-5 text-white/60">{activity.description}</p>
               ) : null}
-              <p className="mt-1.5 text-[10px] text-white/25">
+              <p className="mt-1.5 text-[10px] text-white/60">
                 {new Date(activity.createdAt).toLocaleString()}
               </p>
             </div>
