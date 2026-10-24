@@ -1,0 +1,123 @@
+-- ============================================================================
+-- PROPOSAL ONLY — DO NOT APPLY.
+--
+-- This file is intentionally stored under Docs/architecture/ and NOT under
+-- supabase/migrations/, so it is never picked up by the migration tooling and
+-- never applied to any database (local, staging or production).
+--
+-- It sketches how the code-only workflow template library could gain durable
+-- persistence. It follows existing conventions:
+--   * organization_id on every tenant row + RLS via private.is_org_member /
+--     private.has_org_role (see 20260815000000_company_os_foundation.sql).
+--   * set_updated_at / prevent_org_reassignment / prevent_audit_mutation triggers.
+--   * reference-only credentials (never a plaintext secret).
+--   * explicit grants to authenticated; privileged reads remain RLS-gated.
+--
+-- Review, split into numbered migrations, and test tenant isolation with two
+-- organizations before this ever reaches a real environment.
+-- ============================================================================
+
+-- ---------------------------------------------------------------------------
+-- workflow_templates — a reusable automation definition.
+-- organization_id NULL means a built-in ReplyFlow template shipped to everyone;
+-- a non-null value is an organization-owned override/custom template.
+-- The `definition` jsonb matches WorkflowTemplate in src/lib/workflows/types.ts.
+-- ---------------------------------------------------------------------------
+-- create table if not exists public.workflow_templates (
+--   id uuid primary key default gen_random_uuid(),
+--   organization_id uuid references public.organizations(id) on delete cascade,
+--   slug text not null check (slug = lower(slug) and slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'),
+--   name text not null check (char_length(trim(name)) between 2 and 160),
+--   category text not null check (category in
+--     ('lead-capture','follow-up','booking','crm-sync','support-routing','reporting')),
+--   summary text not null,
+--   status text not null default 'draft'
+--     check (status in ('draft','published','deprecated','archived')),
+--   current_version text not null check (current_version ~ '^\d+\.\d+\.\d+$'),
+--   created_by uuid references auth.users(id) on delete set null,
+--   created_at timestamptz not null default now(),
+--   updated_at timestamptz not null default now(),
+--   unique (id, organization_id)
+-- );
+--
+-- -- Built-in templates: slug unique across the NULL-organization set.
+-- create unique index if not exists workflow_templates_builtin_slug_idx
+--   on public.workflow_templates (slug) where organization_id is null;
+-- -- Org templates: slug unique within each organization.
+-- create unique index if not exists workflow_templates_org_slug_idx
+--   on public.workflow_templates (organization_id, slug) where organization_id is not null;
+-- create index if not exists workflow_templates_org_idx
+--   on public.workflow_templates (organization_id);
+
+-- ---------------------------------------------------------------------------
+-- workflow_template_versions — append-only version history for a template.
+-- `definition` is the full immutable snapshot of the template at that version.
+-- UPDATE/DELETE blocked by private.prevent_audit_mutation().
+-- ---------------------------------------------------------------------------
+-- create table if not exists public.workflow_template_versions (
+--   id uuid primary key default gen_random_uuid(),
+--   template_id uuid not null references public.workflow_templates(id) on delete cascade,
+--   version text not null check (version ~ '^\d+\.\d+\.\d+$'),
+--   status text not null default 'draft'
+--     check (status in ('draft','published','deprecated','archived')),
+--   definition jsonb not null default '{}'::jsonb,
+--   changelog text,
+--   created_by uuid references auth.users(id) on delete set null,
+--   created_at timestamptz not null default now(),
+--   unique (template_id, version)
+-- );
+-- create index if not exists workflow_template_versions_template_idx
+--   on public.workflow_template_versions (template_id, created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- workflow_template_client_configs — per-client input overrides.
+-- `values` must never contain secrets; it holds field defaults only. Provider
+-- credentials stay as references in integration_connections.secret_ref.
+-- ---------------------------------------------------------------------------
+-- create table if not exists public.workflow_template_client_configs (
+--   id uuid primary key default gen_random_uuid(),
+--   organization_id uuid not null references public.organizations(id) on delete cascade,
+--   template_id uuid not null references public.workflow_templates(id) on delete cascade,
+--   client_id uuid not null,
+--   values jsonb not null default '{}'::jsonb,
+--   created_by uuid references auth.users(id) on delete set null,
+--   created_at timestamptz not null default now(),
+--   updated_at timestamptz not null default now(),
+--   unique (organization_id, template_id, client_id),
+--   foreign key (client_id, organization_id)
+--     references public.clients(id, organization_id) on delete cascade
+-- );
+
+-- ---------------------------------------------------------------------------
+-- Approval gates: for the minimal foundation, gates are stored inside the
+-- template `definition` jsonb (and validated in code). A normalized
+-- `workflow_template_approval_gates` table is deferred until a UI needs to query
+-- gates across templates; it is intentionally NOT proposed here to avoid a
+-- premature abstraction.
+-- ---------------------------------------------------------------------------
+
+-- ---------------------------------------------------------------------------
+-- RLS + grants (pattern sketch — mirror the existing migration conventions):
+--
+-- alter table public.workflow_templates enable row level security;
+-- create policy workflow_templates_select_member on public.workflow_templates
+--   for select to authenticated
+--   using (organization_id is null
+--          or (select private.is_org_member(organization_id, (select auth.uid()))));
+-- create policy workflow_templates_insert_admin on public.workflow_templates
+--   for insert to authenticated
+--   with check (
+--     organization_id is not null
+--     and created_by = (select auth.uid())
+--     and (select private.has_org_role(organization_id, (select auth.uid()), array['owner','admin']))
+--   );
+-- -- update/delete: owner/admin, org-owned rows only (built-ins are immutable).
+--
+-- grant select on public.workflow_templates to authenticated;
+-- grant select, insert on public.workflow_template_versions to authenticated;
+-- grant select, insert, update on public.workflow_template_client_configs to authenticated;
+--
+-- comments:
+-- comment on table public.workflow_template_client_configs is
+--   'Per-client template input overrides. Never store credentials or secrets here.';
+-- ---------------------------------------------------------------------------

@@ -5,6 +5,7 @@ node_modules
 *.tsbuildinfo
 out
 .env*
+!.env.example
 .local-test-login.json
 .vercel
 *.log
@@ -22,3 +23,12 @@ smoke-*.png
 
 # Local OpenCode agent configuration
 /opencode.json
+
+# Local responsive-QA artifacts (screenshots/snapshots/console captures)
+# from design iteration sessions — evidence only, never for commit
+/qa-*.png
+/qa-*.yml
+/qa-*.txt
+
+# Local design-review screenshots (iteration evidence, never for commit)
+/audit/
