@@ -249,3 +249,29 @@ test("recovery never mutates a run to running from a terminal state", () => {
   const src = readSource("src/lib/automation/recovery-service.ts")
   assert.doesNotMatch(src, /status: "running"/)
 })
+
+test("recovery never terminalizes a run held for human approval", () => {
+  const src = readSource("src/lib/automation/recovery-service.ts")
+  // Excluded from the scan AND re-checked under the terminalize write, so a run
+  // that enters 'pending' between the read and the update is still spared.
+  const guards = src.match(/\.neq\("approval_state", "pending"\)/g) ?? []
+  assert.ok(guards.length >= 2, "expected the approval gate in both the scan and the write")
+  // The terminalize update must confirm a row actually changed before it records
+  // an event, so a lost race cannot append a false "run.failed".
+  assert.match(src, /\.select\("id"\)[\s\S]*?\.maybeSingle\(\)/)
+  assert.match(src, /if \(!updated\)/)
+})
+
+test("workflow run approval_state migration is additive and indexed", () => {
+  const sql = readSource(
+    "supabase/migrations/20261005000000_workflow_run_approval_state.sql",
+  )
+  assert.match(sql, /add column if not exists approval_state/)
+  assert.match(
+    sql,
+    /check \(approval_state in \('none', 'pending', 'approved', 'rejected'\)\)/,
+  )
+  assert.match(sql, /where approval_state = 'pending'/)
+  // Additive only: no destructive DDL or data mutation in a forward migration.
+  assert.doesNotMatch(sql, /drop column|drop table|delete from|truncate/i)
+})
