@@ -38,17 +38,22 @@ function ChartIcon(props: SVGProps<SVGSVGElement>) {
 }
 
 const workflowNodes: WorkflowNode[] = [
-  { title: "Lead", detail: "Captured from any channel", tag: "INPUT", Icon: LeadIcon, dot: "bg-cyan-300", iconTone: "text-cyan-200/90", iconHover: "group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10" },
-  { title: "AI Processing", detail: "Qualify, enrich, score", tag: "LOGIC", Icon: AIIcon, dot: "bg-violet-300", iconTone: "text-violet-200/90", iconHover: "group-hover:border-violet-300/30 group-hover:bg-violet-300/10" },
-  { title: "CRM", detail: "Structured with context", tag: "STATE", Icon: CRMIcon, dot: "bg-sky-300", iconTone: "text-sky-200/90", iconHover: "group-hover:border-sky-300/30 group-hover:bg-sky-300/10" },
-  { title: "WhatsApp / Email", detail: "Personal outreach", tag: "CHANNEL", Icon: MailIcon, dot: "bg-cyan-300", iconTone: "text-cyan-200/90", iconHover: "group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10" },
-  { title: "Follow-up", detail: "Timed for conversion", tag: "SEQUENCE", Icon: ClockIcon, dot: "bg-sky-300", iconTone: "text-sky-200/90", iconHover: "group-hover:border-sky-300/30 group-hover:bg-sky-300/10" },
-  { title: "Reporting", detail: "Pipeline visibility", tag: "OUTPUT", Icon: ChartIcon, dot: "bg-emerald-300", iconTone: "text-emerald-200/90", iconHover: "group-hover:border-emerald-300/30 group-hover:bg-emerald-300/10" },
+  { title: "Lead", detail: "Captured from any channel", tag: "INPUT", Icon: LeadIcon, dot: "bg-blue-600", iconTone: "text-blue-700", iconHover: "group-hover:border-blue-700/30 group-hover:bg-blue-700/10" },
+  { title: "AI Processing", detail: "Qualify, enrich, score", tag: "LOGIC", Icon: AIIcon, dot: "bg-indigo-600", iconTone: "text-indigo-700", iconHover: "group-hover:border-indigo-700/30 group-hover:bg-indigo-700/10" },
+  { title: "CRM", detail: "Structured with context", tag: "STATE", Icon: CRMIcon, dot: "bg-sky-600", iconTone: "text-sky-700", iconHover: "group-hover:border-sky-700/30 group-hover:bg-sky-700/10" },
+  { title: "WhatsApp / Email", detail: "Personal outreach", tag: "CHANNEL", Icon: MailIcon, dot: "bg-blue-600", iconTone: "text-blue-700", iconHover: "group-hover:border-blue-700/30 group-hover:bg-blue-700/10" },
+  { title: "Follow-up", detail: "Timed for conversion", tag: "SEQUENCE", Icon: ClockIcon, dot: "bg-sky-600", iconTone: "text-sky-700", iconHover: "group-hover:border-sky-700/30 group-hover:bg-sky-700/10" },
+  { title: "Reporting", detail: "Pipeline visibility", tag: "OUTPUT", Icon: ChartIcon, dot: "bg-emerald-600", iconTone: "text-emerald-700", iconHover: "group-hover:border-emerald-700/30 group-hover:bg-emerald-700/10" },
 ];
 
 function ChevronRight(props: SVGProps<SVGSVGElement>) {
   return <svg viewBox="0 0 12 12" fill="none" aria-hidden="true" {...props}><path d="m4 2.5 4 3.5-4 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
+
+// Coordinated "where work is now" highlight: the six knots light in sequence,
+// ~1.4s apart on an 8.4s loop, matching the hero's signal rhythm. Decorative
+// only (labels carry meaning) and hidden entirely under reduced motion.
+const nodeRingDelay = ["-8.40s", "-7.08s", "-5.68s", "-4.28s", "-2.88s", "-1.48s"]
 
 function WorkflowStep({ node, index, hasNext }: { node: WorkflowNode; index: number; hasNext: boolean }) {
   const nodeDelay = `${(index * 0.55).toFixed(2)}s`;
@@ -56,9 +61,10 @@ function WorkflowStep({ node, index, hasNext }: { node: WorkflowNode; index: num
 
   return (
     <li className="group flex w-full flex-col items-center xl:w-auto xl:flex-1 xl:flex-row xl:items-stretch xl:self-stretch">
-      <article className="flex h-full w-full max-w-md flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] backdrop-blur-sm transition-[border-color,background-color,box-shadow] duration-300 hover:border-cyan-300/35 hover:bg-white/[0.055] hover:shadow-[0_18px_50px_rgba(34,211,238,0.10)] xl:max-w-none">
+      <article className="plate-tile flex h-full w-full max-w-md flex-col rounded-2xl p-5 text-left transition-[border-color,background-color,box-shadow] duration-300 hover:border-blue-ink/40 hover:shadow-[0_16px_44px_rgba(9,14,26,0.12)] xl:max-w-none">
+        <span className="node-ring" aria-hidden="true" style={{ animationDelay: nodeRingDelay[index] }} />
         <div className="flex items-center justify-between gap-3">
-          <span className="font-mono text-[11px] tracking-[0.18em] text-white/30">
+          <span className="font-mono text-[11px] tracking-[0.18em] text-ink-soft">
             {String(index + 1).padStart(2, "0")} · {node.tag}
           </span>
           <span
@@ -68,20 +74,20 @@ function WorkflowStep({ node, index, hasNext }: { node: WorkflowNode; index: num
           />
         </div>
 
-        <span className={`mt-4 grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] transition-colors duration-300 ${node.iconTone} ${node.iconHover}`}>
+        <span className={`mt-4 grid h-10 w-10 place-items-center rounded-xl border border-line-ink bg-paper transition-colors duration-300 ${node.iconTone} ${node.iconHover}`}>
           <node.Icon className="h-5 w-5" />
         </span>
 
         <div className="mt-4">
-          <h3 className="text-sm font-semibold leading-tight tracking-tight text-white">{node.title}</h3>
-          <p className="mt-1 text-[11px] leading-4 text-white/40">{node.detail}</p>
+          <h3 className="text-sm font-semibold leading-tight tracking-tight text-ink">{node.title}</h3>
+          <p className="mt-1 text-[11px] leading-4 text-ink-muted">{node.detail}</p>
         </div>
 
         <div className="mt-auto pt-4">
-          <div className="relative h-px w-full overflow-hidden bg-white/10" aria-hidden="true">
-            <span className="absolute inset-0 origin-left scale-x-0 bg-cyan-300/70 transition-transform duration-500 ease-out group-hover:scale-x-100" />
+          <div className="relative h-px w-full overflow-hidden bg-line-ink" aria-hidden="true">
+            <span className="absolute inset-0 origin-left scale-x-0 bg-blue-ink transition-transform duration-500 ease-out group-hover:scale-x-100" />
           </div>
-          <p className="mt-2 text-[11px] tracking-[0.16em] text-white/0 transition-colors duration-300 group-hover:text-cyan-200/80">
+          <p className="mt-2 text-[11px] tracking-[0.16em] text-ink-soft transition-colors duration-300 group-hover:text-blue-ink">
             AUTOMATED HANDOFF
           </p>
         </div>
@@ -89,14 +95,14 @@ function WorkflowStep({ node, index, hasNext }: { node: WorkflowNode; index: num
 
       {hasNext && (
         <>
-          <div aria-hidden="true" className="relative flex h-7 w-px flex-col items-center bg-gradient-to-b from-white/15 to-white/25 transition-colors duration-300 group-hover:from-cyan-300/50 group-hover:to-cyan-300/25 md:hidden">
+          <div aria-hidden="true" className="relative flex h-7 w-px flex-col items-center bg-gradient-to-b from-line-ink to-line-ink-strong transition-colors duration-300 group-hover:from-blue-ink/60 group-hover:to-blue-ink/30 md:hidden">
             <span className="workflow-pulse workflow-pulse-v" style={{ animationDelay: connectorDelay }} />
-            <ChevronRight className="absolute -bottom-1 h-2.5 w-2.5 rotate-90 text-white/25 transition-colors duration-300 group-hover:text-cyan-300/80" />
+            <ChevronRight className="absolute -bottom-1 h-2.5 w-2.5 rotate-90 text-ink-soft transition-colors duration-300 group-hover:text-blue-ink" />
           </div>
           <div aria-hidden="true" className="relative hidden w-7 items-center self-center bg-transparent xl:flex">
-            <span className="h-px flex-1 bg-gradient-to-r from-white/15 to-white/25 transition-colors duration-300 group-hover:from-cyan-300/50 group-hover:to-cyan-300/25" />
+            <span className="h-px flex-1 bg-gradient-to-r from-line-ink to-line-ink-strong transition-colors duration-300 group-hover:from-blue-ink/60 group-hover:to-blue-ink/30" />
             <span className="workflow-pulse" style={{ animationDelay: connectorDelay }} />
-            <ChevronRight className="-mr-1 h-2.5 w-2.5 shrink-0 text-white/25 transition-colors duration-300 group-hover:text-cyan-300/80" />
+            <ChevronRight className="-mr-1 h-2.5 w-2.5 shrink-0 text-ink-soft transition-colors duration-300 group-hover:text-blue-ink" />
           </div>
         </>
       )}
@@ -106,16 +112,15 @@ function WorkflowStep({ node, index, hasNext }: { node: WorkflowNode; index: num
 
 export function Workflow() {
   return (
-    <section id="workflow" aria-labelledby="workflow-heading" className="relative overflow-hidden py-24 sm:py-32">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(34,211,238,0.07),transparent_30rem)]" />
+    <section id="workflow" aria-labelledby="workflow-heading" className="chapter-ink relative overflow-hidden py-16 sm:py-24">
       <div className="container relative">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="eyebrow mb-4">HOW THE AUTOMATION RUNS</p>
-            <h2 id="workflow-heading" className="text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <p className="eyebrow-light mb-4">How the automation runs</p>
+            <h2 id="workflow-heading" className="font-display text-4xl font-semibold leading-[1.02] text-white sm:text-5xl lg:text-6xl">
               Every lead moves through <span className="text-gradient">one connected system</span>
             </h2>
-            <p className="mt-6 leading-7 text-white/60 sm:text-lg sm:leading-8">
+            <p className="mt-6 leading-7 text-white/70 sm:text-lg sm:leading-8">
               ReplyFlow links the tools your business already uses and automates the hand-offs between them —
               from first touch to weekly reporting.
             </p>
@@ -123,15 +128,15 @@ export function Workflow() {
         </Reveal>
 
         <Reveal delay={0.12}>
-          <div className="relative mt-14 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.02] px-5 py-8 sm:px-8 sm:py-10 xl:px-10">
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(124,58,237,0.08),transparent_55%)]" />
+          <div className="relative mt-14 overflow-hidden rounded-[2rem] border border-line-ink bg-paper-lift px-5 py-8 shadow-[0_1px_0_rgba(11,14,21,0.04),0_18px_44px_rgba(4,8,18,0.14)] sm:px-8 sm:py-10 xl:px-10">
+            <div aria-hidden="true" className="rule-warm absolute bottom-0 left-16 right-16 opacity-60" />
 
-            <div className="relative mb-7 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
-              <span className="flex items-center gap-2 text-[11px] font-medium tracking-[0.18em] text-white/50">
-                <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-cyan-300" aria-hidden="true" />
+            <div className="relative mb-7 flex flex-wrap items-center justify-between gap-3 border-b border-line-ink pb-4">
+              <span className="flex items-center gap-2 text-[11px] font-medium tracking-[0.18em] text-ink-soft">
+                <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-blue-ink" aria-hidden="true" />
                 AUTOMATION RUNTIME
               </span>
-              <span className="font-mono text-[11px] tracking-[0.18em] text-white/30">01 → 06 · LIVE</span>
+              <span className="font-mono text-[11px] tracking-[0.18em] text-ink-soft">01 → 06 · LIVE</span>
             </div>
 
             <ol className="relative grid list-none grid-cols-1 items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3 xl:flex xl:flex-row xl:items-stretch xl:gap-0">
@@ -140,11 +145,13 @@ export function Workflow() {
               ))}
             </ol>
 
-            <div className="relative mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-white/10 pt-4 text-[11px] tracking-[0.18em] text-white/30">
+            <div className="relative mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-line-ink pt-4 text-[11px] tracking-[0.18em] text-ink-soft">
               <span>NO MANUAL HANDOFFS</span>
-              <span className="hidden h-3 w-px bg-white/10 sm:block" aria-hidden="true" />
+              <span className="hidden h-3 w-px bg-line-ink sm:block" aria-hidden="true" />
               <span>EVERY STEP CONNECTED</span>
-              <span className="hidden h-3 w-px bg-white/10 sm:block" aria-hidden="true" />
+              <span className="hidden h-3 w-px bg-line-ink sm:block" aria-hidden="true" />
+              <span>HUMAN DECISION GATES</span>
+              <span className="hidden h-3 w-px bg-line-ink sm:block" aria-hidden="true" />
               <span>END TO END</span>
             </div>
           </div>

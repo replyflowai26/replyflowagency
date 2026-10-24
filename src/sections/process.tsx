@@ -36,48 +36,48 @@ type StepAccent = {
 
 const accents: Record<Accent, StepAccent> = {
   sky: {
-    node: "border-sky-300/40",
-    nodeOnColor: "rgba(125, 211, 252, 0.85)",
-    nodeOnGlow: "0 0 22px rgba(125, 211, 252, 0.5)",
-    card: "border-sky-300/30 bg-white/[0.05]",
-    cardHover: "border-white/8 bg-white/[0.025] hover:border-sky-300/25 hover:bg-white/[0.04]",
-    num: "text-sky-300",
-    meta: "text-sky-200/70",
-    icon: "border-sky-300/40 bg-sky-300/10 text-sky-200",
-    iconHover: "border-white/10 bg-white/[0.04] text-white/45 group-hover:border-sky-300/30 group-hover:text-sky-200/70",
+    node: "border-sky-600/45",
+    nodeOnColor: "rgb(2, 132, 199)",
+    nodeOnGlow: "0 0 20px rgba(2, 132, 199, 0.35)",
+    card: "border-sky-600/25 bg-paper-lift",
+    cardHover: "border-line-ink bg-paper-lift hover:border-sky-600/35 hover:shadow-[0_14px_40px_rgba(9,14,26,0.10)]",
+    num: "text-sky-700",
+    meta: "text-sky-700/75",
+    icon: "border-sky-600/30 bg-sky-600/10 text-sky-700",
+    iconHover: "border-line-ink bg-paper text-ink-soft group-hover:border-sky-600/30 group-hover:bg-sky-600/10 group-hover:text-sky-700",
   },
   cyan: {
-    node: "border-cyan-300/40",
-    nodeOnColor: "rgba(103, 232, 249, 0.85)",
-    nodeOnGlow: "0 0 22px rgba(103, 232, 249, 0.55)",
-    card: "border-cyan-300/30 bg-white/[0.05]",
-    cardHover: "border-white/8 bg-white/[0.025] hover:border-cyan-300/25 hover:bg-white/[0.04]",
-    num: "text-cyan-300",
-    meta: "text-cyan-200/70",
-    icon: "border-cyan-300/40 bg-cyan-300/10 text-cyan-200",
-    iconHover: "border-white/10 bg-white/[0.04] text-white/45 group-hover:border-cyan-300/30 group-hover:text-cyan-200/70",
+    node: "border-blue-600/45",
+    nodeOnColor: "rgb(37, 99, 235)",
+    nodeOnGlow: "0 0 20px rgba(37, 99, 235, 0.35)",
+    card: "border-blue-600/25 bg-paper-lift",
+    cardHover: "border-line-ink bg-paper-lift hover:border-blue-600/35 hover:shadow-[0_14px_40px_rgba(9,14,26,0.10)]",
+    num: "text-blue-700",
+    meta: "text-blue-700/75",
+    icon: "border-blue-600/30 bg-blue-600/10 text-blue-700",
+    iconHover: "border-line-ink bg-paper text-ink-soft group-hover:border-blue-600/30 group-hover:bg-blue-600/10 group-hover:text-blue-700",
   },
   violet: {
-    node: "border-violet-300/40",
-    nodeOnColor: "rgba(196, 181, 253, 0.85)",
-    nodeOnGlow: "0 0 22px rgba(196, 181, 253, 0.5)",
-    card: "border-violet-300/30 bg-white/[0.05]",
-    cardHover: "border-white/8 bg-white/[0.025] hover:border-violet-300/25 hover:bg-white/[0.04]",
-    num: "text-violet-300",
-    meta: "text-violet-200/70",
-    icon: "border-violet-300/40 bg-violet-300/10 text-violet-200",
-    iconHover: "border-white/10 bg-white/[0.04] text-white/45 group-hover:border-violet-300/30 group-hover:text-violet-200/70",
+    node: "border-indigo-600/45",
+    nodeOnColor: "rgb(79, 70, 229)",
+    nodeOnGlow: "0 0 20px rgba(79, 70, 229, 0.35)",
+    card: "border-indigo-600/25 bg-paper-lift",
+    cardHover: "border-line-ink bg-paper-lift hover:border-indigo-600/35 hover:shadow-[0_14px_40px_rgba(9,14,26,0.10)]",
+    num: "text-indigo-700",
+    meta: "text-indigo-700/75",
+    icon: "border-indigo-600/30 bg-indigo-600/10 text-indigo-700",
+    iconHover: "border-line-ink bg-paper text-ink-soft group-hover:border-indigo-600/30 group-hover:bg-indigo-600/10 group-hover:text-indigo-700",
   },
   emerald: {
-    node: "border-emerald-300/40",
-    nodeOnColor: "rgba(110, 231, 183, 0.85)",
-    nodeOnGlow: "0 0 22px rgba(110, 231, 183, 0.5)",
-    card: "border-emerald-300/30 bg-white/[0.05]",
-    cardHover: "border-white/8 bg-white/[0.025] hover:border-emerald-300/25 hover:bg-white/[0.04]",
-    num: "text-emerald-300",
-    meta: "text-emerald-200/70",
-    icon: "border-emerald-300/40 bg-emerald-300/10 text-emerald-200",
-    iconHover: "border-white/10 bg-white/[0.04] text-white/45 group-hover:border-emerald-300/30 group-hover:text-emerald-200/70",
+    node: "border-emerald-600/45",
+    nodeOnColor: "rgb(5, 150, 105)",
+    nodeOnGlow: "0 0 20px rgba(5, 150, 105, 0.35)",
+    card: "border-emerald-600/25 bg-paper-lift",
+    cardHover: "border-line-ink bg-paper-lift hover:border-emerald-600/35 hover:shadow-[0_14px_40px_rgba(9,14,26,0.10)]",
+    num: "text-emerald-700",
+    meta: "text-emerald-700/75",
+    icon: "border-emerald-600/30 bg-emerald-600/10 text-emerald-700",
+    iconHover: "border-line-ink bg-paper text-ink-soft group-hover:border-emerald-600/30 group-hover:bg-emerald-600/10 group-hover:text-emerald-700",
   },
 }
 
@@ -116,13 +116,13 @@ function ProcessStep({
       whileInView="visible"
       viewport={cardViewport}
       className={[
-        "group relative ml-10 rounded-3xl border p-6 transition-colors duration-300 sm:p-7",
+        "group relative ml-10 rounded-3xl border p-6 shadow-[0_1px_0_rgba(11,14,21,0.04),0_18px_44px_rgba(4,8,18,0.14)] transition-colors duration-300 sm:p-7",
         inView ? a.card : a.cardHover,
       ].join(" ")}
     >
       <motion.div
         aria-hidden="true"
-        className={`absolute -left-[30px] top-8 block h-3 w-3 rounded-full border bg-[#05070b] ${a.node}`}
+        className={`absolute -left-[30px] top-8 block h-3 w-3 rounded-full border-2 bg-paper ${a.node}`}
         animate={reduceMotion ? undefined : { scale: inView ? 1.35 : 1 }}
         transition={{ type: "spring", stiffness: 320, damping: 22 }}
         style={inView ? { boxShadow: a.nodeOnGlow, borderColor: a.nodeOnColor } : undefined}
@@ -131,15 +131,15 @@ function ProcessStep({
         <span
           className={[
             "pt-1 font-mono text-xs tracking-widest transition-colors duration-300",
-            inView ? a.num : "text-white/25",
+            inView ? a.num : "text-ink-soft",
           ].join(" ")}
         >
           {number}
         </span>
         <div className="min-w-0 flex-1">
-          <p className={["font-mono text-[10px] tracking-[0.18em] transition-colors duration-300", inView ? a.meta : "text-white/30"].join(" ")}>{meta}</p>
-          <h3 className="mt-1.5 text-xl font-semibold tracking-tight text-white sm:text-2xl">{title}</h3>
-          <p className="mt-2 text-sm leading-6 text-white/45 sm:text-base sm:leading-7">{description}</p>
+          <p className={["font-mono text-[10px] tracking-[0.18em] transition-colors duration-300", inView ? a.meta : "text-ink-soft"].join(" ")}>{meta}</p>
+          <h3 className="mt-1.5 text-xl font-semibold tracking-tight text-ink sm:text-2xl">{title}</h3>
+          <p className="mt-2 text-sm leading-6 text-ink-muted sm:text-base sm:leading-7">{description}</p>
         </div>
         <span
           className={[
@@ -161,36 +161,32 @@ export function Process() {
   const { scrollYProgress } = useScroll({ target: stepsRef, offset: ["start 0.8", "end 0.45"] })
 
   return (
-    <section id="process" className="relative overflow-hidden border-y border-white/10 bg-white/[0.012] py-28 sm:py-36">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -left-32 top-8 h-80 w-80 rounded-full bg-violet-500/[0.06] blur-[110px]" />
-        <div className="absolute -right-32 top-1/2 h-96 w-96 rounded-full bg-cyan-400/[0.05] blur-[120px]" />
-      </div>
+    <section id="process" className="relative overflow-hidden bg-paper py-16 sm:py-24">
       <div className="container">
-        <div className="grid gap-12 lg:grid-cols-[.7fr_1.3fr]">
+        <div className="grid gap-12 lg:grid-cols-[.7fr_1.3fr] lg:items-start">
           <motion.div
             variants={reduceMotion ? fadeUpInstant : fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={cardViewport}
           >
-            <p className="text-sm font-medium tracking-[0.2em] text-violet-300">HOW WE BUILD IT</p>
-            <h2 className="mt-4 max-w-md text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl">
+            <p className="eyebrow text-blue-ink">How we build it</p>
+            <h2 className="mt-4 max-w-md font-display text-4xl font-semibold leading-tight tracking-[-0.04em] text-ink sm:text-5xl">
               Built like a system, not a collection of hacks.
             </h2>
-            <p className="mt-6 max-w-md text-base leading-7 text-white/45">
+            <p className="mt-6 max-w-md text-base leading-7 text-ink-muted">
               Every automation starts with the business outcome, then gets designed, connected and measured.
             </p>
-            <p className="mt-8 font-mono text-[11px] uppercase leading-5 tracking-[0.18em] text-white/25">
-              Discover <span className="text-white/20">→</span> Architect <span className="text-white/20">→</span> Integrate <span className="text-white/20">→</span> Optimize
+            <p className="mt-8 font-mono text-[11px] uppercase leading-5 tracking-[0.18em] text-ink-soft">
+              Discover <span className="text-ink-soft">→</span> Architect <span className="text-ink-soft">→</span> Integrate <span className="text-ink-soft">→</span> Optimize
             </p>
           </motion.div>
 
           <div ref={stepsRef} className="relative">
-            <div aria-hidden="true" className="absolute bottom-8 left-[16px] top-8 w-px bg-gradient-to-b from-white/12 via-white/8 to-transparent" />
+            <div aria-hidden="true" className="absolute bottom-8 left-[16px] top-8 w-px bg-gradient-to-b from-line-ink via-line-ink to-transparent" />
             <motion.div
               aria-hidden="true"
-              className="absolute bottom-8 left-[16px] top-8 w-px origin-top bg-gradient-to-b from-sky-300/70 via-violet-300/45 to-emerald-300/30"
+              className="absolute bottom-8 left-[16px] top-8 w-px origin-top bg-gradient-to-b from-blue-ink via-ultra-ink to-emerald-600"
               style={{ scaleY: reduceMotion ? 0 : scrollYProgress }}
             />
             <div className="space-y-4">

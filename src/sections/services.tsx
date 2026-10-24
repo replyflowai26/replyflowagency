@@ -53,11 +53,11 @@ const cardConfig: Record<string, CardConfig> = {
     tier: "primary",
     category: "ACQUISITION",
     status: "LIVE",
-    statusTone: "bg-emerald-300",
+    statusTone: "bg-emerald-500",
     visual: "route",
     hue: "cyan",
-    tileTone: "text-cyan-200/90",
-    tileHover: "group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10",
+    tileTone: "text-blue-700",
+    tileHover: "group-hover:border-blue-700/30 group-hover:bg-blue-700/10",
     Icon: LeadIcon,
   },
   "sales-automation": {
@@ -65,11 +65,11 @@ const cardConfig: Record<string, CardConfig> = {
     tier: "primary",
     category: "REVENUE",
     status: "ACTIVE",
-    statusTone: "bg-cyan-300",
+    statusTone: "bg-blue-600",
     visual: "pipeline",
     hue: "sky",
-    tileTone: "text-sky-200/90",
-    tileHover: "group-hover:border-sky-300/30 group-hover:bg-sky-300/10",
+    tileTone: "text-sky-700",
+    tileHover: "group-hover:border-sky-700/30 group-hover:bg-sky-700/10",
     Icon: SalesIcon,
   },
   "customer-support": {
@@ -77,11 +77,11 @@ const cardConfig: Record<string, CardConfig> = {
     tier: "secondary",
     category: "SUCCESS",
     status: "AI-ASSISTED",
-    statusTone: "bg-violet-300",
+    statusTone: "bg-indigo-500",
     visual: "reply",
     hue: "cyan",
-    tileTone: "text-cyan-200/90",
-    tileHover: "group-hover:border-cyan-300/30 group-hover:bg-cyan-300/10",
+    tileTone: "text-blue-700",
+    tileHover: "group-hover:border-blue-700/30 group-hover:bg-blue-700/10",
     Icon: SupportIcon,
   },
   "operations": {
@@ -89,11 +89,11 @@ const cardConfig: Record<string, CardConfig> = {
     tier: "secondary",
     category: "BACK OFFICE",
     status: "AUTOMATED",
-    statusTone: "bg-cyan-300",
+    statusTone: "bg-blue-600",
     visual: "mesh",
     hue: "sky",
-    tileTone: "text-sky-200/90",
-    tileHover: "group-hover:border-sky-300/30 group-hover:bg-sky-300/10",
+    tileTone: "text-sky-700",
+    tileHover: "group-hover:border-sky-700/30 group-hover:bg-sky-700/10",
     Icon: OpsIcon,
   },
   "reporting": {
@@ -101,11 +101,11 @@ const cardConfig: Record<string, CardConfig> = {
     tier: "secondary",
     category: "SIGNALS",
     status: "SYNCED",
-    statusTone: "bg-emerald-300",
+    statusTone: "bg-emerald-500",
     visual: "chart",
     hue: "emerald",
-    tileTone: "text-emerald-200/90",
-    tileHover: "group-hover:border-emerald-300/30 group-hover:bg-emerald-300/10",
+    tileTone: "text-emerald-700",
+    tileHover: "group-hover:border-emerald-700/30 group-hover:bg-emerald-700/10",
     Icon: ReportIcon,
   },
   "custom-ai-systems": {
@@ -113,55 +113,55 @@ const cardConfig: Record<string, CardConfig> = {
     tier: "secondary",
     category: "PLATFORM",
     status: "CONFIGURABLE",
-    statusTone: "bg-violet-300",
+    statusTone: "bg-indigo-500",
     visual: "slots",
     hue: "violet",
-    tileTone: "text-violet-200/90",
-    tileHover: "group-hover:border-violet-300/30 group-hover:bg-violet-300/10",
+    tileTone: "text-indigo-700",
+    tileHover: "group-hover:border-indigo-700/30 group-hover:bg-indigo-700/10",
     Icon: CustomIcon,
   },
 }
 
 const visualTones: Record<Hue, { node: string; bar: string; barHi: string; line: string; edge: string; edge2: string; slot: string; slotFill: string }> = {
   cyan: {
-    node: "group-hover:border-cyan-300/70 group-hover:bg-cyan-300/25",
-    bar: "group-hover:bg-cyan-300/50",
-    barHi: "group-hover:bg-cyan-300/80",
-    line: "group-hover:text-cyan-300/70",
-    edge: "group-hover:border-cyan-300/50",
-    edge2: "group-hover:border-cyan-300/60",
-    slot: "group-hover:border-cyan-300/40",
-    slotFill: "group-hover:bg-cyan-300/25",
+    node: "group-hover:border-blue-600/70 group-hover:bg-blue-600/20",
+    bar: "group-hover:bg-blue-600/50",
+    barHi: "group-hover:bg-blue-600/80",
+    line: "group-hover:text-blue-600/80",
+    edge: "group-hover:border-blue-600/50",
+    edge2: "group-hover:border-blue-600/60",
+    slot: "group-hover:border-blue-600/40",
+    slotFill: "group-hover:bg-blue-600/25",
   },
   sky: {
-    node: "group-hover:border-sky-300/70 group-hover:bg-sky-300/25",
-    bar: "group-hover:bg-sky-300/50",
-    barHi: "group-hover:bg-sky-300/80",
-    line: "group-hover:text-sky-300/70",
-    edge: "group-hover:border-sky-300/50",
-    edge2: "group-hover:border-sky-300/60",
-    slot: "group-hover:border-sky-300/40",
-    slotFill: "group-hover:bg-sky-300/25",
+    node: "group-hover:border-sky-600/70 group-hover:bg-sky-600/20",
+    bar: "group-hover:bg-sky-600/50",
+    barHi: "group-hover:bg-sky-600/80",
+    line: "group-hover:text-sky-600/80",
+    edge: "group-hover:border-sky-600/50",
+    edge2: "group-hover:border-sky-600/60",
+    slot: "group-hover:border-sky-600/40",
+    slotFill: "group-hover:bg-sky-600/25",
   },
   violet: {
-    node: "group-hover:border-violet-300/70 group-hover:bg-violet-300/25",
-    bar: "group-hover:bg-violet-300/50",
-    barHi: "group-hover:bg-violet-300/80",
-    line: "group-hover:text-violet-300/70",
-    edge: "group-hover:border-violet-300/50",
-    edge2: "group-hover:border-violet-300/60",
-    slot: "group-hover:border-violet-300/45",
-    slotFill: "group-hover:bg-violet-300/30",
+    node: "group-hover:border-indigo-600/70 group-hover:bg-indigo-600/20",
+    bar: "group-hover:bg-indigo-600/50",
+    barHi: "group-hover:bg-indigo-600/80",
+    line: "group-hover:text-indigo-600/80",
+    edge: "group-hover:border-indigo-600/50",
+    edge2: "group-hover:border-indigo-600/60",
+    slot: "group-hover:border-indigo-600/45",
+    slotFill: "group-hover:bg-indigo-600/30",
   },
   emerald: {
-    node: "group-hover:border-emerald-300/70 group-hover:bg-emerald-300/25",
-    bar: "group-hover:bg-emerald-300/50",
-    barHi: "group-hover:bg-emerald-300/80",
-    line: "group-hover:text-emerald-300/70",
-    edge: "group-hover:border-emerald-300/50",
-    edge2: "group-hover:border-emerald-300/60",
-    slot: "group-hover:border-emerald-300/40",
-    slotFill: "group-hover:bg-emerald-300/25",
+    node: "group-hover:border-emerald-600/70 group-hover:bg-emerald-600/20",
+    bar: "group-hover:bg-emerald-600/50",
+    barHi: "group-hover:bg-emerald-600/80",
+    line: "group-hover:text-emerald-600/80",
+    edge: "group-hover:border-emerald-600/50",
+    edge2: "group-hover:border-emerald-600/60",
+    slot: "group-hover:border-emerald-600/40",
+    slotFill: "group-hover:bg-emerald-600/25",
   },
 }
 
@@ -170,36 +170,36 @@ function MiniVisual({ kind, hue }: { kind: CardVisual; hue: Hue }) {
   if (kind === "route") {
     return (
       <span className="flex w-24 items-center gap-1.5" aria-hidden="true">
-        <span className={`h-2.5 w-2.5 rounded-[3px] border border-white/25 bg-white/5 transition-colors duration-300 ${t.node}`} />
-        <span className={`h-px flex-1 bg-white/15 transition-colors duration-300 ${t.bar}`} />
-        <span className={`h-2.5 w-2.5 rounded-[3px] border border-white/25 bg-white/5 transition-colors duration-300 delay-100 ${t.node}`} />
-        <span className={`h-px flex-1 bg-white/15 transition-colors duration-300 delay-100 ${t.bar}`} />
-        <span className={`h-2.5 w-2.5 rounded-[3px] border border-white/25 bg-white/5 transition-colors duration-300 delay-200 ${t.node}`} />
+        <span className={`h-2.5 w-2.5 rounded-[3px] border border-ink/20 bg-paper transition-colors duration-300 ${t.node}`} />
+        <span className={`h-px flex-1 bg-ink/15 transition-colors duration-300 ${t.bar}`} />
+        <span className={`h-2.5 w-2.5 rounded-[3px] border border-ink/20 bg-paper transition-colors duration-300 delay-100 ${t.node}`} />
+        <span className={`h-px flex-1 bg-ink/15 transition-colors duration-300 delay-100 ${t.bar}`} />
+        <span className={`h-2.5 w-2.5 rounded-[3px] border border-ink/20 bg-paper transition-colors duration-300 delay-200 ${t.node}`} />
       </span>
     )
   }
   if (kind === "pipeline") {
     return (
       <span className="flex h-5 items-end gap-1.5" aria-hidden="true">
-        <span className={`h-2 w-1.5 rounded-sm bg-white/15 transition-colors duration-300 ${t.bar}`} />
-        <span className={`h-3 w-1.5 rounded-sm bg-white/15 transition-colors duration-300 delay-75 ${t.bar}`} />
-        <span className={`h-4 w-1.5 rounded-sm bg-white/15 transition-colors duration-300 delay-100 ${t.bar}`} />
-        <span className={`h-5 w-1.5 rounded-sm bg-white/15 transition-colors duration-300 delay-150 ${t.barHi}`} />
-        <span className={`h-5 w-1.5 rounded-sm bg-white/25 transition-colors duration-300 delay-200 ${t.barHi}`} />
+        <span className={`h-2 w-1.5 rounded-sm bg-ink/15 transition-colors duration-300 ${t.bar}`} />
+        <span className={`h-3 w-1.5 rounded-sm bg-ink/15 transition-colors duration-300 delay-75 ${t.bar}`} />
+        <span className={`h-4 w-1.5 rounded-sm bg-ink/15 transition-colors duration-300 delay-100 ${t.bar}`} />
+        <span className={`h-5 w-1.5 rounded-sm bg-blue-ink/40 transition-colors duration-300 delay-150 ${t.barHi}`} />
+        <span className={`h-5 w-1.5 rounded-sm bg-ink/20 transition-colors duration-300 delay-200 ${t.barHi}`} />
       </span>
     )
   }
   if (kind === "reply") {
     return (
       <span className="flex h-5 items-end gap-1.5" aria-hidden="true">
-        <span className={`h-4 w-6 rounded-md rounded-br-sm border border-white/25 bg-white/5 transition-colors duration-300 ${t.edge}`} />
-        <span className="h-3.5 w-5 rounded-md rounded-tl-sm border border-white/15 bg-white/[0.03] transition-colors duration-300 delay-100 group-hover:border-violet-300/60" />
+        <span className={`h-4 w-6 rounded-md rounded-br-sm border border-ink/25 bg-paper transition-colors duration-300 ${t.edge}`} />
+        <span className="h-3.5 w-5 rounded-md rounded-tl-sm border border-indigo-600/40 bg-paper transition-colors duration-300 delay-100 group-hover:border-indigo-600/70 group-hover:bg-indigo-600/10" />
       </span>
     )
   }
   if (kind === "mesh") {
     return (
-      <svg viewBox="0 0 64 20" fill="none" className={`h-5 w-24 text-white/25 transition-colors duration-300 ${t.line}`} aria-hidden="true">
+      <svg viewBox="0 0 64 20" fill="none" className={`h-5 w-24 text-ink-soft transition-colors duration-300 ${t.line}`} aria-hidden="true">
         <path d="M10 10h20M34 10h20M32 7.5 10.5 9M32 12.5 53.5 11" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
         <circle cx="7" cy="10" r="3" stroke="currentColor" strokeWidth="1.4" />
         <circle cx="32" cy="6" r="2.6" stroke="currentColor" strokeWidth="1.4" />
@@ -209,7 +209,7 @@ function MiniVisual({ kind, hue }: { kind: CardVisual; hue: Hue }) {
   }
   if (kind === "chart") {
     return (
-      <svg viewBox="0 0 64 20" fill="none" className={`h-5 w-24 text-white/25 transition-colors duration-300 ${t.line}`} aria-hidden="true">
+      <svg viewBox="0 0 64 20" fill="none" className={`h-5 w-24 text-ink-soft transition-colors duration-300 ${t.line}`} aria-hidden="true">
         <path d="M3 16l12-5 10 2 14-7 10 3 12-7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
         <circle cx="61" cy="2" r="2" fill="currentColor" />
       </svg>
@@ -217,10 +217,10 @@ function MiniVisual({ kind, hue }: { kind: CardVisual; hue: Hue }) {
   }
   return (
     <span className="flex items-center gap-1.5" aria-hidden="true">
-      <span className={`h-3.5 w-3.5 rounded-[4px] border border-white/15 bg-white/5 transition-colors duration-300 ${t.slot}`} />
-      <span className="h-3.5 w-3.5 rounded-[4px] border border-violet-300/60 bg-violet-300/15 transition-colors duration-300 group-hover:bg-violet-300/30" />
-      <span className={`h-3.5 w-3.5 rounded-[4px] border border-white/15 bg-white/5 transition-colors duration-300 delay-100 ${t.slot}`} />
-      <span className={`h-3.5 w-3.5 rounded-[4px] border border-white/15 bg-white/5 transition-colors duration-300 delay-200 ${t.slot}`} />
+      <span className={`h-3.5 w-3.5 rounded-[4px] border border-ink/20 bg-paper transition-colors duration-300 ${t.slot}`} />
+      <span className="h-3.5 w-3.5 rounded-[4px] border border-indigo-600/50 bg-indigo-600/15 transition-colors duration-300 group-hover:bg-indigo-600/30" />
+      <span className={`h-3.5 w-3.5 rounded-[4px] border border-ink/20 bg-paper transition-colors duration-300 delay-100 ${t.slot}`} />
+      <span className={`h-3.5 w-3.5 rounded-[4px] border border-ink/20 bg-paper transition-colors duration-300 delay-200 ${t.slot}`} />
     </span>
   )
 }
@@ -233,9 +233,8 @@ export function Services() {
 
   return (
     <>
-      <section id="services" className="services-section relative overflow-hidden py-28 sm:py-36">
-        <div className="services-network absolute inset-0 opacity-40" aria-hidden="true" />
-        <div className="container relative">
+      <section id="services" className="relative overflow-hidden bg-paper py-16 sm:py-24">
+        <div className="container">
           <motion.div
             variants={fadeUpV}
             initial="hidden"
@@ -243,11 +242,11 @@ export function Services() {
             viewport={cardViewport}
             className="max-w-3xl"
           >
-            <p className="text-sm font-medium tracking-[0.2em] text-cyan-300">WHAT WE BUILD</p>
-            <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.04em] text-white sm:text-6xl">
+            <p className="eyebrow text-blue-ink">What we build</p>
+            <h2 className="mt-4 font-display text-4xl font-semibold leading-tight tracking-[-0.04em] text-ink sm:text-5xl lg:text-6xl">
               One automation layer for the work that slows you down.
             </h2>
-            <p className="mt-6 max-w-2xl text-base leading-7 text-white/45 sm:text-lg">
+            <p className="mt-6 max-w-2xl text-base leading-7 text-ink-muted sm:text-lg">
               Modular automation systems we design, build and maintain — connecting your people, data and tools into one reliable operating flow.
             </p>
           </motion.div>
@@ -268,7 +267,7 @@ export function Services() {
                 <div>
                   <h3
                     className={[
-                      "font-semibold tracking-tight text-white",
+                      "font-display font-semibold tracking-tight text-ink",
                       primary ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl",
                     ].join(" ")}
                   >
@@ -276,7 +275,7 @@ export function Services() {
                   </h3>
                   <p
                     className={[
-                      "mt-3 text-base leading-7 text-white/45",
+                      "mt-3 text-base leading-7 text-ink-muted",
                       primary ? "max-w-md" : "max-w-sm",
                       wide ? "sm:max-w-lg" : "",
                     ].join(" ")}
@@ -289,8 +288,8 @@ export function Services() {
               const statusBlock = (
                 <div className="flex items-center gap-3">
                   <MiniVisual kind={cfg.visual} hue={cfg.hue} />
-                  <span className="h-3 w-px bg-white/10" />
-                  <span className="flex items-center gap-1.5 text-[10px] tracking-[0.16em] text-white/35">
+                  <span className="h-3 w-px bg-line-ink" />
+                  <span className="flex items-center gap-1.5 text-[10px] tracking-[0.16em] text-ink-soft">
                     <span className={`h-1.5 w-1.5 rounded-full ${cfg.statusTone}`} />
                     {cfg.status}
                   </span>
@@ -306,28 +305,20 @@ export function Services() {
                   whileHover={reduceMotion ? {} : { y: -5 }}
                   whileTap={reduceMotion ? {} : { scale: 0.99 }}
                   className={[
-                    "group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#080b10]/75 p-6 text-left shadow-2xl shadow-black/10 backdrop-blur-xl transition duration-300 hover:border-cyan-300/25 hover:bg-[#0b1017]/90 hover:shadow-[0_24px_60px_rgba(0,0,0,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300/60 sm:p-7",
+                    "plate-tile group relative overflow-hidden rounded-[1.75rem] p-6 text-left transition-[border-color,box-shadow] duration-300 hover:border-blue-ink/40 hover:shadow-[0_22px_55px_rgba(4,8,18,0.14)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-ink sm:p-7",
                     cfg.area,
                     primary ? "min-h-[15.5rem] sm:min-h-[16.5rem]" : "min-h-[12.5rem]",
                     wide ? "min-h-[11rem]" : "",
                   ].join(" ")}
                 >
-                  <div
-                    aria-hidden="true"
-                    className={[
-                      "pointer-events-none absolute -right-14 -top-14 h-36 w-36 rounded-full blur-3xl transition-opacity duration-300",
-                      primary ? "bg-cyan-300/[0.07] opacity-70 group-hover:opacity-100" : "bg-violet-400/[0.06] opacity-60 group-hover:opacity-100",
-                    ].join(" ")}
-                  />
-
                   <div className="relative flex h-full flex-col">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-3">
-                        <span className="font-mono text-xs tracking-widest text-white/25">{service.number}</span>
-                        <span className="h-3 w-px bg-white/10" />
-                        <span className="font-mono text-[10px] tracking-[0.18em] text-white/30">{cfg.category}</span>
+                        <span className="font-mono text-xs tracking-widest text-ink-soft">{service.number}</span>
+                        <span className="h-3 w-px bg-line-ink" />
+                        <span className="font-mono text-[10px] tracking-[0.18em] text-ink-muted">{cfg.category}</span>
                       </div>
-                      <span className="shrink-0 text-xs tracking-wider text-white/25 transition-colors duration-300 group-hover:text-cyan-300">
+                      <span className="shrink-0 text-xs tracking-wider text-ink-soft transition-colors duration-300 group-hover:text-blue-ink">
                         EXPLORE <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
                       </span>
                     </div>
@@ -335,7 +326,7 @@ export function Services() {
                     {wide ? (
                       <div className="mt-6 flex flex-1 flex-col justify-between gap-6 sm:flex-row sm:items-end">
                         <div className="flex items-start gap-4">
-                          <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.04] transition-all duration-300 group-hover:-translate-y-1 ${cfg.tileTone} ${cfg.tileHover}`}>
+                          <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-line-ink bg-paper transition-all duration-300 group-hover:-translate-y-1 ${cfg.tileTone} ${cfg.tileHover}`}>
                             <cfg.Icon className="h-[18px] w-[18px]" />
                           </span>
                           {textBlock}
@@ -347,7 +338,7 @@ export function Services() {
                         <div className="mt-6 flex-1">
                           <span
                             className={[
-                              "mb-5 grid place-items-center rounded-xl border border-white/10 bg-white/[0.04] transition-all duration-300 group-hover:-translate-y-1",
+                              "mb-5 grid place-items-center rounded-xl border border-line-ink bg-paper transition-all duration-300 group-hover:-translate-y-1",
                               cfg.tileTone,
                               cfg.tileHover,
                               primary ? "h-12 w-12" : "h-10 w-10",

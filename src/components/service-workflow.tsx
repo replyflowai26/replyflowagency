@@ -1,6 +1,6 @@
 ﻿"use client"
 
-import { motion } from "motion/react"
+import { motion, useReducedMotion } from "motion/react"
 import { useEffect, useState } from "react"
 
 type ServiceWorkflowProps = {
@@ -11,9 +11,10 @@ export function ServiceWorkflow({
   steps,
 }: ServiceWorkflowProps) {
   const [activeStep, setActiveStep] = useState(0)
+  const reduceMotion = useReducedMotion()
 
   useEffect(() => {
-    if (steps.length <= 1) return
+    if (reduceMotion || steps.length <= 1) return
 
     const interval = window.setInterval(() => {
       setActiveStep((current) =>
@@ -22,13 +23,13 @@ export function ServiceWorkflow({
     }, 1800)
 
     return () => window.clearInterval(interval)
-  }, [steps.length])
+  }, [steps.length, reduceMotion])
 
   return (
     <div className="mt-10">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/35">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/60">
             Live workflow
           </p>
 
@@ -38,19 +39,13 @@ export function ServiceWorkflow({
         </div>
 
         <div className="flex items-center gap-2">
-          <motion.span
-            className="h-2 w-2 rounded-full bg-cyan-300"
-            animate={{
-              opacity: [0.35, 1, 0.35],
-              scale: [0.8, 1.15, 0.8],
-            }}
-            transition={{
-              duration: 1.4,
-              repeat: Infinity,
-            }}
+<motion.span
+            className="h-2 w-2 rounded-full bg-blue-300"
+            animate={reduceMotion ? undefined : { opacity: [0.35, 1, 0.35], scale: [0.8, 1.15, 0.8] }}
+            transition={{ duration: 1.4, repeat: Infinity }}
           />
 
-          <span className="text-xs font-medium text-cyan-300/80">
+          <span className="text-xs font-medium text-blue-300/80">
             PROCESSING
           </span>
         </div>
@@ -83,13 +78,13 @@ export function ServiceWorkflow({
                       className={[
                         "relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border text-xs font-semibold transition-colors",
                         isActive
-                          ? "border-cyan-300/60 bg-cyan-300/10 text-cyan-300"
+                          ? "border-blue-300/60 bg-blue-300/10 text-blue-300"
                           : isComplete
                             ? "border-white/20 bg-white/10 text-white"
-                            : "border-white/10 bg-[#101217] text-white/35",
+                            : "border-white/10 bg-[#101217] text-white/60",
                       ].join(" ")}
-                      animate={
-                        isActive
+animate={
+                        isActive && !reduceMotion
                           ? {
                               scale: [1, 1.08, 1],
                               boxShadow: [
@@ -98,7 +93,7 @@ export function ServiceWorkflow({
                                 "0 0 0 rgba(34,211,238,0)",
                               ],
                             }
-                          : {}
+                          : { scale: 1 }
                       }
                       transition={{
                         duration: 1.4,
@@ -116,13 +111,13 @@ export function ServiceWorkflow({
                             ? "text-white"
                             : isComplete
                               ? "text-white/70"
-                              : "text-white/40",
+                              : "text-white/60",
                         ].join(" ")}
                       >
                         {step}
                       </p>
 
-                      <p className="mt-1 text-xs text-white/25">
+                      <p className="mt-1 text-xs text-white/60">
                         {isActive
                           ? "AI processing"
                           : isComplete
@@ -142,7 +137,7 @@ export function ServiceWorkflow({
 
           <div className="mt-8 h-1 overflow-hidden rounded-full bg-white/5">
             <motion.div
-              className="h-full rounded-full bg-cyan-300"
+              className="h-full rounded-full bg-blue-300"
               animate={{
                 width: `${((activeStep + 1) / steps.length) * 100}%`,
               }}

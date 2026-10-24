@@ -158,7 +158,7 @@ export function ServiceExperience() {
                 }`}
               >
                 <div className="flex items-start justify-between gap-6">
-                  <span className="text-sm text-white/35">
+                  <span className="text-sm text-white/60">
                     {service.number}
                   </span>
 

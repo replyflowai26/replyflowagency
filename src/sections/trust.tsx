@@ -1,4 +1,29 @@
 import { Reveal } from "@/components/reveal";
 
 const capabilities = ["AI Automation", "Lead Generation", "Sales Automation", "Customer Support", "Operations", "Reporting", "Custom AI Systems"];
-export function Trust() { return <section aria-label="Capabilities" className="border-y border-white/10 bg-white/[.018]"><div className="container py-7"><Reveal><p className="mb-4 text-[.67rem] font-semibold uppercase tracking-[.16em] text-white/40">Connected systems, not isolated tools</p><div className="flex flex-wrap gap-x-6 gap-y-3">{capabilities.map((capability) => <span key={capability} className="text-sm font-medium text-white/70 sm:text-base">{capability}</span>)}</div></Reveal></div></section>; }
+
+export function Trust() {
+  const marquee = [...capabilities, ...capabilities];
+  return (
+    <section aria-label="Capabilities" className="chapter-ink relative overflow-hidden border-y border-white/10">
+      <div aria-hidden="true" className="rule-warm absolute bottom-0 left-8 right-8" />
+      <div className="container relative py-8">
+        <Reveal>
+          <p className="mb-5 text-center font-mono text-[.67rem] font-semibold uppercase tracking-[.2em] text-white/55">
+            Connected systems, not isolated tools
+          </p>
+          <div className="relative flex w-full overflow-hidden" aria-hidden="true">
+            <div className="marquee-line flex min-w-max items-center gap-8">
+              {marquee.map((capability, index) => (
+                <span key={`${capability}-${index}`} className="flex items-center gap-8 whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.22em] text-white/60">
+                  <span className="h-1 w-1 rounded-full bg-[--blue]" />
+                  {capability}
+                </span>
+              ))}
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}

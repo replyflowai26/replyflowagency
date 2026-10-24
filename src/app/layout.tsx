@@ -5,5 +5,6 @@ import type {Metadata} from "next"; import "./globals.css";
 // A statically prerendered page has no request headers and would ship inline
 // scripts without the nonce, which the strict script-src policy would block.
 export const dynamic="force-dynamic";
-export const metadata:Metadata={title:"ReplyFlow AI | AI Automation",description:"AI automation systems for sales, support, lead generation and operations.",metadataBase:new URL("https://replyflowagency.com")};
+export const metadata:Metadata={title:"ReplyFlow AI | AI Automation",description:"AI automation systems for sales, support, lead generation and operations.",metadataBase:new URL("https://replyflowagency.com"),openGraph:{title:"ReplyFlow AI | AI Automation",description:"AI automation systems for sales, support, lead generation and operations.",url:"https://replyflowagency.com",siteName:"ReplyFlow AI",type:"website"},twitter:{card:"summary"}};
+export const viewport={themeColor:"#04060a"};
 export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="en"><body>{children}</body></html>}
