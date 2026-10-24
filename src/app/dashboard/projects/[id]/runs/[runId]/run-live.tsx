@@ -11,9 +11,13 @@ import type {
   RunEventView,
   RunStatus,
 } from "@/lib/dashboard/run-observability-core"
-import { isTerminalStatus } from "@/lib/dashboard/run-observability-core"
+import {
+  canResolveApproval,
+  isTerminalStatus,
+} from "@/lib/dashboard/run-observability-core"
 import { RunStatusBadge } from "@/components/dashboard/run-status-badge"
 import { RunEventTimeline } from "@/components/dashboard/run-event-timeline"
+import { LeadApprovalControls } from "./lead-approval-controls"
 
 const POLL_INTERVAL_MS = 6000
 
@@ -22,11 +26,13 @@ export function RunLive({
   initialRun,
   initialEvents,
   canRun,
+  canApprove,
 }: {
   projectId: string
   initialRun: RunDetailView
   initialEvents: RunEventView[]
   canRun: boolean
+  canApprove: boolean
 }) {
   const router = useRouter()
   const [run, setRun] = useState<RunDetailView>(initialRun)
@@ -77,12 +83,25 @@ export function RunLive({
     }
   }
 
+  async function refreshSnapshot() {
+    try {
+      const snapshot = await getRunSnapshotAction({ runId: run.id })
+      if (!snapshot?.detail) return
+      setRun(snapshot.detail)
+      if (snapshot.events?.length) setEvents(snapshot.events)
+    } catch {
+      // Keep the last known state; the poll effect will reconcile shortly.
+    }
+  }
+
+  const approvalPending = canResolveApproval(run.status, run.approvalState)
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <RunStatusBadge status={run.status} />
-          <LiveHint status={run.status} />
+          <LiveHint status={run.status} approvalPending={approvalPending} />
         </div>
         {canRun ? (
           <button
@@ -96,6 +115,15 @@ export function RunLive({
         ) : null}
       </div>
 
+      {approvalPending ? (
+        <LeadApprovalControls
+          projectId={projectId}
+          runId={run.id}
+          canApprove={canApprove}
+          onResolved={refreshSnapshot}
+        />
+      ) : null}
+
       {retryError ? (
         <p className="rounded-lg border border-red-300/20 bg-red-300/[.04] px-3 py-2 text-xs text-red-200">
           {retryError}
@@ -105,7 +133,7 @@ export function RunLive({
       <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#090c12]/80">
         <div className="border-b border-white/8 px-5 py-4">
           <h2 className="font-semibold">Execution timeline</h2>
-          <p className="mt-1 text-xs text-white/35">
+          <p className="mt-1 text-xs text-white/60">
             {events.length} event{events.length === 1 ? "" : "s"} recorded
           </p>
         </div>
@@ -117,18 +145,30 @@ export function RunLive({
   )
 }
 
-function LiveHint({ status }: { status: RunStatus }) {
+function LiveHint({
+  status,
+  approvalPending,
+}: {
+  status: RunStatus
+  approvalPending: boolean
+}) {
   switch (status) {
     case "queued":
-      return <p className="text-xs text-white/45">Queued — dispatching shortly.</p>
+      return (
+        <p className="text-xs text-white/60">
+          {approvalPending
+            ? "Held for approval — no outreach sent yet."
+            : "Queued — dispatching shortly."}
+        </p>
+      )
     case "running":
-      return <p className="text-xs text-white/45">Running — live updates enabled.</p>
+      return <p className="text-xs text-white/60">Running — live updates enabled.</p>
     case "succeeded":
       return <p className="text-xs text-emerald-200/70">Completed successfully.</p>
     case "failed":
       return <p className="text-xs text-red-200/70">This execution did not complete.</p>
     case "cancelled":
-      return <p className="text-xs text-white/40">This execution was cancelled.</p>
+      return <p className="text-xs text-white/60">This execution was cancelled.</p>
     default:
       return null
   }

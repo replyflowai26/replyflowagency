@@ -24,7 +24,7 @@ export function RunEventTimeline({ events }: { events: RunEventView[] }) {
     return (
       <div className="px-5 py-12 text-center">
         <p className="text-sm text-white/50">No execution events recorded yet.</p>
-        <p className="mt-1 text-xs text-white/25">
+        <p className="mt-1 text-xs text-white/60">
           Events will appear as the run progresses.
         </p>
       </div>
@@ -41,9 +41,9 @@ export function RunEventTimeline({ events }: { events: RunEventView[] }) {
           />
           <p className="text-sm font-medium text-white/85">{event.label}</p>
           {event.description ? (
-            <p className="mt-0.5 text-xs leading-5 text-white/45">{event.description}</p>
+            <p className="mt-0.5 text-xs leading-5 text-white/60">{event.description}</p>
           ) : null}
-          <p className="mt-1 text-[10px] uppercase tracking-wider text-white/25">
+          <p className="mt-1 text-[10px] uppercase tracking-wider text-white/60">
             <LocalEventTime iso={event.createdAt} />
           </p>
         </li>

@@ -5,6 +5,7 @@ import { logError } from "@/lib/telemetry/logging"
 import {
   mapRunEvent,
   humanizeRunId,
+  normalizeApprovalState,
   type RunDetailView,
   type RunEventView,
 } from "./run-observability-core"
@@ -17,6 +18,7 @@ type RunRow = {
   project_id: string
   client_id: string | null
   status: string
+  approval_state?: string | null
   trigger_type: string
   requested_by: string | null
   external_execution_id: string | null
@@ -30,17 +32,50 @@ type RunRow = {
   automation_projects: { id: string; name: string } | { id: string; name: string }[] | null
 }
 
+// Columns selected for the run detail read. `approval_state` is added by the
+// approval migration (20261005000000). It is read through an explicit
+// two-attempt path below so an environment where that migration has not yet been
+// applied keeps rendering the run page instead of failing the whole query.
+const RUN_BASE_COLUMNS =
+  "id, workflow_id, project_id, client_id, status, trigger_type, requested_by, external_execution_id, error_code, error_message, started_at, completed_at, created_at, updated_at"
+
+const RUN_EMBEDS =
+  "workflows!workflow_runs_workflow_id_organization_id_fkey(id, name), automation_projects!workflow_runs_project_id_organization_id_fkey(id, name)"
+
+function isMissingApprovalColumn(
+  error: { code?: string; message?: string } | null,
+): boolean {
+  if (!error) return false
+  const code = typeof error.code === "string" ? error.code : ""
+  const message = typeof error.message === "string" ? error.message : ""
+  return code === "42703" || message.includes("approval_state")
+}
+
 async function loadRunRow(
   supabase: Awaited<ReturnType<typeof createClient>>,
   organizationId: string,
   runId: string,
 ) {
-  const { data: raw, error: runError } = await supabase
-    .from("workflow_runs")
-    .select("id, workflow_id, project_id, client_id, status, trigger_type, requested_by, external_execution_id, error_code, error_message, started_at, completed_at, created_at, updated_at, workflows!workflow_runs_workflow_id_organization_id_fkey(id, name), automation_projects!workflow_runs_project_id_organization_id_fkey(id, name)")
-    .eq("id", runId)
-    .eq("organization_id", organizationId)
-    .maybeSingle()
+  const runQuery = (columns: string) =>
+    supabase
+      .from("workflow_runs")
+      .select(columns)
+      .eq("id", runId)
+      .eq("organization_id", organizationId)
+      .maybeSingle()
+
+  let { data: raw, error: runError } = await runQuery(
+    `${RUN_BASE_COLUMNS}, approval_state, ${RUN_EMBEDS}`,
+  )
+
+  if (runError && isMissingApprovalColumn(runError)) {
+    // The approval migration is not applied in this environment. Fall back to
+    // the pre-approval read so the run page keeps working (approval state
+    // defaults to "none").
+    const fallback = await runQuery(`${RUN_BASE_COLUMNS}, ${RUN_EMBEDS}`)
+    raw = fallback.data
+    runError = fallback.error
+  }
 
   if (runError) {
     logError("run.detail", "Unable to load workflow run", runError, {
@@ -99,6 +134,7 @@ export async function getRunDetail(
     clientId: client?.id ?? null,
     clientName: client?.name ?? null,
     status: run.status as RunDetailView["status"],
+    approvalState: normalizeApprovalState(run.approval_state),
     triggerType: run.trigger_type,
     requestedBy: run.requested_by,
     externalExecutionId: run.external_execution_id,

@@ -6,8 +6,10 @@ import {
   getRunEvents,
   isTerminalStatus,
   triggerTypeLabel,
+  APPROVAL_STATE_META,
 } from "@/lib/dashboard/run-observability"
 import { RunLive } from "./run-live"
+import { isApproverRole } from "@/lib/automation/lead-approval-core"
 import { logError } from "@/lib/telemetry/logging"
 
 type Props = { params: Promise<{ id: string; runId: string }> }
@@ -33,7 +35,7 @@ function sanitizeErrorMessage(message: string | null): string | null {
 function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[9rem_1fr] gap-3 py-3 sm:grid-cols-[12rem_1fr]">
-      <dt className="text-xs uppercase tracking-wider text-white/25">{label}</dt>
+      <dt className="text-xs uppercase tracking-wider text-white/60">{label}</dt>
       <dd className="min-w-0 text-sm text-white/70">{value}</dd>
     </div>
   )
@@ -83,6 +85,7 @@ export default async function RunDetailPage({ params }: Props) {
   const events = await getRunEvents(workspace.organization_id, runId, 50)
   const status = detail.status
   const canRun = ["owner", "admin", "member"].includes(workspace.role)
+  const canApprove = isApproverRole(workspace.role)
   const terminal = isTerminalStatus(status)
   const errorMessage = sanitizeErrorMessage(detail.errorMessage)
 
@@ -92,9 +95,9 @@ export default async function RunDetailPage({ params }: Props) {
         <p className="text-xs uppercase tracking-[.2em] text-cyan-300">Run observability</p>
         <div className="mt-1 flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-semibold">{detail.workflowName}</h1>
-          <span className="text-sm text-white/30">{detail.shortId}</span>
+          <span className="text-sm text-white/60">{detail.shortId}</span>
         </div>
-        <p className="mt-1 text-xs text-white/35">
+        <p className="mt-1 text-xs text-white/60">
           <Link href={`/dashboard/projects/${detail.projectId}`} className="text-cyan-200 transition hover:text-cyan-100">
             {detail.projectName}
           </Link>
@@ -114,30 +117,31 @@ export default async function RunDetailPage({ params }: Props) {
         initialRun={detail}
         initialEvents={events}
         canRun={!!terminal && canRun}
+        canApprove={canApprove}
       />
 
       {status === "failed" ? (
         <section className="mt-6 rounded-2xl border border-red-300/20 bg-red-300/[.04] p-5 backdrop-blur-xl">
           <h2 className="font-semibold text-red-100">Execution failed</h2>
-          <p className="mt-1 text-xs text-white/40">The run did not complete successfully.</p>
+          <p className="mt-1 text-xs text-white/60">The run did not complete successfully.</p>
           <div className="mt-4 grid gap-3 text-sm">
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-white/30">Timestamp</p>
+              <p className="text-[10px] uppercase tracking-wider text-white/60">Timestamp</p>
               <p className="mt-1 text-white/70">{formatDateTime(detail.completedAt ?? detail.startedAt)}</p>
             </div>
             {detail.errorCode ? (
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-white/30">Error code</p>
+                <p className="text-[10px] uppercase tracking-wider text-white/60">Error code</p>
                 <p className="mt-1 text-white/70">{detail.errorCode}</p>
               </div>
             ) : null}
             {errorMessage ? (
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-white/30">Details</p>
+                <p className="text-[10px] uppercase tracking-wider text-white/60">Details</p>
                 <p className="mt-1 whitespace-pre-wrap break-words text-red-100">{errorMessage}</p>
               </div>
             ) : (
-              <p className="text-white/40">No additional error details were recorded.</p>
+              <p className="text-white/60">No additional error details were recorded.</p>
             )}
           </div>
         </section>
@@ -146,13 +150,14 @@ export default async function RunDetailPage({ params }: Props) {
       <section className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-[#090c12]/80">
         <div className="border-b border-white/8 px-5 py-4">
           <h2 className="font-semibold">Run details</h2>
-          <p className="mt-1 text-xs text-white/35">Execution context for this run.</p>
+          <p className="mt-1 text-xs text-white/60">Execution context for this run.</p>
         </div>
         <dl className="divide-y divide-white/6 px-5 py-2">
           <MetaRow label="Workflow" value={detail.workflowName} />
           <MetaRow label="Project" value={detail.projectName} />
           <MetaRow label="Client" value={detail.clientName ?? "—"} />
           <MetaRow label="Status" value={status.charAt(0).toUpperCase() + status.slice(1)} />
+          <MetaRow label="Approval" value={APPROVAL_STATE_META[detail.approvalState].label} />
           <MetaRow label="Trigger" value={triggerTypeLabel(detail.triggerType)} />
           <MetaRow
             label="External execution"

@@ -22,6 +22,37 @@ export const RUN_STATUS_META: Record<RunStatus, RunStatusMeta> = {
   cancelled: { label: "Cancelled", tone: "muted", dot: "bg-white/30" },
 }
 
+/**
+ * Human-in-the-loop approval gate for a run. This is a separate axis from
+ * `status` (see migration 20261005000000_workflow_run_approval_state.sql): a hot
+ * lead awaiting approval is `queued` with approvalState = "pending".
+ */
+export const APPROVAL_STATES = ["none", "pending", "approved", "rejected"] as const
+
+export type ApprovalState = (typeof APPROVAL_STATES)[number]
+
+export const APPROVAL_STATE_META: Record<ApprovalState, { label: string }> = {
+  none: { label: "No approval required" },
+  pending: { label: "Awaiting approval" },
+  approved: { label: "Approved" },
+  rejected: { label: "Rejected" },
+}
+
+export function normalizeApprovalState(value: unknown): ApprovalState {
+  return typeof value === "string" &&
+    (APPROVAL_STATES as readonly string[]).includes(value)
+    ? (value as ApprovalState)
+    : "none"
+}
+
+/** A run is resolvable only while it is queued and its gate is still pending. */
+export function canResolveApproval(
+  status: RunStatus,
+  approvalState: ApprovalState,
+): boolean {
+  return status === "queued" && approvalState === "pending"
+}
+
 export type RunEventView = {
   eventType: string
   label: string
@@ -71,6 +102,18 @@ const RUN_EVENT_LABELS: Record<string, { label: string; description?: string }> 
       label: "Recovery failed",
       description: "An automated recovery attempt did not complete.",
     },
+    "run.approval_required": {
+      label: "Approval required",
+      description: "The run is held until a human approves the next step.",
+    },
+    "run.approval_granted": {
+      label: "Approval granted",
+      description: "A human approver authorised the consequential step.",
+    },
+    "run.integration_delivered": {
+      label: "Delivered",
+      description: "The run was delivered to the external integration.",
+    },
   }
 
 export function mapRunEvent(eventType: string): { label: string; description: string } {
@@ -117,6 +160,7 @@ export type RunDetailView = {
   clientId: string | null
   clientName: string | null
   status: RunStatus
+  approvalState: ApprovalState
   triggerType: string
   requestedBy: string | null
   externalExecutionId: string | null

@@ -102,7 +102,13 @@ async function terminalize(
   if (!canTransitionRun(run.status, status)) return false
 
   const now = new Date().toISOString()
-  const { error } = await supabase
+  // RETURNING id lets us confirm the guarded UPDATE actually changed a row. A
+  // zero-row result means the run left `queued`/`running` (or entered
+  // 'pending') between the scan and this write: another actor settled it, or it
+  // is now held for approval. In that case we must NOT append an audit event,
+  // because no transition happened here. Recording one anyway would be a false
+  // "run.failed" describing a state change that never occurred.
+  const { data: updated, error } = await supabase
     .from("workflow_runs")
     .update({
       status,
@@ -115,12 +121,23 @@ async function terminalize(
     .eq("id", run.id)
     .eq("organization_id", run.organization_id)
     .in("status", ["queued", "running"])
+    // Re-check the gate under the write as well, so a run that entered
+    // 'pending' after the scan was read can never be terminalized by this sweep
+    // (the scan filter and this guard must agree).
+    .neq("approval_state", "pending")
+    .select("id")
+    .maybeSingle()
 
   if (error) {
     logError("automation.recovery", "Unable to terminalize run", error, {
       organization_id: run.organization_id,
       run_id: run.id,
     })
+    return false
+  }
+
+  if (!updated) {
+    // Lost the race or the run is now held for approval; write nothing.
     return false
   }
 
@@ -154,6 +171,12 @@ export async function recoverStaleWorkflowRuns(
     )
     .in("status", ["queued", "running"])
     .lt("last_activity_at", staleBefore)
+    // A run held for human approval is deliberately non-terminal. An unresolved
+    // approval is a legitimate waiting state, not a stuck run, so it must never
+    // be terminalized by a timeout sweep. (See migration
+    // 20261005000000_workflow_run_approval_state.sql and the matching guard in
+    // terminalize below.)
+    .neq("approval_state", "pending")
     // Exhausted-attempt runs are still candidates so the hard timeouts below can
     // terminalize them instead of leaving them stuck forever.
     .order("last_activity_at", { ascending: true })
