@@ -1,0 +1,53 @@
+name: CI
+
+# Free-tier GitHub Actions foundation: code-quality checks only.
+# No secrets are used, no artifacts are published, nothing is deployed.
+
+on:
+  push:
+    branches:
+      - feat/client-management-foundation
+  pull_request:
+    branches:
+      - feat/client-management-foundation
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: test, types, lint, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.15.0"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Bridge test suite
+        run: npm run test:bridge
+
+      - name: Lint
+        run: npm run lint
+
+      - name: TypeScript (full project)
+        run: npx tsc --noEmit -p tsconfig.json
+
+      # Verified locally (task 52): `next build` succeeds with NO env files
+      # present, so this build requires no credentials and claims no
+      # integration testing.
+      - name: Production build
+        run: npm run build
